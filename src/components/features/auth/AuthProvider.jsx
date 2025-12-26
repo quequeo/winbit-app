@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from 'firebase/auth';
+import {
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
 import { auth, googleProvider } from '../../../services/firebase';
 
 import { AuthContext } from './AuthContext';
