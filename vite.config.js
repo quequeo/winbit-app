@@ -3,7 +3,10 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  base: '/app/',
+  // Important: the app is served under the /app route (BrowserRouter basename),
+  // but static assets are served from the Hosting root (/assets, /manifest, /sw.js).
+  // Keeping Vite base as "/" avoids generating /app/assets/* URLs that would 404 and be rewritten to HTML.
+  base: '/',
   plugins: [
     react(),
     VitePWA({

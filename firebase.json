@@ -2,6 +2,7 @@
   "hosting": {
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "predeploy": ["npm run build"],
     "redirects": [
       { "source": "/", "destination": "/app/", "type": 302 },
       { "source": "/login", "destination": "/app/login", "type": 302 },
