@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   signOut,
@@ -30,20 +29,12 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      return { user: result.user, error: null };
+      // Use redirect flow to avoid popup-related COOP warnings (window.close/window.closed)
+      // and improve reliability in PWAs/in-app browsers.
+      await signInWithRedirect(auth, googleProvider);
+      return { user: null, error: null };
     } catch (error) {
       const code = error?.code;
-
-      // Common in production/PWA/in-app browsers: popups blocked → redirect flow works.
-      if (
-        code === 'auth/popup-blocked' ||
-        code === 'auth/popup-closed-by-user' ||
-        code === 'auth/cancelled-popup-request'
-      ) {
-        await signInWithRedirect(auth, googleProvider);
-        return { user: null, error: null };
-      }
 
       return {
         user: null,
