@@ -1,0 +1,484 @@
+# Winbit App - Project Rules
+
+## Project Overview
+
+Winbit App is a Progressive Web Application (PWA) for investors to view their portfolio balance, performance, and request withdrawals or deposits. The client (Chueco) manages investor data in a Google Sheet.
+
+## Tech Stack
+
+- **Frontend:** React 18+ with Vite
+- **Styling:** Tailwind CSS
+- **Authentication:** Firebase Auth (Google Sign-In)
+- **Data Source:** Google Sheets API (read-only)
+- **Hosting:** Firebase Hosting
+- **PWA:** vite-plugin-pwa (manifest + minimal service worker)
+- **Email notifications:** EmailJS or Firebase Functions (TBD)
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── ui/              # Reusable UI components (Button, Input, Card, Spinner, etc.)
+│   ├── layout/          # Layout components (Header, Footer, ProtectedRoute)
+│   └── features/        # Feature-specific components
+│       ├── auth/        # Login, Logout, AuthProvider
+│       ├── dashboard/   # Balance, Performance, Chart
+│       ├── wallets/     # WalletList, WalletCard, CopyButton
+│       └── requests/    # WithdrawalForm, DepositForm
+├── hooks/               # Custom hooks (useAuth, useInvestorData, useSheets)
+├── services/            # API services (firebase.js, sheets.js, email.js)
+├── utils/               # Helper functions (formatCurrency, formatDate, etc.)
+├── pages/               # Page components (LoginPage, DashboardPage, WalletsPage, RequestsPage)
+├── styles/              # Global styles if needed
+├── App.jsx
+├── main.jsx
+└── index.css
+```
+
+## Features to Implement
+
+### 1. Authentication (Firebase Auth)
+- Google Sign-In only (no email/password)
+- Persist session across browser refreshes
+- Protected routes: redirect to /login if not authenticated
+- Logout functionality
+- Auth context provider wrapping the entire app
+- User email must match a row in the Google Sheet to access data
+
+### 2. Google Sheets Integration
+- Read-only access to Chueco's Google Sheet
+- Sheet structure (assumed):
+  - Column A: Investor email
+  - Column B: Investor name
+  - Column C: Current balance (USD)
+  - Column D: Total invested (USD)
+  - Column E: Returns/Performance (%)
+  - Additional columns: Historical data for chart
+- Fetch only the row matching the logged-in user's email
+- Handle errors gracefully (sheet unavailable, user not found)
+- No caching required (always fetch fresh data)
+
+### 3. Investor Dashboard
+- Display current portfolio balance in USD
+- Display total returns/performance as percentage
+- Display performance chart (line chart showing balance over time)
+- Use a charting library: Recharts or Chart.js
+- Show last updated timestamp
+- Loading state while fetching data
+- Error state if data unavailable
+
+### 4. Wallets Section
+- Display list of wallet addresses by network (e.g., Bitcoin, Ethereum, USDT TRC20, etc.)
+- Each wallet shows:
+  - Network name
+  - Network icon (optional)
+  - Wallet address (truncated)
+  - Copy button
+- Copy to clipboard functionality with visual feedback ("Copied!")
+- Wallet data can be hardcoded initially or fetched from a config
+
+### 5. Withdrawal Requests
+- Form to request withdrawal
+- Fields:
+  - Amount (number input)
+  - Type: Partial or Full withdrawal (radio or select)
+  - If partial: amount input enabled
+  - If full: amount input disabled, shows full balance
+- Validation:
+  - Amount must be positive
+  - Amount cannot exceed current balance
+  - Required fields
+- On submit: send email to Chueco with request details
+- Success/error feedback to user
+- Include user email, name, amount, and timestamp in email
+
+### 6. Deposit Requests
+- Form to notify a deposit
+- Fields:
+  - Amount deposited (number input)
+  - Network used (select from available networks)
+  - Transaction hash or ID (optional text input)
+  - Upload proof/receipt (optional, image file)
+- On submit: send email to Chueco with deposit details
+- Success/error feedback to user
+- Include user email, name, amount, network, and timestamp in email
+
+### 7. PWA Configuration
+- manifest.json with:
+  - App name: "Winbit"
+  - Short name: "Winbit"
+  - Theme color: TBD (from Chueco's brand)
+  - Background color: TBD
+  - Display: standalone
+  - Icons: 192x192 and 512x512 PNG
+- Service worker: network-first strategy (no offline caching of data)
+- "Add to Home Screen" prompt handling
+
+### 8. UI/UX Requirements
+- Mobile-first responsive design
+- Clean, professional look
+- Colors and typography from Chueco's brand (pending)
+- Loading spinners for async operations
+- Toast notifications for success/error messages
+- Empty states with helpful messages
+- Consistent spacing and alignment
+- Accessible: proper labels, focus states, color contrast
+
+### 9. Error Handling
+- Global error boundary
+- Graceful handling of:
+  - Network errors
+  - Google Sheets API errors
+  - Authentication errors
+  - User not found in sheet
+- User-friendly error messages (no technical jargon)
+- Retry options where appropriate
+
+### 10. Security Considerations
+- Firebase security rules (only authenticated users)
+- Google Sheets API key restrictions
+- No sensitive data in client-side code
+- Environment variables for API keys (.env file)
+- HTTPS only (Firebase Hosting default)
+
+## Coding Standards
+
+### General Principles
+- Prefer minimal, simplified solutions with as few code changes as possible
+- Make incremental changes rather than large refactors
+- Keep solutions focused and targeted
+- Use functional components with hooks
+- Use ES6+ syntax (arrow functions, destructuring, template literals)
+- Prefer named exports over default exports
+- Keep components small and focused (single responsibility)
+- Extract reusable logic into custom hooks
+- Use meaningful variable and function names
+
+### JavaScript/JSX Style
+- **ALWAYS use 2 spaces for indentation, NEVER tabs**
+- Use single quotes for strings (`'hello'` not `"hello"`)
+- Always use semicolons at end of statements
+- Max line length: 100 characters (break long lines)
+- Use trailing commas in multiline arrays/objects
+- Use `const` by default, `let` when reassignment needed, never `var`
+- Use template literals for string interpolation (`${variable}`)
+- Use optional chaining (`?.`) and nullish coalescing (`??`)
+- Destructure props and state when possible
+- One component per file
+
+### File Naming
+- Components: PascalCase (e.g., `DashboardPage.jsx`, `WalletCard.jsx`)
+- Hooks: camelCase with "use" prefix (e.g., `useAuth.js`, `useInvestorData.js`)
+- Utils/services: camelCase (e.g., `firebase.js`, `formatCurrency.js`)
+- Styles: match component name (e.g., `DashboardPage.css` if needed)
+- Constants: SCREAMING_SNAKE_CASE for true constants (e.g., `API_BASE_URL`)
+
+### React Patterns
+- Use React Context for global state (auth, user data)
+- Use useState for local component state
+- Use useEffect for side effects (data fetching, subscriptions)
+- Use useCallback and useMemo only when necessary (avoid premature optimization)
+- Prop drilling is okay for 2-3 levels; use context beyond that
+
+### Tailwind CSS
+- Use utility classes directly in JSX
+- Extract repeated patterns into @apply in CSS or component variants
+- Follow mobile-first approach (default styles for mobile, sm:, md:, lg: for larger screens)
+- Use Tailwind's color palette or extend with brand colors in tailwind.config.js
+- Avoid inline styles unless absolutely necessary
+
+### State Management
+- Auth state: React Context + Firebase onAuthStateChanged
+- Investor data: fetch on demand, store in local state or context
+- Form state: controlled components with useState or react-hook-form
+- No Redux needed for this project size
+
+### API Calls
+- Create service modules (services/sheets.js, services/email.js)
+- Use async/await syntax
+- Always handle loading and error states
+- Return consistent response format: { data, error }
+
+### Code Examples
+
+**Component structure:**
+```jsx
+import { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { Button } from '../components/ui/Button';
+
+export const DashboardPage = () => {
+  const { user } = useAuth();
+  const [balance, setBalance] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await getInvestorData(user.email);
+        if (error) throw error;
+        setBalance(data.balance);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [user.email]);
+
+  if (loading) return <Spinner />;
+  if (error) return <ErrorMessage message={error} />;
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <p>Balance: ${balance}</p>
+    </div>
+  );
+};
+```
+
+**Custom hook:**
+```jsx
+import { useState, useEffect } from 'react';
+
+export const useInvestorData = (email) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // fetch logic here
+  }, [email]);
+
+  return { data, loading, error, refetch };
+};
+```
+
+**Service module:**
+```jsx
+// services/sheets.js
+const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEETS_ID;
+const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY;
+
+export const getInvestorData = async (email) => {
+  try {
+    const response = await fetch(`...`);
+    const data = await response.json();
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+};
+```
+
+## Environment Variables
+
+```
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_GOOGLE_SHEETS_API_KEY=
+VITE_GOOGLE_SHEETS_ID=
+VITE_EMAILJS_SERVICE_ID=
+VITE_EMAILJS_TEMPLATE_ID=
+VITE_EMAILJS_PUBLIC_KEY=
+```
+
+## Brand Assets (Confirmed)
+
+- **Brand name:** Winbit
+- **Primary color:** #58b098 (green)
+- **Secondary color:** #ffffff (white)
+- **Accent color:** #e5ebc3 (light yellow, for subtle highlights)
+- **Typography:** Montserrat (Google Fonts)
+
+## Business Rules
+
+### Portfolio Updates
+- Balance updates once per day
+
+### Processing Hours
+- Requests from 6pm to 8am → processed between 8-10am
+- Requests from 10am to 6pm → processed at 6pm
+- Show these hours clearly in withdrawal/deposit forms
+
+### Investor Data
+- Historical data available from investor's signup date
+- Each investor sees only their own data
+
+## Brand Assets (Confirmed)
+
+- **Brand name:** Winbit
+- **Primary color:** #58b098 (green)
+- **Secondary color:** #ffffff (white)
+- **Accent color:** #e5ebc3 (light yellow, for subtle highlights)
+- **Typography:** Montserrat (Google Fonts)
+
+## Business Rules
+
+### Portfolio Updates
+- Balance updates once per day
+
+### Processing Hours
+- Requests from 6pm to 8am → processed between 8-10am
+- Requests from 10am to 6pm → processed at 6pm
+- Show these hours clearly in withdrawal/deposit forms
+
+### Investor Data
+- Historical data available from investor's signup date
+- Each investor sees only their own data
+
+
+## Git Workflow
+
+### Branches
+- Main branch: `main` (production)
+- Feature branches: `feature/issue-number-short-description` (e.g., `feature/5-investor-dashboard`)
+- Bugfix branches: `fix/issue-number-short-description` (e.g., `fix/12-login-redirect`)
+
+### Commit Messages
+- **Single line only, no body**
+- Use imperative mood (e.g., "Add feature X", not "Added feature X")
+- Keep under 50 characters
+- Capitalize the first letter
+- Do not end with a period
+- Link to issues when closing: `Add login page, closes #3`
+
+### Good Commit Examples
+```
+Add Google authentication flow
+Fix wallet copy button on mobile
+Add loading spinner to dashboard, closes #5
+Refactor useAuth hook
+Update README with setup instructions
+```
+
+### Bad Commit Examples
+```
+fixed stuff          # Not descriptive, past tense
+Added the login.     # Past tense, ends with period
+WIP                  # Not meaningful
+Update files         # Too vague
+Add feature          # Multi-line (has body)
+
+Implement Firebase Auth with Google Sign-In...
+```
+
+### Pull Requests
+- One feature/fix per PR
+- Reference the issue number in PR description
+- Keep PRs small and focused (easier to review)
+
+## Testing Requirements
+
+### Coverage Target
+- **Minimum 97% code coverage required**
+- Run coverage report before every PR
+- Do not merge code that drops coverage below 97%
+
+### Testing Stack
+- **Test Runner:** Vitest (fast, Vite-native)
+- **Component Testing:** React Testing Library
+- **Coverage:** Vitest with c8/istanbul
+
+### What to Test
+
+**Components:**
+- Renders correctly with default props
+- Renders correctly with different prop combinations
+- User interactions (clicks, inputs, form submissions)
+- Loading states
+- Error states
+- Empty states
+- Conditional rendering
+
+**Hooks:**
+- Return values
+- State changes
+- Side effects
+- Error handling
+
+**Services:**
+- API calls (mock fetch/firebase)
+- Success responses
+- Error responses
+- Edge cases
+
+**Utils:**
+- All functions with various inputs
+- Edge cases (null, undefined, empty)
+- Error cases
+
+### Test File Naming
+- Place tests next to source files
+- Name: `ComponentName.test.jsx` or `functionName.test.js`
+- Example: `DashboardPage.test.jsx`, `formatCurrency.test.js`
+
+### Test Structure
+```jsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { WalletCard } from './WalletCard';
+
+describe('WalletCard', () => {
+  it('renders wallet address', () => {
+    render(<WalletCard network="Bitcoin" address="1A2b3C..." />);
+    expect(screen.getByText('Bitcoin')).toBeInTheDocument();
+  });
+
+  it('copies address to clipboard on button click', async () => {
+    const mockClipboard = vi.fn();
+    navigator.clipboard = { writeText: mockClipboard };
+    
+    render(<WalletCard network="Bitcoin" address="1A2b3C..." />);
+    fireEvent.click(screen.getByRole('button', { name: /copy/i }));
+    
+    expect(mockClipboard).toHaveBeenCalledWith('1A2b3C...');
+  });
+});
+```
+
+### Running Tests
+```bash
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test file
+npm run test -- WalletCard.test.jsx
+```
+
+### CI/CD
+- Tests must pass before merge
+- Coverage report generated on every PR
+- Block merge if coverage < 97%
+
+## Assets Needed from Client (Chueco)
+
+- [ ] Logo (SVG or PNG, high resolution)
+- [ ] Brand colors (primary, secondary, background, text)
+- [ ] Typography preferences (or we choose)
+- [ ] Google Sheet access (viewer permission)
+- [ ] List of wallet addresses by network
+- [ ] Email address for notifications
+
+## Notes
+
+- Target users: ~25 investors initially, growing
+- All data comes from Google Sheets (single source of truth)
+- No backend needed; all client-side
+- Keep it simple for V1; can add features later
+- Processing hours: 8am-6pm (deposits/withdrawals outside this window processed next day at 6pm)
