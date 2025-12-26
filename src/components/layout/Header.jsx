@@ -40,9 +40,7 @@ export const Header = () => {
 
           {user && (
             <div className="flex items-center gap-4">
-              <span className="hidden sm:block text-sm text-gray-600">
-                {user.email}
-              </span>
+              <span className="hidden sm:block text-sm text-gray-600">{user.email}</span>
               <Button onClick={logout} variant="outline" className="text-sm py-2">
                 Logout
               </Button>
@@ -73,4 +71,3 @@ export const Header = () => {
     </header>
   );
 };
-

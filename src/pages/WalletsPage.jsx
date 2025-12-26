@@ -13,8 +13,8 @@ export const WalletsPage = () => {
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-800">
-          <span className="font-semibold">Important:</span> Always verify the network 
-          before sending funds. Sending to the wrong network may result in loss of funds.
+          <span className="font-semibold">Important:</span> Always verify the network before sending
+          funds. Sending to the wrong network may result in loss of funds.
         </p>
       </div>
 
@@ -22,4 +22,3 @@ export const WalletsPage = () => {
     </div>
   );
 };
-

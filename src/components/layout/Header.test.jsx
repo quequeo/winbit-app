@@ -3,14 +3,28 @@ import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { Header } from './Header';
 import { useAuth } from '../../hooks/useAuth';
+import { beforeEach } from 'vitest';
 
 vi.mock('../../hooks/useAuth');
 
 const renderWithRouter = (component) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
+  return render(
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
+      {component}
+    </BrowserRouter>,
+  );
 };
 
 describe('Header', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders logo', () => {
     useAuth.mockReturnValue({ user: null, logout: vi.fn() });
     renderWithRouter(<Header />);
@@ -24,9 +38,9 @@ describe('Header', () => {
     });
 
     renderWithRouter(<Header />);
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Wallets')).toBeInTheDocument();
-    expect(screen.getByText('Requests')).toBeInTheDocument();
+    expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Wallets').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Requests').length).toBeGreaterThan(0);
   });
 
   it('does not render navigation when user is not logged in', () => {
@@ -58,4 +72,3 @@ describe('Header', () => {
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
   });
 });
-

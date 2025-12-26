@@ -31,4 +31,3 @@ describe('ErrorMessage', () => {
     expect(screen.queryByText('Try Again')).not.toBeInTheDocument();
   });
 });
-

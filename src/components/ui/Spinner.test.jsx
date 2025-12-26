@@ -32,4 +32,3 @@ describe('Spinner', () => {
     expect(wrapper).toHaveClass('custom-class');
   });
 });
-

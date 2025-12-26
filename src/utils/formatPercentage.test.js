@@ -26,4 +26,3 @@ describe('formatPercentage', () => {
     expect(formatPercentage(-5.789)).toBe('-5.79%');
   });
 });
-

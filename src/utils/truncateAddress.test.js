@@ -27,4 +27,3 @@ describe('truncateAddress', () => {
     expect(truncateAddress('')).toBe('');
   });
 });
-

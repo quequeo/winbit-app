@@ -1,4 +1,12 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 import { Card } from '../../ui/Card';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
@@ -19,17 +27,13 @@ export const PerformanceChart = ({ data }) => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="date" 
-              stroke="#888"
-              style={{ fontSize: '12px' }}
-            />
-            <YAxis 
+            <XAxis dataKey="date" stroke="#888" style={{ fontSize: '12px' }} />
+            <YAxis
               stroke="#888"
               style={{ fontSize: '12px' }}
               tickFormatter={(value) => `$${value.toLocaleString()}`}
             />
-            <Tooltip 
+            <Tooltip
               formatter={(value) => formatCurrency(value)}
               contentStyle={{
                 backgroundColor: 'white',
@@ -37,10 +41,10 @@ export const PerformanceChart = ({ data }) => {
                 borderRadius: '8px',
               }}
             />
-            <Line 
-              type="monotone" 
-              dataKey="balance" 
-              stroke="#58b098" 
+            <Line
+              type="monotone"
+              dataKey="balance"
+              stroke="#58b098"
               strokeWidth={2}
               dot={{ fill: '#58b098', r: 4 }}
               activeDot={{ r: 6 }}
@@ -51,4 +55,3 @@ export const PerformanceChart = ({ data }) => {
     </Card>
   );
 };
-

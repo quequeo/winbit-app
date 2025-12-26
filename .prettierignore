@@ -1,0 +1,11 @@
+# Ignore build + coverage artifacts
+dist
+coverage
+.firebase
+node_modules
+
+# Don't reformat lockfiles/docs automatically
+package-lock.json
+README.md
+
+

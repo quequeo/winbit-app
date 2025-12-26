@@ -1,18 +1,42 @@
 import '@testing-library/jest-dom';
-import { expect, afterEach, vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 afterEach(() => {
   cleanup();
 });
 
-global.navigator.clipboard = {
+// Silence React Router v6 -> v7 future-flag warnings in test output.
+// (They don't affect behavior; we opt into the flags in app runtime already.)
+const originalWarn = console.warn;
+const originalError = console.error;
+
+const shouldIgnoreReactRouterFutureWarning = (args) => {
+  const first = args?.[0];
+  return typeof first === 'string' && first.includes('React Router Future Flag Warning');
+};
+
+console.warn = (...args) => {
+  if (shouldIgnoreReactRouterFutureWarning(args)) {
+    return;
+  }
+  originalWarn(...args);
+};
+
+console.error = (...args) => {
+  if (shouldIgnoreReactRouterFutureWarning(args)) {
+    return;
+  }
+  originalError(...args);
+};
+
+globalThis.navigator.clipboard = {
   writeText: vi.fn(() => Promise.resolve()),
 };
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -23,4 +47,3 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
-

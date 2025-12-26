@@ -148,6 +148,7 @@ src/
 - Prefer minimal, simplified solutions with as few code changes as possible
 - Make incremental changes rather than large refactors
 - Keep solutions focused and targeted
+- Do not add new `.md` files with instructions/documentation unless explicitly requested by the user or developer instructions
 - Use functional components with hooks
 - Use ES6+ syntax (arrow functions, destructuring, template literals)
 - Prefer named exports over default exports

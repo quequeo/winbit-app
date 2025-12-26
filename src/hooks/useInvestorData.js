@@ -16,11 +16,11 @@ export const useInvestorData = (email) => {
       setLoading(true);
       setError(null);
       const result = await getInvestorData(email);
-      
+
       if (result.error) {
         throw new Error(result.error);
       }
-      
+
       setData(result.data);
     } catch (err) {
       setError(err.message);
@@ -36,4 +36,3 @@ export const useInvestorData = (email) => {
 
   return { data, loading, error, refetch: fetchData };
 };
-

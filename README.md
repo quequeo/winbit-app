@@ -69,8 +69,8 @@ VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key
 
 Your Google Sheet should have the following structure:
 
-| Column A | Column B | Column C | Column D | Column E | Column F+ |
-|----------|----------|----------|----------|----------|-----------|
+| Column A | Column B | Column C | Column D | Column E | Column F+       |
+| -------- | -------- | -------- | -------- | -------- | --------------- |
 | Email    | Name     | Balance  | Invested | Returns% | Historical Data |
 
 - **Column A:** Investor email (must match Google Sign-In email)
@@ -134,21 +134,25 @@ npm run test:coverage
 ### Firebase Hosting
 
 1. Install Firebase CLI:
+
 ```bash
 npm install -g firebase-tools
 ```
 
 2. Login to Firebase:
+
 ```bash
 firebase login
 ```
 
 3. Initialize Firebase (if not done):
+
 ```bash
 firebase init
 ```
 
 Select:
+
 - Hosting
 - Use existing project
 - Public directory: `dist`
@@ -156,6 +160,7 @@ Select:
 - GitHub actions: No
 
 4. Build and deploy:
+
 ```bash
 npm run build
 firebase deploy
@@ -186,14 +191,17 @@ src/
 ## Business Rules
 
 ### Portfolio Updates
+
 - Balance updates once per day
 - Historical data available from investor's signup date
 
 ### Processing Hours
+
 - **Requests from 6pm to 8am** → Processed between 8-10am
 - **Requests from 10am to 6pm** → Processed at 6pm
 
 ### Security
+
 - Only authenticated users with Google Sign-In
 - User email must exist in Google Sheet
 - Firebase security rules enforce authentication
@@ -217,15 +225,18 @@ Users can install Winbit as a native app:
 ## Troubleshooting
 
 ### User not found error
+
 - Ensure user's email exists in Column A of Google Sheet
 - Check that email matches exactly (case-sensitive)
 
 ### Google Sheets API errors
+
 - Verify API key is correct and not restricted
 - Check that Sheets API is enabled in Google Cloud Console
 - Ensure sheet is shared with "Anyone with the link can view"
 
 ### Email notifications not working
+
 - Verify EmailJS credentials are correct
 - Check EmailJS service is active
 - Confirm email templates are published
@@ -237,4 +248,3 @@ For issues or questions, contact: jaimegarciamendez@gmail.com
 ## License
 
 Private - All rights reserved © 2024 Winbit
-

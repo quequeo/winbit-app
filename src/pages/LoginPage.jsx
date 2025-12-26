@@ -28,11 +28,21 @@ export const LoginPage = () => {
   const handleLogin = async () => {
     setLoggingIn(true);
     setError(null);
-    
+
     const result = await loginWithGoogle();
-    
+
     if (result.error) {
-      setError('Failed to sign in. Please try again.');
+      const code = result.error?.code;
+
+      // User-friendly defaults + keep the real code visible for debugging Firebase deploy issues.
+      let message = 'Failed to sign in. Please try again.';
+      if (code === 'auth/unauthorized-domain') {
+        message = 'This domain is not authorized for sign-in.';
+      } else if (code === 'auth/operation-not-allowed') {
+        message = 'Google sign-in is disabled for this project.';
+      }
+
+      setError(code ? `${message} (${code})` : message);
       setLoggingIn(false);
     }
   };
@@ -82,20 +92,17 @@ export const LoginPage = () => {
           </Button>
 
           {error && (
-            <div className="p-4 bg-red-50 text-red-800 rounded-lg text-sm text-center">
-              {error}
-            </div>
+            <div className="p-4 bg-red-50 text-red-800 rounded-lg text-sm text-center">{error}</div>
           )}
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            By signing in, you agree to access your portfolio data securely.
-            Only registered investors can access the platform.
+            By signing in, you agree to access your portfolio data securely. Only registered
+            investors can access the platform.
           </p>
         </div>
       </div>
     </div>
   );
 };
-

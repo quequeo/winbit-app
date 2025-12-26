@@ -25,4 +25,3 @@ describe('formatCurrency', () => {
     expect(formatCurrency(0.01)).toBe('$0.01');
   });
 });
-

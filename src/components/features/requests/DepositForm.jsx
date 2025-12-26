@@ -31,12 +31,12 @@ export const DepositForm = ({ userName, userEmail }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
       setMessage({ type: 'error', text: 'Please enter a valid amount' });
       return;
     }
-    
+
     if (!formData.network) {
       setMessage({ type: 'error', text: 'Please select a network' });
       return;
@@ -56,15 +56,15 @@ export const DepositForm = ({ userName, userEmail }) => {
     setLoading(false);
 
     if (result.success) {
-      setMessage({ 
-        type: 'success', 
-        text: 'Deposit notification sent successfully! Your balance will be updated soon.' 
+      setMessage({
+        type: 'success',
+        text: 'Deposit notification sent successfully! Your balance will be updated soon.',
       });
       setFormData({ amount: '', network: '', transactionHash: '' });
     } else {
-      setMessage({ 
-        type: 'error', 
-        text: result.error || 'Failed to send notification. Please try again.' 
+      setMessage({
+        type: 'error',
+        text: result.error || 'Failed to send notification. Please try again.',
       });
     }
   };
@@ -115,22 +115,19 @@ export const DepositForm = ({ userName, userEmail }) => {
         </div>
 
         {message && (
-          <div className={`p-4 rounded-lg ${
-            message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-          }`}>
+          <div
+            className={`p-4 rounded-lg ${
+              message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            }`}
+          >
             {message.text}
           </div>
         )}
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Sending...' : 'Submit Notification'}
         </Button>
       </form>
     </Card>
   );
 };
-

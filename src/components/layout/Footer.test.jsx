@@ -14,4 +14,3 @@ describe('Footer', () => {
     expect(screen.getByText(/processed between 8am-6pm/)).toBeInTheDocument();
   });
 });
-

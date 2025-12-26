@@ -24,4 +24,3 @@ describe('formatDate', () => {
     expect(formatDate('')).toBe('');
   });
 });
-

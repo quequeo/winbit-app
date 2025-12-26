@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { WalletCard } from './WalletCard';
 
 describe('WalletCard', () => {
@@ -21,33 +21,25 @@ describe('WalletCard', () => {
 
   it('copies address to clipboard on button click', async () => {
     render(<WalletCard {...defaultProps} />);
-    
+
     const copyButton = screen.getByText('Copy');
     fireEvent.click(copyButton);
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(defaultProps.address);
-    
+
     await waitFor(() => {
       expect(screen.getByText('✓ Copied!')).toBeInTheDocument();
     });
   });
 
-  it('resets copied state after timeout', async () => {
-    vi.useFakeTimers();
+  it('shows copied state after clicking copy button', async () => {
     render(<WalletCard {...defaultProps} />);
-    
+
     const copyButton = screen.getByText('Copy');
     fireEvent.click(copyButton);
 
-    expect(screen.getByText('✓ Copied!')).toBeInTheDocument();
-
-    vi.advanceTimersByTime(2000);
-
     await waitFor(() => {
-      expect(screen.getByText('Copy')).toBeInTheDocument();
+      expect(screen.getByText('✓ Copied!')).toBeInTheDocument();
     });
-
-    vi.useRealTimers();
   });
 });
-

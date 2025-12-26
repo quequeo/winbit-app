@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ErrorBoundary } from './ErrorBoundary';
 
 const ThrowError = () => {
@@ -19,7 +19,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <div>Normal content</div>
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
     expect(screen.getByText('Normal content')).toBeInTheDocument();
   });
@@ -28,10 +28,9 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Refresh Page')).toBeInTheDocument();
   });
 });
-

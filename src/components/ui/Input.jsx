@@ -17,10 +17,7 @@ export const Input = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label 
-          htmlFor={id} 
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -41,10 +38,7 @@ export const Input = ({
           error ? 'border-red-500' : 'border-gray-300'
         }`}
       />
-      {error && (
-        <p className="mt-1 text-sm text-red-500">{error}</p>
-      )}
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>
   );
 };
-

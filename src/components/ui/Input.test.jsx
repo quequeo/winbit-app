@@ -57,4 +57,3 @@ describe('Input', () => {
     expect(input).toHaveAttribute('step', '0.01');
   });
 });
-

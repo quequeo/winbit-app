@@ -19,29 +19,18 @@ export const DashboardPage = () => {
   }
 
   if (error) {
-    return (
-      <ErrorMessage 
-        message={error}
-        onRetry={refetch}
-      />
-    );
+    return <ErrorMessage message={error} onRetry={refetch} />;
   }
 
   if (!data) {
-    return (
-      <ErrorMessage 
-        message="No data available for your account"
-      />
-    );
+    return <ErrorMessage message="No data available for your account" />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {data.name}
-        </h1>
-        <p className="text-gray-600 mt-1">Here's your portfolio overview</p>
+        <h1 className="text-3xl font-bold text-gray-900">Welcome back, {data.name}</h1>
+        <p className="text-gray-600 mt-1">Here&apos;s your portfolio overview</p>
       </div>
 
       <BalanceCard
@@ -56,4 +45,3 @@ export const DashboardPage = () => {
     </div>
   );
 };
-

@@ -7,7 +7,16 @@ import { useAuth } from '../../hooks/useAuth';
 vi.mock('../../hooks/useAuth');
 
 const renderWithRouter = (component) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
+  return render(
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
+      {component}
+    </BrowserRouter>,
+  );
 };
 
 describe('ProtectedRoute', () => {
@@ -16,7 +25,7 @@ describe('ProtectedRoute', () => {
     renderWithRouter(
       <ProtectedRoute>
         <div>Protected Content</div>
-      </ProtectedRoute>
+      </ProtectedRoute>,
     );
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
@@ -29,7 +38,7 @@ describe('ProtectedRoute', () => {
     renderWithRouter(
       <ProtectedRoute>
         <div>Protected Content</div>
-      </ProtectedRoute>
+      </ProtectedRoute>,
     );
     expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
@@ -39,9 +48,8 @@ describe('ProtectedRoute', () => {
     renderWithRouter(
       <ProtectedRoute>
         <div>Protected Content</div>
-      </ProtectedRoute>
+      </ProtectedRoute>,
     );
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 });
-

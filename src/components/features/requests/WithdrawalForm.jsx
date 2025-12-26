@@ -13,14 +13,14 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const withdrawalAmount = type === 'full' ? currentBalance : parseFloat(amount);
-    
+
     if (type === 'partial' && (!amount || withdrawalAmount <= 0)) {
       setMessage({ type: 'error', text: 'Please enter a valid amount' });
       return;
     }
-    
+
     if (withdrawalAmount > currentBalance) {
       setMessage({ type: 'error', text: 'Amount exceeds current balance' });
       return;
@@ -39,16 +39,16 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     setLoading(false);
 
     if (result.success) {
-      setMessage({ 
-        type: 'success', 
-        text: 'Withdrawal request sent successfully! You will be contacted soon.' 
+      setMessage({
+        type: 'success',
+        text: 'Withdrawal request sent successfully! You will be contacted soon.',
       });
       setAmount('');
       setType('partial');
     } else {
-      setMessage({ 
-        type: 'error', 
-        text: result.error || 'Failed to send request. Please try again.' 
+      setMessage({
+        type: 'error',
+        text: result.error || 'Failed to send request. Please try again.',
       });
     }
   };
@@ -107,22 +107,19 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
         </div>
 
         {message && (
-          <div className={`p-4 rounded-lg ${
-            message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-          }`}>
+          <div
+            className={`p-4 rounded-lg ${
+              message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            }`}
+          >
             {message.text}
           </div>
         )}
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? 'Sending...' : 'Submit Request'}
         </Button>
       </form>
     </Card>
   );
 };
-

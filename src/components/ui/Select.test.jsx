@@ -10,7 +10,7 @@ describe('Select', () => {
   ];
 
   it('renders select with label', () => {
-    render(<Select label="Choose" options={options} />);
+    render(<Select label="Choose" id="test-select" options={options} />);
     expect(screen.getByLabelText('Choose')).toBeInTheDocument();
   });
 
@@ -46,9 +46,8 @@ describe('Select', () => {
   });
 
   it('sets selected value', () => {
-    render(<Select options={options} value="1" />);
+    render(<Select options={options} value="1" onChange={() => {}} />);
     const select = screen.getByRole('combobox');
     expect(select).toHaveValue('1');
   });
 });
-

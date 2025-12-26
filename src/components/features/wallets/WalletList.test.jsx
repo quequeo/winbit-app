@@ -13,9 +13,9 @@ describe('WalletList', () => {
       { network: 'Bitcoin', address: '1A2B3C', icon: '₿' },
       { network: 'Ethereum', address: '0xABC', icon: 'Ξ' },
     ];
-    
+
     render(<WalletList wallets={wallets} />);
-    
+
     expect(screen.getByText('Bitcoin')).toBeInTheDocument();
     expect(screen.getByText('Ethereum')).toBeInTheDocument();
   });
@@ -25,4 +25,3 @@ describe('WalletList', () => {
     expect(screen.getByText('No Wallets Available')).toBeInTheDocument();
   });
 });
-

@@ -4,13 +4,7 @@ import { EmptyState } from './EmptyState';
 
 describe('EmptyState', () => {
   it('renders icon, title, and description', () => {
-    render(
-      <EmptyState
-        icon="📭"
-        title="No data"
-        description="There's nothing here yet"
-      />
-    );
+    render(<EmptyState icon="📭" title="No data" description="There's nothing here yet" />);
     expect(screen.getByText('📭')).toBeInTheDocument();
     expect(screen.getByText('No data')).toBeInTheDocument();
     expect(screen.getByText("There's nothing here yet")).toBeInTheDocument();
@@ -21,4 +15,3 @@ describe('EmptyState', () => {
     expect(screen.getByText('No data')).toBeInTheDocument();
   });
 });
-
