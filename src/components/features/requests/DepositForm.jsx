@@ -7,10 +7,12 @@ import { sendDepositRequest } from '../../../services/email';
 
 const networkOptions = [
   { value: '', label: 'Select network' },
-  { value: 'Bitcoin', label: 'Bitcoin (BTC)' },
-  { value: 'Ethereum', label: 'Ethereum (ETH)' },
   { value: 'USDT-TRC20', label: 'USDT (TRC20)' },
+  { value: 'USDT-BEP20', label: 'USDT (BEP20)' },
   { value: 'USDT-ERC20', label: 'USDT (ERC20)' },
+  { value: 'USDT-POLYGON', label: 'USDT (Polygon)' },
+  { value: 'USDC-ERC20', label: 'USDC (ERC20)' },
+  { value: 'USDC-POLYGON', label: 'USDC (Polygon)' },
 ];
 
 export const DepositForm = ({ userName, userEmail }) => {

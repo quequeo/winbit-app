@@ -4,13 +4,13 @@ import { WalletCard } from './WalletCard';
 
 describe('WalletCard', () => {
   const defaultProps = {
-    network: 'Bitcoin',
+    network: 'USDT (TRC20)',
     address: '1A2B3C4D5E6F7G8H9I0J',
   };
 
   it('renders network name and truncated address', () => {
     render(<WalletCard {...defaultProps} />);
-    expect(screen.getByText('Bitcoin')).toBeInTheDocument();
+    expect(screen.getByText('USDT (TRC20)')).toBeInTheDocument();
     expect(screen.getByText(/1A2B3C4D/)).toBeInTheDocument();
   });
 

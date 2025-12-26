@@ -4,8 +4,8 @@ import { WalletsPage } from './WalletsPage';
 
 vi.mock('../config/wallets', () => ({
   WALLETS: [
-    { network: 'Bitcoin (BTC)', address: 'abc', icon: '₿' },
-    { network: 'Ethereum (ETH)', address: 'def', icon: 'Ξ' },
+    { network: 'USDT (TRC20)', address: 'abc', icon: '₮' },
+    { network: 'USDC (TRC20)', address: 'def', icon: '$' },
   ],
 }));
 
@@ -13,8 +13,8 @@ describe('WalletsPage', () => {
   it('renders heading and wallet cards', () => {
     render(<WalletsPage />);
     expect(screen.getByText('Depósitos')).toBeInTheDocument();
-    expect(screen.getByText('Bitcoin (BTC)')).toBeInTheDocument();
-    expect(screen.getByText('Ethereum (ETH)')).toBeInTheDocument();
+    expect(screen.getByText('USDT (TRC20)')).toBeInTheDocument();
+    expect(screen.getByText('USDC (TRC20)')).toBeInTheDocument();
     expect(screen.getByText(/Verificá siempre la red/)).toBeInTheDocument();
   });
 });

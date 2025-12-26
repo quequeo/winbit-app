@@ -10,14 +10,14 @@ describe('WalletList', () => {
 
   it('renders wallet cards when wallets provided', () => {
     const wallets = [
-      { network: 'Bitcoin', address: '1A2B3C', icon: '₿' },
-      { network: 'Ethereum', address: '0xABC', icon: 'Ξ' },
+      { network: 'USDT (TRC20)', address: 'TABC123', icon: '₮' },
+      { network: 'USDC (TRC20)', address: 'TDEF456', icon: '$' },
     ];
 
     render(<WalletList wallets={wallets} />);
 
-    expect(screen.getByText('Bitcoin')).toBeInTheDocument();
-    expect(screen.getByText('Ethereum')).toBeInTheDocument();
+    expect(screen.getByText('USDT (TRC20)')).toBeInTheDocument();
+    expect(screen.getByText('USDC (TRC20)')).toBeInTheDocument();
   });
 
   it('handles null wallets', () => {

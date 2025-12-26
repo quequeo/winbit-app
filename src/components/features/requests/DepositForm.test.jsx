@@ -26,7 +26,7 @@ describe('DepositForm', () => {
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
     fireEvent.change(screen.getByLabelText(/Amount/), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText(/Network/), { target: { value: 'Bitcoin' } });
+    fireEvent.change(screen.getByLabelText(/Network/), { target: { value: 'USDT-TRC20' } });
     fireEvent.change(screen.getByLabelText(/Transaction Hash/), {
       target: { value: 'abc' },
     });
@@ -39,7 +39,7 @@ describe('DepositForm', () => {
           userName: 'Test',
           userEmail: 't@e.com',
           amount: '$10.00',
-          network: 'Bitcoin',
+          network: 'USDT-TRC20',
           transactionHash: 'abc',
         }),
       );
@@ -53,7 +53,7 @@ describe('DepositForm', () => {
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
     fireEvent.change(screen.getByLabelText(/Amount/), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText(/Network/), { target: { value: 'Bitcoin' } });
+    fireEvent.change(screen.getByLabelText(/Network/), { target: { value: 'USDC-ERC20' } });
     fireEvent.submit(container.querySelector('form'));
 
     expect(await screen.findByText('Fail')).toBeInTheDocument();
