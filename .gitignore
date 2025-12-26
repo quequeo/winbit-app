@@ -31,3 +31,6 @@ dist-ssr
 # Testing
 coverage
 
+# Firebase
+.firebase
+
