@@ -35,6 +35,8 @@ export const sendWithdrawalRequest = async (data) => {
       user_email: data.userEmail,
       withdrawal_type: data.type,
       amount: data.amount,
+      method: data.method || 'crypto',
+      lemon_tag: data.lemonTag || 'N/A',
       timestamp: new Date().toLocaleString(),
     };
 
@@ -62,6 +64,8 @@ export const sendDepositRequest = async (data) => {
       amount: data.amount,
       network: data.network,
       transaction_hash: data.transactionHash || 'N/A',
+      method: data.method || 'crypto',
+      lemon_tag: data.lemonTag || 'N/A',
       timestamp: new Date().toLocaleString(),
     };
 

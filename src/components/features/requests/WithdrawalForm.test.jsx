@@ -41,7 +41,7 @@ describe('WithdrawalForm', () => {
     await waitFor(() => {
       expect(sendWithdrawalRequest).toHaveBeenCalled();
     });
-    expect(await screen.findByText(/Solicitud de retiro enviada/)).toBeInTheDocument();
+    expect(await screen.findByText('Solicitud registrada')).toBeInTheDocument();
   });
 
   it('shows error from service', async () => {

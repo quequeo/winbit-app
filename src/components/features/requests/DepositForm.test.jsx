@@ -11,23 +11,23 @@ describe('DepositForm', () => {
   it('validates amount', async () => {
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
     fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByText('Please enter a valid amount')).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Ingresá un monto válido');
   });
 
   it('validates network selection', async () => {
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
-    fireEvent.change(screen.getByLabelText(/Amount/), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
     fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByText('Please select a network')).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Seleccioná una red');
   });
 
   it('submits successfully', async () => {
     sendDepositRequest.mockResolvedValueOnce({ success: true, error: null });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
-    fireEvent.change(screen.getByLabelText(/Amount/), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText(/Network/), { target: { value: 'USDT-TRC20' } });
-    fireEvent.change(screen.getByLabelText(/Transaction Hash/), {
+    fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText(/Red/), { target: { value: 'USDT-TRC20' } });
+    fireEvent.change(screen.getByLabelText(/Hash de transacción/), {
       target: { value: 'abc' },
     });
 
@@ -39,23 +39,24 @@ describe('DepositForm', () => {
           userName: 'Test',
           userEmail: 't@e.com',
           amount: '$10.00',
+          method: 'crypto',
           network: 'USDT-TRC20',
           transactionHash: 'abc',
         }),
       );
     });
 
-    expect(await screen.findByText(/Deposit notification sent successfully/)).toBeInTheDocument();
+    expect(await screen.findByText('Solicitud registrada')).toBeInTheDocument();
   });
 
   it('shows service error', async () => {
     sendDepositRequest.mockResolvedValueOnce({ success: false, error: 'Fail' });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
-    fireEvent.change(screen.getByLabelText(/Amount/), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText(/Network/), { target: { value: 'USDC-ERC20' } });
+    fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
+    fireEvent.change(screen.getByLabelText(/Red/), { target: { value: 'USDC-ERC20' } });
     fireEvent.submit(container.querySelector('form'));
 
-    expect(await screen.findByText('Fail')).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Fail');
   });
 });

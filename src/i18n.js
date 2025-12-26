@@ -79,6 +79,28 @@ const resources = {
         processingHoursLine2:
           'Las solicitudes ingresadas luego de las 17:00 (GMT-3) se procesan al día siguiente.',
       },
+      requests: {
+        method: {
+          label: 'Método',
+          crypto: 'USDT / USDC',
+          lemon: 'Lemon Cash',
+          cash: 'Efectivo',
+          international: 'Transferencia Internacional (SWIFT / IBAN)',
+        },
+        lemonTag: {
+          label: 'Tu Lemontag',
+          placeholder: 'Ingresá tu Lemontag',
+          winbitLabel: 'Lemontag de Winbit',
+        },
+        registered: {
+          title: 'Solicitud registrada',
+          crypto:
+            'Tu solicitud fue registrada correctamente. La operación será procesada en el próximo cierre operativo. Una vez ejecutada, recibirás el comprobante correspondiente por correo electrónico.',
+          cash: 'Tu solicitud fue registrada correctamente. Las operaciones en efectivo se coordinan de forma personalizada. Un integrante de nuestro equipo se pondrá en contacto para coordinar el ingreso o retiro de los fondos.',
+          international:
+            'Tu solicitud fue registrada correctamente. Las operaciones mediante transferencia internacional se coordinan de forma personalizada. Nuestro equipo se pondrá en contacto por correo electrónico para continuar con el proceso.',
+        },
+      },
       history: {
         title: 'Historial',
         subtitle: 'Movimientos y estados de tu cuenta',
@@ -164,6 +186,28 @@ const resources = {
         processingHoursLine1:
           'Requests are received until 17:00 (GMT-3) and executed at 18:00 (GMT-3).',
         processingHoursLine2: 'Requests submitted after 17:00 (GMT-3) are processed the next day.',
+      },
+      requests: {
+        method: {
+          label: 'Method',
+          crypto: 'USDT / USDC',
+          lemon: 'Lemon Cash',
+          cash: 'Cash',
+          international: 'International Transfer (SWIFT / IBAN)',
+        },
+        lemonTag: {
+          label: 'Your Lemontag',
+          placeholder: 'Enter your Lemontag',
+          winbitLabel: 'Winbit Lemontag',
+        },
+        registered: {
+          title: 'Request registered',
+          crypto:
+            'Your request was registered successfully. The operation will be processed at the next operational close. Once executed, you will receive the receipt by email.',
+          cash: 'Your request was registered successfully. Cash operations are coordinated personally. A member of our team will contact you to coordinate the deposit or withdrawal.',
+          international:
+            'Your request was registered successfully. International transfers are coordinated personally. Our team will contact you by email to continue the process.',
+        },
       },
       history: {
         title: 'History',

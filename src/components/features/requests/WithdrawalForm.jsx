@@ -1,17 +1,36 @@
 import { useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
+import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
+import { Toast } from '../../ui/Toast';
 import { sendWithdrawalRequest } from '../../../services/email';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 
 export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
   const [type, setType] = useState('partial');
+  const [method, setMethod] = useState('crypto');
   const [amount, setAmount] = useState('');
+  const [lemonTag, setLemonTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [toast, setToast] = useState(null);
   const { t } = useTranslation();
+
+  const methodOptions = [
+    { value: 'crypto', label: t('requests.method.crypto') },
+    { value: 'lemon', label: t('requests.method.lemon') },
+    { value: 'cash', label: t('requests.method.cash') },
+    { value: 'international', label: t('requests.method.international') },
+  ];
+
+  const registeredTextByMethod = {
+    crypto: t('requests.registered.crypto'),
+    lemon: t('requests.registered.crypto'),
+    cash: t('requests.registered.cash'),
+    international: t('requests.registered.international'),
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +47,11 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
       return;
     }
 
+    if (method === 'lemon' && !lemonTag.trim()) {
+      setMessage({ type: 'error', text: 'Ingresá tu Lemontag' });
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
 
@@ -36,17 +60,22 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
       userEmail,
       type: type === 'full' ? 'Full Withdrawal' : 'Partial Withdrawal',
       amount: formatCurrency(withdrawalAmount),
+      method,
+      lemonTag: lemonTag.trim(),
     });
 
     setLoading(false);
 
     if (result.success) {
-      setMessage({
+      setToast({
         type: 'success',
-        text: 'Solicitud de retiro enviada. Te contactaremos pronto.',
+        title: t('requests.registered.title'),
+        message: registeredTextByMethod[method] || t('requests.registered.crypto'),
       });
       setAmount('');
       setType('partial');
+      setMethod('crypto');
+      setLemonTag('');
     } else {
       setMessage({
         type: 'error',
@@ -58,6 +87,27 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
   return (
     <Card title={t('withdrawals.formTitle')}>
       <form onSubmit={handleSubmit} className="space-y-6">
+        {toast && (
+          <Toast
+            type={toast.type}
+            title={toast.title}
+            message={toast.message}
+            duration={8000}
+            onClose={() => setToast(null)}
+          />
+        )}
+
+        <Select
+          label={t('requests.method.label')}
+          id="method"
+          name="method"
+          value={method}
+          onChange={(e) => setMethod(e.target.value)}
+          options={methodOptions}
+          disabled={loading}
+          required
+        />
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Tipo de retiro <span className="text-red-500">*</span>
@@ -102,6 +152,20 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
           placeholder="Ingresá el monto en USD"
         />
 
+        {method === 'lemon' && (
+          <Input
+            label={t('requests.lemonTag.label')}
+            type="text"
+            id="lemonTag"
+            name="lemonTag"
+            value={lemonTag}
+            onChange={(e) => setLemonTag(e.target.value)}
+            disabled={loading}
+            required
+            placeholder={t('requests.lemonTag.placeholder')}
+          />
+        )}
+
         <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
           <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
           <p>• {t('withdrawals.processingHoursLine1')}</p>
@@ -110,6 +174,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
 
         {message && (
           <div
+            role="alert"
             className={`p-4 rounded-lg ${
               message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
             }`}

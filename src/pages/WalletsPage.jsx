@@ -1,9 +1,12 @@
 import { WalletList } from '../components/features/wallets/WalletList';
 import { WALLETS } from '../config/wallets';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../hooks/useAuth';
+import { DepositForm } from '../components/features/requests/DepositForm';
 
 export const WalletsPage = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <div className="space-y-6">
@@ -20,6 +23,8 @@ export const WalletsPage = () => {
       </div>
 
       <WalletList wallets={WALLETS} />
+
+      <DepositForm userName={user?.displayName || 'Investor'} userEmail={user?.email} />
     </div>
   );
 };

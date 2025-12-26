@@ -3,10 +3,14 @@ import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
+import { Toast } from '../../ui/Toast';
 import { sendDepositRequest } from '../../../services/email';
+import { useTranslation } from 'react-i18next';
+
+const WINBIT_LEMONTAG = 'lemontag-winbit-pending';
 
 const networkOptions = [
-  { value: '', label: 'Select network' },
+  { value: '', label: 'Seleccioná una red' },
   { value: 'USDT-TRC20', label: 'USDT (TRC20)' },
   { value: 'USDT-BEP20', label: 'USDT (BEP20)' },
   { value: 'USDT-ERC20', label: 'USDT (ERC20)' },
@@ -16,13 +20,30 @@ const networkOptions = [
 ];
 
 export const DepositForm = ({ userName, userEmail }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     amount: '',
+    method: 'crypto',
     network: '',
     transactionHash: '',
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const methodOptions = [
+    { value: 'crypto', label: t('requests.method.crypto') },
+    { value: 'lemon', label: t('requests.method.lemon') },
+    { value: 'cash', label: t('requests.method.cash') },
+    { value: 'international', label: t('requests.method.international') },
+  ];
+
+  const registeredTextByMethod = {
+    crypto: t('requests.registered.crypto'),
+    lemon: t('requests.registered.crypto'),
+    cash: t('requests.registered.cash'),
+    international: t('requests.registered.international'),
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -35,12 +56,12 @@ export const DepositForm = ({ userName, userEmail }) => {
     e.preventDefault();
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      setMessage({ type: 'error', text: 'Please enter a valid amount' });
+      setMessage({ type: 'error', text: 'Ingresá un monto válido' });
       return;
     }
 
-    if (!formData.network) {
-      setMessage({ type: 'error', text: 'Please select a network' });
+    if (formData.method === 'crypto' && !formData.network) {
+      setMessage({ type: 'error', text: 'Seleccioná una red' });
       return;
     }
 
@@ -51,31 +72,61 @@ export const DepositForm = ({ userName, userEmail }) => {
       userName,
       userEmail,
       amount: `$${parseFloat(formData.amount).toFixed(2)}`,
-      network: formData.network,
-      transactionHash: formData.transactionHash,
+      method: formData.method,
+      network: formData.method === 'crypto' ? formData.network : formData.method,
+      transactionHash: formData.method === 'crypto' ? formData.transactionHash : '',
     });
 
     setLoading(false);
 
     if (result.success) {
-      setMessage({
+      setToast({
         type: 'success',
-        text: 'Deposit notification sent successfully! Your balance will be updated soon.',
+        title: t('requests.registered.title'),
+        message: registeredTextByMethod[formData.method] || t('requests.registered.crypto'),
       });
-      setFormData({ amount: '', network: '', transactionHash: '' });
+      setFormData({ amount: '', method: 'crypto', network: '', transactionHash: '' });
     } else {
       setMessage({
         type: 'error',
-        text: result.error || 'Failed to send notification. Please try again.',
+        text: result.error || 'No se pudo enviar la solicitud. Intentá de nuevo.',
       });
     }
   };
 
   return (
-    <Card title="Notify Deposit">
+    <Card title="Registrar depósito">
       <form onSubmit={handleSubmit} className="space-y-6">
+        {toast && (
+          <Toast
+            type={toast.type}
+            title={toast.title}
+            message={toast.message}
+            duration={8000}
+            onClose={() => setToast(null)}
+          />
+        )}
+
+        <Select
+          label={t('requests.method.label')}
+          id="method"
+          name="method"
+          value={formData.method}
+          onChange={handleChange}
+          options={methodOptions}
+          disabled={loading}
+          required
+        />
+
+        {formData.method === 'lemon' && (
+          <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
+            <p className="font-medium">{t('requests.lemonTag.winbitLabel')}</p>
+            <p className="mt-1 font-mono">{WINBIT_LEMONTAG}</p>
+          </div>
+        )}
+
         <Input
-          label="Amount"
+          label="Monto"
           type="number"
           id="amount"
           name="amount"
@@ -85,39 +136,38 @@ export const DepositForm = ({ userName, userEmail }) => {
           required
           min="0.01"
           step="0.01"
-          placeholder="Enter amount in USD"
+          placeholder="Ingresá el monto en USD"
         />
 
-        <Select
-          label="Network"
-          id="network"
-          name="network"
-          value={formData.network}
-          onChange={handleChange}
-          options={networkOptions}
-          disabled={loading}
-          required
-        />
+        {formData.method === 'crypto' && (
+          <>
+            <Select
+              label="Red"
+              id="network"
+              name="network"
+              value={formData.network}
+              onChange={handleChange}
+              options={networkOptions}
+              disabled={loading}
+              required
+            />
 
-        <Input
-          label="Transaction Hash (Optional)"
-          type="text"
-          id="transactionHash"
-          name="transactionHash"
-          value={formData.transactionHash}
-          onChange={handleChange}
-          disabled={loading}
-          placeholder="Enter transaction hash or ID"
-        />
-
-        <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
-          <p className="font-medium mb-1">⏰ Processing Hours:</p>
-          <p>• Requests 6pm-8am → processed 8-10am</p>
-          <p>• Requests 10am-6pm → processed at 6pm</p>
-        </div>
+            <Input
+              label="Hash de transacción (opcional)"
+              type="text"
+              id="transactionHash"
+              name="transactionHash"
+              value={formData.transactionHash}
+              onChange={handleChange}
+              disabled={loading}
+              placeholder="Ingresá el hash o ID"
+            />
+          </>
+        )}
 
         {message && (
           <div
+            role="alert"
             className={`p-4 rounded-lg ${
               message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
             }`}
@@ -127,7 +177,7 @@ export const DepositForm = ({ userName, userEmail }) => {
         )}
 
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Sending...' : 'Submit Notification'}
+          {loading ? 'Enviando...' : 'Enviar solicitud'}
         </Button>
       </form>
     </Card>

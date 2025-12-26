@@ -8,6 +8,12 @@ describe('Toast', () => {
     expect(screen.getByText('Saved!')).toBeInTheDocument();
   });
 
+  it('renders title when provided', () => {
+    render(<Toast title="Solicitud registrada" message="Ok" onClose={() => {}} />);
+    expect(screen.getByText('Solicitud registrada')).toBeInTheDocument();
+    expect(screen.getByText('Ok')).toBeInTheDocument();
+  });
+
   it('applies type styles', () => {
     const { rerender, container } = render(
       <Toast message="Ok" type="success" onClose={() => {}} />,
