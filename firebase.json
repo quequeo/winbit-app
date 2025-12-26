@@ -2,9 +2,17 @@
   "hosting": {
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [
+      { "source": "/", "destination": "/app/", "type": 302 },
+      { "source": "/login", "destination": "/app/login", "type": 302 },
+      { "source": "/dashboard", "destination": "/app/dashboard", "type": 302 },
+      { "source": "/wallets", "destination": "/app/wallets", "type": 302 },
+      { "source": "/requests", "destination": "/app/requests", "type": 302 },
+      { "source": "/history", "destination": "/app/history", "type": 302 }
+    ],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/app/**",
         "destination": "/index.html"
       }
     ],

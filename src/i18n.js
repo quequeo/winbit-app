@@ -22,6 +22,12 @@ const resources = {
         retry: 'Reintentar',
         loading: 'Cargando...',
       },
+      errors: {
+        somethingWentWrong: 'Ocurrió un error',
+      },
+      sheets: {
+        credentialsNotConfigured: 'Google Sheets no está configurado.',
+      },
       nav: {
         dashboard: 'Dashboard',
         deposits: 'Depósitos',
@@ -81,6 +87,12 @@ const resources = {
         important: 'Important',
         retry: 'Retry',
         loading: 'Loading...',
+      },
+      errors: {
+        somethingWentWrong: 'Something went wrong',
+      },
+      sheets: {
+        credentialsNotConfigured: 'Google Sheets credentials not configured',
       },
       nav: {
         dashboard: 'Dashboard',

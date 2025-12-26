@@ -21,7 +21,12 @@ export const DashboardPage = () => {
   }
 
   if (error) {
-    return <ErrorMessage message={error} onRetry={refetch} />;
+    const message =
+      error === 'Google Sheets credentials not configured'
+        ? t('sheets.credentialsNotConfigured')
+        : error;
+
+    return <ErrorMessage message={message} onRetry={refetch} />;
   }
 
   if (!data) {

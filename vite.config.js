@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: '/app/',
   plugins: [
     react(),
     VitePWA({
@@ -15,6 +16,8 @@ export default defineConfig({
         theme_color: '#58b098',
         background_color: '#ffffff',
         display: 'standalone',
+        start_url: '/app/',
+        scope: '/app/',
         icons: [
           {
             src: '/icon-192x192.png',

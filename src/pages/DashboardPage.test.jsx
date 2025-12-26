@@ -32,8 +32,8 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('Try Again'));
+    expect(screen.getByText('Ocurrió un error')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 

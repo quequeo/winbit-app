@@ -33,6 +33,12 @@ The investor panel can live either:
 
 In both cases, the investor panel routes remain protected behind Firebase Auth.
 
+### Local development note
+
+When hosting the panel under `/app`, the development URL is typically:
+
+- `http://localhost:5173/app/`
+
 ## Language
 
 - Default language: **Español**

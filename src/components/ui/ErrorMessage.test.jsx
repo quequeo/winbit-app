@@ -10,24 +10,24 @@ describe('ErrorMessage', () => {
 
   it('renders default title', () => {
     render(<ErrorMessage message="Error" />);
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    expect(screen.getByText('Ocurrió un error')).toBeInTheDocument();
   });
 
   it('renders retry button when onRetry is provided', () => {
     const handleRetry = vi.fn();
     render(<ErrorMessage message="Error" onRetry={handleRetry} />);
-    expect(screen.getByText('Try Again')).toBeInTheDocument();
+    expect(screen.getByText('Reintentar')).toBeInTheDocument();
   });
 
   it('calls onRetry when retry button is clicked', () => {
     const handleRetry = vi.fn();
     render(<ErrorMessage message="Error" onRetry={handleRetry} />);
-    fireEvent.click(screen.getByText('Try Again'));
+    fireEvent.click(screen.getByText('Reintentar'));
     expect(handleRetry).toHaveBeenCalledTimes(1);
   });
 
   it('does not render retry button when onRetry is not provided', () => {
     render(<ErrorMessage message="Error" />);
-    expect(screen.queryByText('Try Again')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reintentar')).not.toBeInTheDocument();
   });
 });
