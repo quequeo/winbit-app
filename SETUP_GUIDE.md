@@ -1,200 +1,309 @@
-# Winbit App - Setup Guide
+# 🚀 Winbit App - Guía de Configuración
 
-Esta guía te ayudará a completar la configuración del proyecto con las credenciales de Chueco.
+## ✅ Ya Completado
 
-## ✅ Ya Configurado
+- ✅ Proyecto React + Vite completo
+- ✅ Firebase Authentication (Google Sign-In)
+- ✅ Firebase Hosting configurado
+- ✅ Google Sheets API Key configurado
+- ✅ Logo y favicon configurados
+- ✅ PWA manifest configurado
+- ✅ Tests completos (97%+ coverage)
+- ✅ Build funciona correctamente
 
-- ✅ Firebase project (winbit-6579c)
-- ✅ Firebase Authentication (Google Sign-In enabled)
-- ✅ Google Sheets API Key
-- ✅ Proyecto completo con código y tests
-
-## 📋 Pendiente de Chueco
+## ⏳ Pendiente de Chueco
 
 ### 1. Google Sheet ID
 
-**Necesitamos:**
-- El ID del Google Sheet donde está la data de los inversores
-
-**Cómo obtenerlo:**
-- En la URL del Sheet: `https://docs.google.com/spreadsheets/d/`**`ESTE_ES_EL_ID`**`/edit`
-- Copiar solo el ID (la parte entre `/d/` y `/edit`)
-
-**Dónde colocarlo:**
-- Archivo `.env`, reemplazar `PENDING_FROM_CHUECO` en:
-  ```
-  VITE_GOOGLE_SHEETS_ID=AQUI_VA_EL_ID
-  ```
+**Para obtenerlo:**
+1. Abrí el Google Sheet con la data de inversores
+2. En la URL: `https://docs.google.com/spreadsheets/d/`**`ESTE_ES_EL_ID`**`/edit`
+3. Copiá solo el ID (la parte entre `/d/` y `/edit`)
 
 **Estructura requerida del Sheet:**
+
+| Columna A | Columna B | Columna C | Columna D | Columna E | Columnas F+ |
+|-----------|-----------|-----------|-----------|-----------|-------------|
+| Email     | Nombre    | Balance   | Invertido | Returns % | Histórico   |
+| investor@example.com | Juan Perez | 10000 | 8000 | 25 | 9000, 9500, 10000 |
+
+**Dónde ponerlo:**
+En el archivo `.env`, reemplazar:
 ```
-| Columna A           | Columna B | Columna C  | Columna D      | Columna E     | Columnas F+ |
-|---------------------|-----------|------------|----------------|---------------|-------------|
-| Email del inversor  | Nombre    | Balance    | Total Invertido| Returns (%)   | Data histórica |
-| test@example.com    | Juan Perez| 10000      | 8000           | 25            | 9000, 9500... |
+VITE_GOOGLE_SHEETS_ID=PENDING_FROM_CHUECO
+```
+Por:
+```
+VITE_GOOGLE_SHEETS_ID=el_id_que_copió
 ```
 
-### 2. EmailJS (Chueco debe configurar)
+---
+
+### 2. EmailJS
 
 **Pasos para Chueco:**
 
-1. **Ir a:** https://www.emailjs.com/
-2. **Registrarse** con su email de Winbit (@winbit.com o el que use)
-3. **Add New Service:**
-   - Elegir Gmail (o su proveedor)
-   - Conectar su email de Winbit
-   - Copiar el **Service ID**
+#### A. Registrarse en EmailJS
+1. Ir a: https://www.emailjs.com/
+2. Registrarse con el email de Winbit
+3. Verificar email
 
-4. **Create Email Templates** (necesita 2):
+#### B. Configurar Service
+1. Click en **"Add New Service"**
+2. Elegir **Gmail** (o el proveedor que use)
+3. Conectar su email de Winbit
+4. Copiar el **Service ID** (ej: `service_abc123`)
 
-   **Template 1: Withdrawal Request**
-   ```
-   Subject: 💰 Nueva solicitud de retiro - {{user_name}}
-   
-   Hola,
-   
-   Un inversor ha solicitado un retiro:
-   
-   👤 Nombre: {{user_name}}
-   📧 Email: {{user_email}}
-   💵 Tipo: {{withdrawal_type}}
-   💰 Monto: {{amount}}
-   🕒 Fecha: {{timestamp}}
-   
-   Saludos,
-   Sistema Winbit
-   ```
-   - Copiar el **Template ID** (ej: template_withdrawal_123)
+#### C. Crear Template de Retiro
+1. Click en **"Email Templates"** → **"Create New Template"**
+2. Template Name: `Winbit - Solicitud de Retiro`
 
-   **Template 2: Deposit Notification**
-   ```
-   Subject: 💳 Notificación de depósito - {{user_name}}
-   
-   Hola,
-   
-   Un inversor ha notificado un depósito:
-   
-   👤 Nombre: {{user_name}}
-   📧 Email: {{user_email}}
-   💰 Monto: {{amount}}
-   🌐 Red: {{network}}
-   🔗 Hash: {{transaction_hash}}
-   🕒 Fecha: {{timestamp}}
-   
-   Saludos,
-   Sistema Winbit
-   ```
-   - Copiar el **Template ID** (ej: template_deposit_456)
-
-5. **Copiar Public Key:**
-   - Ir a "Account" → "API Keys"
-   - Copiar el **Public Key**
-
-**Dónde colocar las credenciales:**
-Archivo `.env`, reemplazar los `PENDING_FROM_CHUECO`:
+**Contenido del email:**
 ```
-VITE_EMAILJS_SERVICE_ID=service_xxx
-VITE_EMAILJS_TEMPLATE_ID_WITHDRAWAL=template_xxx
-VITE_EMAILJS_TEMPLATE_ID_DEPOSIT=template_xxx
-VITE_EMAILJS_PUBLIC_KEY=xxx
+Subject: 💰 Nueva solicitud de retiro - {{user_name}}
+
+Hola,
+
+Un inversor ha solicitado un retiro:
+
+👤 Nombre: {{user_name}}
+📧 Email: {{user_email}}
+💵 Tipo: {{withdrawal_type}}
+💰 Monto: {{amount}}
+🕒 Fecha: {{timestamp}}
+
+Por favor procesar según horarios establecidos.
+
+Saludos,
+Sistema Winbit
 ```
 
-### 3. Wallet Addresses
+3. **Save** y copiar el **Template ID** (ej: `template_xyz789`)
 
-**Necesitamos:**
-Lista de direcciones de wallet por red para depósitos.
+#### D. Crear Template de Depósito
+1. Crear otro template
+2. Template Name: `Winbit - Notificación de Depósito`
 
-**Ejemplo:**
+**Contenido del email:**
 ```
-- Bitcoin (BTC): bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
-- Ethereum (ETH): 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
-- USDT TRC20: TXYZaPzUeZVfykd62FhkWqj8oBnHNzLhLx
-- USDT ERC20: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
+Subject: 💳 Notificación de depósito - {{user_name}}
+
+Hola,
+
+Un inversor ha notificado un depósito:
+
+👤 Nombre: {{user_name}}
+📧 Email: {{user_email}}
+💰 Monto: {{amount}}
+🌐 Red: {{network}}
+🔗 Hash: {{transaction_hash}}
+🕒 Fecha: {{timestamp}}
+
+Por favor verificar y procesar.
+
+Saludos,
+Sistema Winbit
 ```
 
-**Dónde colocarlas:**
-Archivo `src/config/wallets.js`, reemplazar `PENDING_FROM_CHUECO`:
+3. **Save** y copiar el **Template ID**
+
+#### E. Obtener Public Key
+1. Ir a **"Account"** → **"API Keys"**
+2. Copiar el **Public Key** (ej: `abc123xyz789`)
+
+**Dónde poner las credenciales:**
+En el archivo `.env`, reemplazar:
+```
+VITE_EMAILJS_SERVICE_ID=PENDING_FROM_CHUECO
+VITE_EMAILJS_TEMPLATE_ID_WITHDRAWAL=PENDING_FROM_CHUECO
+VITE_EMAILJS_TEMPLATE_ID_DEPOSIT=PENDING_FROM_CHUECO
+VITE_EMAILJS_PUBLIC_KEY=PENDING_FROM_CHUECO
+```
+
+Por los valores reales copiados.
+
+---
+
+### 3. Wallet Addresses (Opcional)
+
+**Actualizar direcciones de wallet:**
+Editar el archivo `src/config/wallets.js` y reemplazar `PENDING_FROM_CHUECO`:
+
 ```javascript
 export const WALLETS = [
   {
     network: 'Bitcoin (BTC)',
-    address: 'LA_DIRECCION_REAL_AQUI',
+    address: 'bc1q...direccion_real_btc',
     icon: '₿',
   },
-  // ... etc
+  {
+    network: 'Ethereum (ETH)',
+    address: '0x...direccion_real_eth',
+    icon: 'Ξ',
+  },
+  {
+    network: 'USDT (TRC20)',
+    address: 'T...direccion_real_trc20',
+    icon: '₮',
+  },
+  {
+    network: 'USDT (ERC20)',
+    address: '0x...direccion_real_erc20',
+    icon: '₮',
+  },
 ];
 ```
 
-### 4. Logo (Opcional para V1)
+---
 
-**Si Chueco tiene logo:**
-- Formato: SVG o PNG alta resolución
-- Colocar en `public/` con nombres:
-  - `icon-192x192.png` (192x192 pixels)
-  - `icon-512x512.png` (512x512 pixels)
-  - `apple-touch-icon.png` (180x180 pixels)
-  - `favicon.ico`
+## 🧪 Testing Local
 
-**Por ahora:**
-- Usaremos placeholder o solo texto "Winbit"
-- Lo podemos agregar después
+### 1. Agregar usuario de prueba en el Sheet
 
-## 🚀 Testing Antes de Producción
+Agregar una fila de test:
+```
+tu_email@gmail.com | Test User | 10000 | 8000 | 25 | 9000 | 9500 | 10000
+```
 
-### Test con datos de prueba:
-
-1. **Agregar usuario de prueba en el Sheet:**
-   ```
-   test@gmail.com | Test User | 10000 | 8000 | 25 | 9000 | 9500 | 10000
-   ```
-
-2. **Probar localmente:**
-   ```bash
-   npm install
-   npm run dev
-   ```
-
-3. **Verificar:**
-   - ✅ Login con Google funciona
-   - ✅ Se muestra el dashboard con data del Sheet
-   - ✅ Gráfico se renderiza
-   - ✅ Wallets se muestran
-   - ✅ Formularios de retiro/depósito envían emails
-
-4. **Correr tests:**
-   ```bash
-   npm run test:coverage
-   ```
-   - Debe mostrar > 97% coverage
-
-## 📦 Deploy a Producción
-
-Cuando todo esté configurado y probado:
+### 2. Iniciar servidor de desarrollo
 
 ```bash
-# 1. Build
-npm run build
+cd /Users/jaime/Desktop/Apps/winbit-app
+npm run dev
+```
 
-# 2. Deploy a Firebase Hosting
+### 3. Probar funcionalidades
+
+- ✅ Login con Google → debe funcionar
+- ✅ Dashboard → debe mostrar data del Sheet
+- ✅ Gráfico → debe renderizarse
+- ✅ Wallets → debe mostrar direcciones
+- ✅ Formularios → deben enviar emails a Chueco
+
+### 4. Correr tests
+
+```bash
+npm run test:coverage
+```
+
+Debe mostrar > 97% coverage.
+
+---
+
+## 🚀 Deploy a Producción
+
+### 1. Verificar configuración
+
+Antes de hacer deploy, verificar que el `.env` tenga todas las credenciales:
+
+```bash
+# Ver qué falta configurar:
+grep "PENDING_FROM_CHUECO" .env
+```
+
+Si no devuelve nada, todo está configurado ✅
+
+### 2. Build
+
+```bash
+npm run build
+```
+
+Debe completar sin errores.
+
+### 3. Login a Firebase
+
+```bash
+firebase login
+```
+
+Esto abrirá el browser para autenticar.
+
+### 4. Deploy
+
+```bash
 firebase deploy
 ```
 
-La app estará en:
+La app estará disponible en:
 - https://winbit-6579c.web.app/
 - https://winbit-6579c.firebaseapp.com/
 
-## 🔒 Security Checklist
+### 5. Verificar en producción
 
-Antes de producción, verificar:
+1. Abrir el link
+2. Hacer login con Google
+3. Verificar que todo funciona igual que en local
 
-- [ ] Google Sheets API key restringida solo a "Google Sheets API"
-- [ ] Sheet compartido solo como "viewer" (no edit)
-- [ ] Firebase Auth domain configurado correctamente
-- [ ] `.env` no está en git (está en `.gitignore`)
-- [ ] EmailJS configurado con email de Chueco
+---
+
+## 🔧 Comandos Útiles
+
+```bash
+# Desarrollo
+npm run dev              # Servidor local
+
+# Testing
+npm run test             # Correr tests
+npm run test:coverage    # Coverage report
+npm run test:watch       # Tests en modo watch
+
+# Build
+npm run build            # Build para producción
+npm run preview          # Preview del build
+
+# Deploy
+firebase deploy          # Deploy a Firebase Hosting
+```
+
+---
+
+## 📁 Archivos Importantes
+
+- **`.env`** - Variables de entorno (credenciales)
+- **`src/config/wallets.js`** - Direcciones de wallets
+- **`README.md`** - Documentación técnica completa
+- **`firebase.json`** - Configuración de Firebase Hosting
+
+---
+
+## 🆘 Troubleshooting
+
+### "Investor not found in database"
+→ Verificar que el email del usuario existe en Columna A del Sheet
+
+### "Email service not configured yet"
+→ Completar las credenciales de EmailJS en `.env`
+
+### Build fails
+→ Correr `npm install` de nuevo
+
+### Deploy fails
+→ Verificar que estás logueado: `firebase login`
+
+---
 
 ## 📞 Contacto
 
-Si hay algún problema o pregunta durante la configuración:
+Para cualquier problema durante la configuración o deploy:
 - Email: jaimegarciamendez@gmail.com
 
+---
+
+## ✅ Checklist Final
+
+Antes de considerar el proyecto terminado:
+
+- [ ] Google Sheet ID configurado en `.env`
+- [ ] EmailJS Service ID configurado
+- [ ] EmailJS Template IDs configurados (withdrawal + deposit)
+- [ ] EmailJS Public Key configurado
+- [ ] Wallet addresses configuradas en `wallets.js`
+- [ ] Test con usuario real en el Sheet
+- [ ] Formularios envían emails correctamente
+- [ ] Build funciona sin errores
+- [ ] Deploy exitoso a Firebase
+- [ ] App funciona en producción
+- [ ] Compartir link con inversores
+
+**Cuando todo esté ✅, la app está lista para usar!** 🎉
