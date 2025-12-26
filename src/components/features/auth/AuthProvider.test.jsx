@@ -4,9 +4,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from './AuthProvider';
 import { AuthContext } from './AuthContext';
 
-import { signInWithRedirect, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
 vi.mock('firebase/auth', () => ({
+  signInWithPopup: vi.fn(),
   signInWithRedirect: vi.fn(),
   getRedirectResult: vi.fn(() => Promise.resolve(null)),
   signOut: vi.fn(),
@@ -51,12 +52,12 @@ describe('AuthProvider', () => {
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
   });
 
-  it('loginWithGoogle calls signInWithRedirect', async () => {
+  it('loginWithGoogle calls signInWithPopup and returns user', async () => {
     onAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(null);
       return () => {};
     });
-    signInWithRedirect.mockResolvedValueOnce();
+    signInWithPopup.mockResolvedValueOnce({ user: { email: 'a@b.com' } });
 
     render(
       <AuthProvider>
@@ -67,7 +68,7 @@ describe('AuthProvider', () => {
     fireEvent.click(screen.getByText('login'));
 
     await waitFor(() => {
-      expect(signInWithRedirect).toHaveBeenCalledTimes(1);
+      expect(signInWithPopup).toHaveBeenCalledTimes(1);
     });
   });
 
