@@ -12,9 +12,9 @@ vi.mock('../config/wallets', () => ({
 describe('WalletsPage', () => {
   it('renders heading and wallet cards', () => {
     render(<WalletsPage />);
-    expect(screen.getByText('Deposit Wallets')).toBeInTheDocument();
+    expect(screen.getByText('Depósitos')).toBeInTheDocument();
     expect(screen.getByText('Bitcoin (BTC)')).toBeInTheDocument();
     expect(screen.getByText('Ethereum (ETH)')).toBeInTheDocument();
-    expect(screen.getByText(/Always verify the network/)).toBeInTheDocument();
+    expect(screen.getByText(/Verificá siempre la red/)).toBeInTheDocument();
   });
 });

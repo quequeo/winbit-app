@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { truncateAddress } from '../../../utils/truncateAddress';
+import { useTranslation } from 'react-i18next';
 
 export const WalletCard = ({ network, address, icon }) => {
   const [copied, setCopied] = useState(false);
+  const { t } = useTranslation();
 
   const handleCopy = async () => {
     try {
@@ -28,7 +30,7 @@ export const WalletCard = ({ network, address, icon }) => {
         </div>
 
         <Button onClick={handleCopy} variant="outline" className="text-sm py-2 px-4">
-          {copied ? '✓ Copied!' : 'Copy'}
+          {copied ? t('deposits.copied') : t('deposits.copy')}
         </Button>
       </div>
     </Card>

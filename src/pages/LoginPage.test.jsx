@@ -26,7 +26,7 @@ describe('LoginPage', () => {
     });
 
     renderAt('/login');
-    expect(screen.queryByText('Sign in with Google')).not.toBeInTheDocument();
+    expect(screen.queryByText('Ingresar con Google')).not.toBeInTheDocument();
   });
 
   it('redirects to dashboard when already logged in', () => {
@@ -49,7 +49,7 @@ describe('LoginPage', () => {
     });
 
     renderAt('/login');
-    fireEvent.click(screen.getByText('Sign in with Google'));
+    fireEvent.click(screen.getByText('Ingresar con Google'));
 
     await waitFor(() => {
       expect(loginWithGoogle).toHaveBeenCalledTimes(1);
@@ -68,9 +68,9 @@ describe('LoginPage', () => {
     });
 
     renderAt('/login');
-    fireEvent.click(screen.getByText('Sign in with Google'));
+    fireEvent.click(screen.getByText('Ingresar con Google'));
 
-    expect(await screen.findByText(/This domain is not authorized/)).toBeInTheDocument();
+    expect(await screen.findByText(/Este dominio no está autorizado/)).toBeInTheDocument();
     expect(screen.getByText(/\(auth\/unauthorized-domain\)/)).toBeInTheDocument();
   });
 });

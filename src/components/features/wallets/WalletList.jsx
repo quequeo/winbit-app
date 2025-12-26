@@ -1,13 +1,16 @@
 import { WalletCard } from './WalletCard';
 import { EmptyState } from '../../ui/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 export const WalletList = ({ wallets }) => {
+  const { t } = useTranslation();
+
   if (!wallets || wallets.length === 0) {
     return (
       <EmptyState
         icon="💰"
-        title="No Wallets Available"
-        description="Wallet addresses will be displayed here when configured."
+        title={t('deposits.noWalletsTitle')}
+        description={t('deposits.noWalletsMessage')}
       />
     );
   }

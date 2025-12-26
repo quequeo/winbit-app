@@ -39,8 +39,9 @@ describe('Header', () => {
 
     renderWithRouter(<Header />);
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Wallets').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Requests').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Depósitos').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Retiros').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Historial').length).toBeGreaterThan(0);
   });
 
   it('does not render navigation when user is not logged in', () => {
@@ -57,7 +58,7 @@ describe('Header', () => {
     });
 
     renderWithRouter(<Header />);
-    const logoutButton = screen.getByText('Logout');
+    const logoutButton = screen.getByText('Salir');
     fireEvent.click(logoutButton);
     expect(mockLogout).toHaveBeenCalled();
   });

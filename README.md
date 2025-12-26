@@ -5,11 +5,11 @@ Progressive Web Application (PWA) for investors to view their portfolio balance,
 ## Features
 
 - 🔐 **Google Authentication** - Secure login with Firebase Auth
-- 📊 **Portfolio Dashboard** - Real-time balance and performance tracking
+- 📊 **Dashboard** - Portfolio metrics and performance tracking
 - 📈 **Performance Charts** - Visual representation of historical data
-- 💰 **Wallet Management** - View deposit addresses for multiple networks
-- 📤 **Withdrawal Requests** - Submit partial or full withdrawal requests
-- 📥 **Deposit Notifications** - Notify deposits with transaction details
+- 💰 **Depósitos** - View deposit addresses (USDT/USDC only)
+- 📤 **Retiros** - Submit partial or full withdrawal requests
+- 🧾 **Historial** - Movements table (planned)
 - 📱 **PWA Support** - Install as native app on mobile devices
 - 🎨 **Responsive Design** - Optimized for mobile and desktop
 
@@ -23,6 +23,21 @@ Progressive Web Application (PWA) for investors to view their portfolio balance,
 - **Charts:** Recharts
 - **Email:** EmailJS
 - **Testing:** Vitest + React Testing Library
+
+## App Placement (Public Website + Investor Panel)
+
+The investor panel can live either:
+
+- As a route under the same domain (recommended): `/app` (e.g. `winbit.../app`)
+- As a subdomain: `app.winbit...`
+
+In both cases, the investor panel routes remain protected behind Firebase Auth.
+
+## Language
+
+- Default language: **Español**
+- Language switcher: **Header (top-right)** (Spanish / English)
+- Language preference: stored in localStorage (planned)
 
 ## Prerequisites
 
@@ -87,11 +102,16 @@ Edit `src/config/wallets.js` with your wallet addresses:
 ```javascript
 export const WALLETS = [
   {
-    network: 'Bitcoin (BTC)',
-    address: 'your_btc_address',
-    icon: '₿',
+    network: 'USDT (TRC20)',
+    address: 'your_usdt_trc20_address',
+    icon: '₮',
   },
-  // Add more wallets...
+  {
+    network: 'USDC (TRC20)',
+    address: 'your_usdc_trc20_address',
+    icon: '$',
+  },
+  // Pending: final list of supported networks + addresses
 ];
 ```
 
@@ -192,13 +212,28 @@ src/
 
 ### Portfolio Updates
 
-- Balance updates once per day
+- Portfolio updates are processed once per business day after the operational close
 - Historical data available from investor's signup date
 
 ### Processing Hours
 
-- **Requests from 6pm to 8am** → Processed between 8-10am
-- **Requests from 10am to 6pm** → Processed at 6pm
+- Requests are received until **17:00 (GMT-3)** and executed at **18:00 (GMT-3)**.
+- Requests submitted after **17:00 (GMT-3)** are processed the next day.
+
+## Pending Definitions (Data / Sheet)
+
+To finish the dashboard and history, we need the Google Sheet to explicitly define where these values come from:
+
+- Dashboard metrics:
+  - Current portfolio value (USD)
+  - Total return since inception (USD)
+  - Total return since inception (%)
+  - Annual return (USD)
+  - Annual return (%)
+- History table:
+  - Date, Movement type, Amount, Previous balance, New balance, Status
+  - Whether history is a single sheet with an `email` column or per-investor tabs
+  - Status values (e.g. Pending / Completed / Rejected)
 
 ### Security
 
@@ -240,10 +275,6 @@ Users can install Winbit as a native app:
 - Verify EmailJS credentials are correct
 - Check EmailJS service is active
 - Confirm email templates are published
-
-## Support
-
-For issues or questions, contact: jaimegarciamendez@gmail.com
 
 ## License
 

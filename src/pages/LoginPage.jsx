@@ -3,11 +3,13 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
+import { useTranslation } from 'react-i18next';
 
 export const LoginPage = () => {
   const { user, loading, loginWithGoogle } = useAuth();
   const [error, setError] = useState(null);
   const [loggingIn, setLoggingIn] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setError(null);
@@ -35,11 +37,11 @@ export const LoginPage = () => {
       const code = result.error?.code;
 
       // User-friendly defaults + keep the real code visible for debugging Firebase deploy issues.
-      let message = 'Failed to sign in. Please try again.';
+      let message = t('auth.failedToSignIn');
       if (code === 'auth/unauthorized-domain') {
-        message = 'This domain is not authorized for sign-in.';
+        message = t('auth.unauthorizedDomain');
       } else if (code === 'auth/operation-not-allowed') {
-        message = 'Google sign-in is disabled for this project.';
+        message = t('auth.operationNotAllowed');
       }
 
       setError(code ? `${message} (${code})` : message);
@@ -64,7 +66,7 @@ export const LoginPage = () => {
             {loggingIn ? (
               <>
                 <Spinner size="sm" />
-                <span>Signing in...</span>
+                <span>{t('auth.signingIn')}</span>
               </>
             ) : (
               <>
@@ -86,7 +88,7 @@ export const LoginPage = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                <span>Sign in with Google</span>
+                <span>{t('auth.signInWithGoogle')}</span>
               </>
             )}
           </Button>
@@ -98,8 +100,8 @@ export const LoginPage = () => {
 
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            By signing in, you agree to access your portfolio data securely. Only registered
-            investors can access the platform.
+            Al iniciar sesión, aceptás acceder a tu información de forma segura. Solo inversores
+            registrados pueden acceder a la plataforma.
           </p>
         </div>
       </div>

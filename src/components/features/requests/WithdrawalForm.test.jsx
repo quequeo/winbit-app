@@ -13,17 +13,17 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );
     fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByText('Please enter a valid amount')).toBeInTheDocument();
+    expect(await screen.findByText('Ingresá un monto válido')).toBeInTheDocument();
   });
 
   it('validates amount cannot exceed balance', async () => {
     const { container } = render(
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );
-    const amountInput = screen.getByLabelText(/Amount/);
+    const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '200' } });
     fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByText('Amount exceeds current balance')).toBeInTheDocument();
+    expect(await screen.findByText('El monto supera el saldo actual')).toBeInTheDocument();
   });
 
   it('submits full withdrawal (amount disabled)', async () => {
@@ -32,8 +32,8 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );
 
-    fireEvent.click(screen.getByLabelText('Full'));
-    const amountInput = screen.getByLabelText(/Amount/);
+    fireEvent.click(screen.getByLabelText('Total'));
+    const amountInput = screen.getByLabelText(/Monto/);
     expect(amountInput).toBeDisabled();
 
     fireEvent.submit(container.querySelector('form'));
@@ -41,7 +41,7 @@ describe('WithdrawalForm', () => {
     await waitFor(() => {
       expect(sendWithdrawalRequest).toHaveBeenCalled();
     });
-    expect(await screen.findByText(/Withdrawal request sent successfully/)).toBeInTheDocument();
+    expect(await screen.findByText(/Solicitud de retiro enviada/)).toBeInTheDocument();
   });
 
   it('shows error from service', async () => {
@@ -50,7 +50,7 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );
 
-    const amountInput = screen.getByLabelText(/Amount/);
+    const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '10' } });
     fireEvent.submit(container.querySelector('form'));
 

@@ -5,10 +5,12 @@ import { PerformanceChart } from '../components/features/dashboard/PerformanceCh
 import { LastUpdated } from '../components/features/dashboard/LastUpdated';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
   const { data, loading, error, refetch } = useInvestorData(user?.email);
+  const { t } = useTranslation();
 
   if (loading) {
     return (
@@ -23,14 +25,16 @@ export const DashboardPage = () => {
   }
 
   if (!data) {
-    return <ErrorMessage message="No data available for your account" />;
+    return <ErrorMessage message="No hay datos disponibles para tu cuenta" />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Welcome back, {data.name}</h1>
-        <p className="text-gray-600 mt-1">Here&apos;s your portfolio overview</p>
+        <h1 className="text-3xl font-bold text-gray-900">
+          {t('dashboard.welcomeBack', { name: data.name })}
+        </h1>
+        <p className="text-gray-600 mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       <BalanceCard

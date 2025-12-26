@@ -22,24 +22,24 @@ describe('WalletCard', () => {
   it('copies address to clipboard on button click', async () => {
     render(<WalletCard {...defaultProps} />);
 
-    const copyButton = screen.getByText('Copy');
+    const copyButton = screen.getByText('Copiar');
     fireEvent.click(copyButton);
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(defaultProps.address);
 
     await waitFor(() => {
-      expect(screen.getByText('✓ Copied!')).toBeInTheDocument();
+      expect(screen.getByText('✓ ¡Copiado!')).toBeInTheDocument();
     });
   });
 
   it('shows copied state after clicking copy button', async () => {
     render(<WalletCard {...defaultProps} />);
 
-    const copyButton = screen.getByText('Copy');
+    const copyButton = screen.getByText('Copiar');
     fireEvent.click(copyButton);
 
     await waitFor(() => {
-      expect(screen.getByText('✓ Copied!')).toBeInTheDocument();
+      expect(screen.getByText('✓ ¡Copiado!')).toBeInTheDocument();
     });
   });
 });

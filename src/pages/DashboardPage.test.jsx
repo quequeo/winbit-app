@@ -18,7 +18,7 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    expect(screen.queryByText(/Welcome back/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hola,/)).not.toBeInTheDocument();
   });
 
   it('shows error message and retry calls refetch', () => {
@@ -47,7 +47,7 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    expect(screen.getByText('No data available for your account')).toBeInTheDocument();
+    expect(screen.getByText('No hay datos disponibles para tu cuenta')).toBeInTheDocument();
   });
 
   it('renders dashboard when data is available', () => {
@@ -67,7 +67,7 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    expect(screen.getByText('Welcome back, Juan')).toBeInTheDocument();
+    expect(screen.getByText('Hola, Juan')).toBeInTheDocument();
     expect(screen.getByText('Performance History')).toBeInTheDocument();
   });
 });

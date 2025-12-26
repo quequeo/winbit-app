@@ -6,11 +6,13 @@ describe('Footer', () => {
   it('renders copyright with current year', () => {
     render(<Footer />);
     const currentYear = new Date().getFullYear();
-    expect(screen.getByText(`© ${currentYear} Winbit. All rights reserved.`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`© ${currentYear} Winbit. Todos los derechos reservados.`),
+    ).toBeInTheDocument();
   });
 
   it('renders processing hours info', () => {
     render(<Footer />);
-    expect(screen.getByText(/processed between 8am-6pm/)).toBeInTheDocument();
+    expect(screen.getByText(/Las actualizaciones del portafolio/)).toBeInTheDocument();
   });
 });

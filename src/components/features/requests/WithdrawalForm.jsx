@@ -4,12 +4,14 @@ import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { sendWithdrawalRequest } from '../../../services/email';
 import { formatCurrency } from '../../../utils/formatCurrency';
+import { useTranslation } from 'react-i18next';
 
 export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
   const [type, setType] = useState('partial');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,12 +19,12 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     const withdrawalAmount = type === 'full' ? currentBalance : parseFloat(amount);
 
     if (type === 'partial' && (!amount || withdrawalAmount <= 0)) {
-      setMessage({ type: 'error', text: 'Please enter a valid amount' });
+      setMessage({ type: 'error', text: 'Ingresá un monto válido' });
       return;
     }
 
     if (withdrawalAmount > currentBalance) {
-      setMessage({ type: 'error', text: 'Amount exceeds current balance' });
+      setMessage({ type: 'error', text: 'El monto supera el saldo actual' });
       return;
     }
 
@@ -41,24 +43,24 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     if (result.success) {
       setMessage({
         type: 'success',
-        text: 'Withdrawal request sent successfully! You will be contacted soon.',
+        text: 'Solicitud de retiro enviada. Te contactaremos pronto.',
       });
       setAmount('');
       setType('partial');
     } else {
       setMessage({
         type: 'error',
-        text: result.error || 'Failed to send request. Please try again.',
+        text: result.error || 'No se pudo enviar la solicitud. Intentá de nuevo.',
       });
     }
   };
 
   return (
-    <Card title="Request Withdrawal">
+    <Card title={t('withdrawals.formTitle')}>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
-            Withdrawal Type <span className="text-red-500">*</span>
+            Tipo de retiro <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-4">
             <label className="flex items-center gap-2 cursor-pointer">
@@ -70,7 +72,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
                 onChange={(e) => setType(e.target.value)}
                 className="w-4 h-4 text-primary"
               />
-              <span>Partial</span>
+              <span>Parcial</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -81,13 +83,13 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
                 onChange={(e) => setType(e.target.value)}
                 className="w-4 h-4 text-primary"
               />
-              <span>Full</span>
+              <span>Total</span>
             </label>
           </div>
         </div>
 
         <Input
-          label="Amount"
+          label="Monto"
           type="number"
           id="amount"
           name="amount"
@@ -97,13 +99,13 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
           required={type === 'partial'}
           min="0.01"
           step="0.01"
-          placeholder="Enter amount in USD"
+          placeholder="Ingresá el monto en USD"
         />
 
         <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
-          <p className="font-medium mb-1">⏰ Processing Hours:</p>
-          <p>• Requests 6pm-8am → processed 8-10am</p>
-          <p>• Requests 10am-6pm → processed at 6pm</p>
+          <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
+          <p>• {t('withdrawals.processingHoursLine1')}</p>
+          <p>• {t('withdrawals.processingHoursLine2')}</p>
         </div>
 
         {message && (
@@ -117,7 +119,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
         )}
 
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Sending...' : 'Submit Request'}
+          {loading ? 'Enviando...' : 'Enviar solicitud'}
         </Button>
       </form>
     </Card>

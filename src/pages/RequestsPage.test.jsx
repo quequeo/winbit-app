@@ -12,10 +12,10 @@ describe('RequestsPage', () => {
     useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
     useInvestorData.mockReturnValue({ data: null, loading: true, error: null, refetch: vi.fn() });
     render(<RequestsPage />);
-    expect(screen.queryByText('Requests')).not.toBeInTheDocument();
+    expect(screen.queryByText('Retiros')).not.toBeInTheDocument();
   });
 
-  it('renders both forms when loaded', () => {
+  it('renders withdrawals when loaded', () => {
     useAuth.mockReturnValue({ user: { email: 'test@example.com', displayName: 'Juan' } });
     useInvestorData.mockReturnValue({
       data: { name: 'Juan', balance: 123 },
@@ -25,8 +25,7 @@ describe('RequestsPage', () => {
     });
 
     render(<RequestsPage />);
-    expect(screen.getByText('Requests')).toBeInTheDocument();
-    expect(screen.getByText('Request Withdrawal')).toBeInTheDocument();
-    expect(screen.getByText('Notify Deposit')).toBeInTheDocument();
+    expect(screen.getByText('Retiros')).toBeInTheDocument();
+    expect(screen.getByText('Solicitar retiro')).toBeInTheDocument();
   });
 });

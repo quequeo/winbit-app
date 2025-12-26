@@ -5,7 +5,7 @@ import { WalletList } from './WalletList';
 describe('WalletList', () => {
   it('renders empty state when no wallets', () => {
     render(<WalletList wallets={[]} />);
-    expect(screen.getByText('No Wallets Available')).toBeInTheDocument();
+    expect(screen.getByText('No hay wallets disponibles')).toBeInTheDocument();
   });
 
   it('renders wallet cards when wallets provided', () => {
@@ -22,6 +22,6 @@ describe('WalletList', () => {
 
   it('handles null wallets', () => {
     render(<WalletList wallets={null} />);
-    expect(screen.getByText('No Wallets Available')).toBeInTheDocument();
+    expect(screen.getByText('No hay wallets disponibles')).toBeInTheDocument();
   });
 });
