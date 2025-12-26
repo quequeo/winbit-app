@@ -59,8 +59,10 @@ describe('DashboardPage', () => {
       data: {
         name: 'Juan',
         balance: 100,
-        totalInvested: 90,
-        returns: 10,
+        totalReturnUsd: 50,
+        totalReturnPct: 10,
+        annualReturnUsd: 20,
+        annualReturnPct: 4,
         historicalData: [],
         lastUpdated: '2024-01-01T00:00:00.000Z',
       },
@@ -68,6 +70,8 @@ describe('DashboardPage', () => {
 
     render(<DashboardPage />);
     expect(screen.getByText('Hola, Juan')).toBeInTheDocument();
+    expect(screen.getByText('Valor actual del portafolio (USD)')).toBeInTheDocument();
+    expect(screen.getByText('$100.00')).toBeInTheDocument();
     expect(screen.getByText('Performance History')).toBeInTheDocument();
   });
 });

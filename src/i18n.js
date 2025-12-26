@@ -50,6 +50,13 @@ const resources = {
       dashboard: {
         welcomeBack: 'Hola, {{name}}',
         subtitle: 'Resumen de tu portafolio',
+        kpis: {
+          currentValue: 'Valor actual del portafolio (USD)',
+          totalReturnUsd: 'Rentabilidad acumulada desde el inicio (USD)',
+          totalReturnPct: 'Rentabilidad acumulada desde el inicio (%)',
+          annualReturnUsd: 'Rentabilidad acumulada anual (USD)',
+          annualReturnPct: 'Rentabilidad acumulada anual (%)',
+        },
       },
       deposits: {
         title: 'Depósitos',
@@ -74,7 +81,21 @@ const resources = {
       },
       history: {
         title: 'Historial',
-        comingSoon: 'Próximamente',
+        subtitle: 'Movimientos y estados de tu cuenta',
+        emptyTitle: 'Sin movimientos todavía',
+        emptyDescription: 'Cuando haya movimientos, los vas a ver reflejados acá.',
+        errors: {
+          emailMappingNotConfigured:
+            'Falta configurar el mapeo de tu usuario (email) al código de inversor en Google Sheets (solapa CODIGOS o columna EMAIL en DASHBOARD).',
+        },
+        table: {
+          date: 'Fecha',
+          movement: 'Movimiento',
+          amount: 'Monto',
+          previousBalance: 'Saldo previo',
+          newBalance: 'Saldo posterior',
+          status: 'Estado',
+        },
       },
     },
   },
@@ -116,6 +137,13 @@ const resources = {
       dashboard: {
         welcomeBack: 'Welcome back, {{name}}',
         subtitle: 'Here is your portfolio overview',
+        kpis: {
+          currentValue: 'Current portfolio value (USD)',
+          totalReturnUsd: 'Total return since inception (USD)',
+          totalReturnPct: 'Total return since inception (%)',
+          annualReturnUsd: 'Annual return (USD)',
+          annualReturnPct: 'Annual return (%)',
+        },
       },
       deposits: {
         title: 'Deposits',
@@ -139,7 +167,21 @@ const resources = {
       },
       history: {
         title: 'History',
-        comingSoon: 'Coming soon',
+        subtitle: 'Account movements and status',
+        emptyTitle: 'No movements yet',
+        emptyDescription: 'When there are movements, you will see them here.',
+        errors: {
+          emailMappingNotConfigured:
+            'Missing configuration to map your user (email) to the investor code in Google Sheets (CODIGOS sheet or EMAIL column in DASHBOARD).',
+        },
+        table: {
+          date: 'Date',
+          movement: 'Movement',
+          amount: 'Amount',
+          previousBalance: 'Previous balance',
+          newBalance: 'New balance',
+          status: 'Status',
+        },
       },
     },
   },

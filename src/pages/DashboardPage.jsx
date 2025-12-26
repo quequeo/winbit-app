@@ -1,8 +1,8 @@
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
-import { BalanceCard } from '../components/features/dashboard/BalanceCard';
 import { PerformanceChart } from '../components/features/dashboard/PerformanceChart';
 import { LastUpdated } from '../components/features/dashboard/LastUpdated';
+import { KpiCard } from '../components/features/dashboard/KpiCard';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { useTranslation } from 'react-i18next';
@@ -42,11 +42,29 @@ export const DashboardPage = () => {
         <p className="text-gray-600 mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
-      <BalanceCard
-        balance={data.balance}
-        totalInvested={data.totalInvested}
-        returns={data.returns}
-      />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <KpiCard title={t('dashboard.kpis.currentValue')} value={data.balance} variant="currency" />
+        <KpiCard
+          title={t('dashboard.kpis.totalReturnUsd')}
+          value={data.totalReturnUsd ?? 0}
+          variant="currency"
+        />
+        <KpiCard
+          title={t('dashboard.kpis.totalReturnPct')}
+          value={data.totalReturnPct ?? 0}
+          variant="percentage"
+        />
+        <KpiCard
+          title={t('dashboard.kpis.annualReturnUsd')}
+          value={data.annualReturnUsd ?? 0}
+          variant="currency"
+        />
+        <KpiCard
+          title={t('dashboard.kpis.annualReturnPct')}
+          value={data.annualReturnPct ?? 0}
+          variant="percentage"
+        />
+      </div>
 
       <PerformanceChart data={data.historicalData} />
 
