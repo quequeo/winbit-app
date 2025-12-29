@@ -43,8 +43,18 @@ export const DashboardPage = () => {
         <p className="text-gray-600 mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <KpiCard title={t('dashboard.kpis.currentValue')} value={data.balance} variant="currency" />
+      {/* Primera línea - Valor actual destacado */}
+      <div className="mb-6">
+        <KpiCard 
+          title={t('dashboard.kpis.currentValue')} 
+          value={data.balance} 
+          variant="currency" 
+          highlighted={true}
+        />
+      </div>
+
+      {/* Segunda línea - Resultado desde el inicio */}
+      <div className="grid gap-4 md:grid-cols-2 mb-4">
         <KpiCard
           title={t('dashboard.kpis.totalReturnUsd')}
           value={data.totalReturnUsd ?? 0}
@@ -55,6 +65,10 @@ export const DashboardPage = () => {
           value={data.totalReturnPct ?? 0}
           variant="percentage"
         />
+      </div>
+
+      {/* Tercera línea - Resultado anual */}
+      <div className="grid gap-4 md:grid-cols-2">
         <KpiCard
           title={t('dashboard.kpis.annualReturnUsd')}
           value={data.annualReturnUsd ?? 0}
