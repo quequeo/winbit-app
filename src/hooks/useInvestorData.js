@@ -5,6 +5,7 @@ export const useInvestorData = (email) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!email) {
@@ -15,6 +16,7 @@ export const useInvestorData = (email) => {
     try {
       setLoading(true);
       setError(null);
+      setUnauthorized(false);
       const result = await getInvestorData(email);
 
       if (result.error) {
@@ -23,7 +25,21 @@ export const useInvestorData = (email) => {
 
       setData(result.data);
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err.message;
+      
+      // Check for unauthorized user errors
+      if (
+        errorMessage.includes('Investor not found in database') ||
+        errorMessage.includes('Investor email mapping not configured') ||
+        errorMessage.includes('not found in sheet')
+      ) {
+        setUnauthorized(true);
+        setError(null);
+      } else {
+        setError(errorMessage);
+        setUnauthorized(false);
+      }
+      
       setData(null);
     } finally {
       setLoading(false);
@@ -34,5 +50,5 @@ export const useInvestorData = (email) => {
     fetchData();
   }, [fetchData]);
 
-  return { data, loading, error, refetch: fetchData };
+  return { data, loading, error, unauthorized, refetch: fetchData };
 };

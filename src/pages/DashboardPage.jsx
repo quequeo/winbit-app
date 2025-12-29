@@ -4,12 +4,13 @@ import { PerformanceChart } from '../components/features/dashboard/PerformanceCh
 import { KpiCard } from '../components/features/dashboard/KpiCard';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { UnauthorizedPage } from './UnauthorizedPage';
 import { useTranslation } from 'react-i18next';
 import { formatName } from '../utils/formatName';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
-  const { data, loading, error, refetch } = useInvestorData(user?.email);
+  const { data, loading, error, unauthorized, refetch } = useInvestorData(user?.email);
   const { t } = useTranslation();
 
   if (loading) {
@@ -18,6 +19,10 @@ export const DashboardPage = () => {
         <Spinner size="lg" />
       </div>
     );
+  }
+
+  if (unauthorized) {
+    return <UnauthorizedPage />;
   }
 
   if (error) {
