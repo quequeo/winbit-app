@@ -162,7 +162,12 @@ const parseDashboardSheet = async ({ values, email, investorCode, apiKey, sheetI
   const investorId = idxInvestor >= 0 ? String(investorRow[idxInvestor] ?? '').trim() : '';
 
   // Get investor name from INVERSORES sheet
-  const investorName = await getInvestorNameFromInversoresSheet({ apiKey, sheetId, email, investorCode: investorId });
+  const investorName = await getInvestorNameFromInversoresSheet({
+    apiKey,
+    sheetId,
+    email,
+    investorCode: investorId,
+  });
 
   return {
     email,
@@ -220,7 +225,7 @@ const getInvestorNameFromInversoresSheet = async ({ apiKey, sheetId, email, inve
 
     const headers = values[0] ?? [];
     const rows = values.slice(1);
-    
+
     const emailCol = findEmailColumnIndex(headers);
     const codeCol = findCodeColumnIndex(headers);
     const nameCol = headers.findIndex((h) => normalizeHeader(h) === 'NOMBRE');
@@ -233,7 +238,10 @@ const getInvestorNameFromInversoresSheet = async ({ apiKey, sheetId, email, inve
     if (emailCol >= 0 && email) {
       const emailLower = String(email).toLowerCase().trim();
       const row = rows.find(
-        (r) => String(r?.[emailCol] ?? '').toLowerCase().trim() === emailLower,
+        (r) =>
+          String(r?.[emailCol] ?? '')
+            .toLowerCase()
+            .trim() === emailLower,
       );
       if (row) {
         return String(row[nameCol] ?? '').trim();
@@ -242,9 +250,7 @@ const getInvestorNameFromInversoresSheet = async ({ apiKey, sheetId, email, inve
 
     // Try to find by code if email didn't work
     if (codeCol >= 0 && investorCode) {
-      const row = rows.find(
-        (r) => String(r?.[codeCol] ?? '').trim() === investorCode,
-      );
+      const row = rows.find((r) => String(r?.[codeCol] ?? '').trim() === investorCode);
       if (row) {
         return String(row[nameCol] ?? '').trim();
       }
@@ -468,7 +474,12 @@ export const getInvestorData = async (email) => {
 
     if (looksLikeNewDashboard) {
       try {
-        const data = await parseDashboardSheet({ values, email, apiKey: API_KEY, sheetId: SHEET_ID });
+        const data = await parseDashboardSheet({
+          values,
+          email,
+          apiKey: API_KEY,
+          sheetId: SHEET_ID,
+        });
         return { data, error: null };
       } catch (err) {
         if (err?.message === 'Investor not found in database') {
@@ -483,7 +494,13 @@ export const getInvestorData = async (email) => {
             sheetId: SHEET_ID,
             email,
           });
-          const data = await parseDashboardSheet({ values, email, investorCode, apiKey: API_KEY, sheetId: SHEET_ID });
+          const data = await parseDashboardSheet({
+            values,
+            email,
+            investorCode,
+            apiKey: API_KEY,
+            sheetId: SHEET_ID,
+          });
           return { data, error: null };
         }
         throw err;

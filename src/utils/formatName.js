@@ -29,7 +29,7 @@ export const formatName = (name) => {
           })
           .join('');
       }
-      
+
       return word.charAt(0).toUpperCase() + word.slice(1);
     })
     .join(' ');
