@@ -34,3 +34,6 @@ describe('HistoryPage', () => {
     expect(screen.getByText('Completado')).toBeInTheDocument();
   });
 });
+
+
+

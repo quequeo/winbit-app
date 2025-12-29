@@ -129,6 +129,7 @@ const parseDashboardSheet = ({ values, email, investorCode }) => {
   }
 
   const idxInvestor = headers.findIndex((h) => normalizeHeader(h) === 'INVERSORES');
+  const idxNombre = headers.findIndex((h) => normalizeHeader(h) === 'NOMBRE' || normalizeHeader(h) === 'NOMBRES');
   const idxCapital = headers.findIndex((h) => normalizeHeader(h) === 'CAPITAL ACTUAL');
   const idxTotalUsd = headers.findIndex(
     (h) => normalizeHeader(h) === 'REND ACUMULADO DESDE EL INICIO',
@@ -160,10 +161,11 @@ const parseDashboardSheet = ({ values, email, investorCode }) => {
   const annualReturnPct = parseNumber(investorRow[idxAnnualPct]);
 
   const investorId = idxInvestor >= 0 ? String(investorRow[idxInvestor] ?? '').trim() : '';
+  const investorName = idxNombre >= 0 ? String(investorRow[idxNombre] ?? '').trim() : '';
 
   return {
     email,
-    name: investorId ? `Inversor ${investorId}` : email,
+    name: investorName || investorId || email,
     balance: capitalActual,
     totalReturnUsd,
     totalReturnPct,

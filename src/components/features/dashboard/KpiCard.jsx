@@ -19,3 +19,6 @@ export const KpiCard = ({ title, value, variant }) => {
     </Card>
   );
 };
+
+
+
