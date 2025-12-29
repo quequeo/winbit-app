@@ -1,7 +1,6 @@
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
 import { PerformanceChart } from '../components/features/dashboard/PerformanceChart';
-import { LastUpdated } from '../components/features/dashboard/LastUpdated';
 import { KpiCard } from '../components/features/dashboard/KpiCard';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
@@ -82,8 +81,6 @@ export const DashboardPage = () => {
       </div>
 
       <PerformanceChart data={data.historicalData} />
-
-      <LastUpdated timestamp={data.lastUpdated} />
     </div>
   );
 };
