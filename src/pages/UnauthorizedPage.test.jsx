@@ -26,9 +26,9 @@ describe('UnauthorizedPage', () => {
   it('calls logout when button is clicked', async () => {
     render(<UnauthorizedPage />);
     const logoutButton = screen.getByText('Cerrar sesión');
-    
+
     fireEvent.click(logoutButton);
-    
+
     expect(mockLogout).toHaveBeenCalled();
   });
 

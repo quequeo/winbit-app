@@ -129,7 +129,8 @@ const resources = {
       unauthorized: {
         title: 'Acceso no autorizado',
         currentAccount: 'Cuenta actual',
-        message: 'Tu cuenta de Google no está registrada en el sistema Winbit. Para acceder, necesitás ser un inversor autorizado.',
+        message:
+          'Tu cuenta de Google no está registrada en el sistema Winbit. Para acceder, necesitás ser un inversor autorizado.',
         contactTitle: 'Contacto para solicitar acceso:',
         logout: 'Cerrar sesión',
         helpText: 'Podés intentar con otra cuenta de Google o contactar al administrador.',
@@ -249,7 +250,8 @@ const resources = {
       unauthorized: {
         title: 'Unauthorized Access',
         currentAccount: 'Current account',
-        message: 'Your Google account is not registered in the Winbit system. To access, you need to be an authorized investor.',
+        message:
+          'Your Google account is not registered in the Winbit system. To access, you need to be an authorized investor.',
         contactTitle: 'Contact to request access:',
         logout: 'Sign out',
         helpText: 'You can try with another Google account or contact the administrator.',

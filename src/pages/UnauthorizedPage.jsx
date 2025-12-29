@@ -37,9 +37,7 @@ export const UnauthorizedPage = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            {t('unauthorized.title')}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('unauthorized.title')}</h1>
 
           {/* User email */}
           <p className="text-sm text-gray-600 mb-4">
@@ -47,33 +45,23 @@ export const UnauthorizedPage = () => {
           </p>
 
           {/* Message */}
-          <p className="text-gray-700 mb-6 leading-relaxed">
-            {t('unauthorized.message')}
-          </p>
+          <p className="text-gray-700 mb-6 leading-relaxed">{t('unauthorized.message')}</p>
 
           {/* Contact info */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <p className="text-sm font-medium text-gray-900 mb-2">
               {t('unauthorized.contactTitle')}
             </p>
-            <p className="text-sm text-gray-700">
-              📧 winbit.cfds@gmail.com
-            </p>
+            <p className="text-sm text-gray-700">📧 winbit.cfds@gmail.com</p>
           </div>
 
           {/* Logout button */}
-          <Button 
-            onClick={handleLogout} 
-            className="w-full"
-            variant="primary"
-          >
+          <Button onClick={handleLogout} className="w-full" variant="primary">
             {t('unauthorized.logout')}
           </Button>
 
           {/* Additional help */}
-          <p className="text-xs text-gray-500 mt-4">
-            {t('unauthorized.helpText')}
-          </p>
+          <p className="text-xs text-gray-500 mt-4">{t('unauthorized.helpText')}</p>
         </Card>
       </div>
     </div>

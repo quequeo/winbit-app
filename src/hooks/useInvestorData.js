@@ -26,7 +26,7 @@ export const useInvestorData = (email) => {
       setData(result.data);
     } catch (err) {
       const errorMessage = err.message;
-      
+
       // Check for unauthorized user errors
       if (
         errorMessage.includes('Investor not found in database') ||
@@ -39,7 +39,7 @@ export const useInvestorData = (email) => {
         setError(errorMessage);
         setUnauthorized(false);
       }
-      
+
       setData(null);
     } finally {
       setLoading(false);
