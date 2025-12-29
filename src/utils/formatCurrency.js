@@ -11,6 +11,6 @@ export const formatCurrency = (amount, showSign = false) => {
 
   // Add sign for positive values if requested (but not for zero)
   const sign = showSign && amount > 0 ? '+' : amount < 0 ? '-' : '';
-  
+
   return `${sign}$${formatted}`;
 };

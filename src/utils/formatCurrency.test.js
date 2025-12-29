@@ -27,7 +27,7 @@ describe('formatCurrency', () => {
 
   it('shows positive sign when requested', () => {
     expect(formatCurrency(1000, true)).toBe('+$1.000,00');
-    expect(formatCurrency(500.50, true)).toBe('+$500,50');
+    expect(formatCurrency(500.5, true)).toBe('+$500,50');
     expect(formatCurrency(0, true)).toBe('$0,00');
   });
 
