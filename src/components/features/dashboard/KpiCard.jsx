@@ -10,17 +10,15 @@ export const KpiCard = ({ title, value, variant, highlighted = false }) => {
         ? formatPercentage(value)
         : String(value ?? '');
 
-  const cardClassName = highlighted 
-    ? "bg-gradient-to-r from-[#58b098] to-[#4a9d84] text-white shadow-lg"
-    : "bg-white";
-    
-  const titleClassName = highlighted 
-    ? "text-sm text-white/90"
-    : "text-sm text-gray-600";
-    
-  const valueClassName = highlighted 
-    ? "text-3xl font-bold text-white"
-    : "text-2xl font-semibold text-gray-900";
+  const cardClassName = highlighted
+    ? 'bg-gradient-to-r from-[#58b098] to-[#4a9d84] text-white shadow-lg'
+    : 'bg-white';
+
+  const titleClassName = highlighted ? 'text-sm text-white/90' : 'text-sm text-gray-600';
+
+  const valueClassName = highlighted
+    ? 'text-3xl font-bold text-white'
+    : 'text-2xl font-semibold text-gray-900';
 
   return (
     <Card className={cardClassName}>

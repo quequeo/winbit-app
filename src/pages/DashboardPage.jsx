@@ -45,10 +45,10 @@ export const DashboardPage = () => {
 
       {/* Primera línea - Valor actual destacado */}
       <div className="mb-6">
-        <KpiCard 
-          title={t('dashboard.kpis.currentValue')} 
-          value={data.balance} 
-          variant="currency" 
+        <KpiCard
+          title={t('dashboard.kpis.currentValue')}
+          value={data.balance}
+          variant="currency"
           highlighted={true}
         />
       </div>
