@@ -169,6 +169,13 @@ const parseDashboardSheet = async ({ values, email, investorCode, apiKey, sheetI
     investorCode: investorId,
   });
 
+  // Get last updated date from HISTORIAL sheet
+  const lastUpdated = await getLastUpdatedDateFromHistorial({
+    apiKey,
+    sheetId,
+    investorCode: investorId,
+  });
+
   return {
     email,
     name: investorName || investorId || email,
@@ -178,7 +185,7 @@ const parseDashboardSheet = async ({ values, email, investorCode, apiKey, sheetI
     annualReturnUsd,
     annualReturnPct,
     historicalData: [],
-    lastUpdated: new Date().toISOString(),
+    lastUpdated,
   };
 };
 
@@ -260,6 +267,54 @@ const getInvestorNameFromInversoresSheet = async ({ apiKey, sheetId, email, inve
   } catch (err) {
     // If INVERSORES sheet doesn't exist or has issues, return empty name
     return '';
+  }
+};
+
+const getLastUpdatedDateFromHistorial = async ({ apiKey, sheetId, investorCode }) => {
+  try {
+    const values = await getSheetValues({
+      sheetId,
+      apiKey,
+      range: `${HISTORIAL_SHEET_NAME}!A:Z`,
+    });
+    
+    if (!values.length) {
+      return new Date().toISOString(); // Fallback to current date
+    }
+
+    const headers = values[0] ?? [];
+    const rows = values.slice(1);
+    
+    const codeCol = headers.findIndex((h) => normalizeHeader(h) === 'CODIGO');
+    const dateCol = headers.findIndex((h) => normalizeHeader(h) === 'FECHA');
+
+    if (codeCol < 0 || dateCol < 0) {
+      return new Date().toISOString(); // Fallback to current date
+    }
+
+    // Filter rows for this investor and get all dates
+    const investorRows = rows.filter(
+      (row) => String(row?.[codeCol] ?? '').trim() === String(investorCode).trim(),
+    );
+
+    if (investorRows.length === 0) {
+      return new Date().toISOString(); // Fallback to current date
+    }
+
+    // Get all dates and find the most recent one
+    const dates = investorRows
+      .map((row) => parseDateToIso(row?.[dateCol]))
+      .filter((date) => date) // Remove empty dates
+      .sort((a, b) => new Date(b) - new Date(a)); // Sort descending (most recent first)
+
+    if (dates.length === 0) {
+      return new Date().toISOString(); // Fallback to current date
+    }
+
+    return dates[0]; // Return the most recent date
+  } catch (err) {
+    // If HISTORIAL sheet doesn't exist or has issues, return current date
+    return new Date().toISOString();
   }
 };
 

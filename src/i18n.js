@@ -3,6 +3,9 @@ import { initReactI18next } from 'react-i18next';
 
 const LANGUAGE_STORAGE_KEY = 'winbit_language';
 
+// Get current year for dynamic labels
+const getCurrentYear = () => new Date().getFullYear();
+
 const getInitialLanguage = () => {
   const stored = globalThis?.localStorage?.getItem(LANGUAGE_STORAGE_KEY);
   if (stored === 'es' || stored === 'en') {
@@ -52,10 +55,10 @@ const resources = {
         subtitle: 'Resumen de tu portafolio',
         kpis: {
           currentValue: 'Valor actual del portafolio (USD)',
-          totalReturnUsd: 'Rentabilidad acumulada desde el inicio (USD)',
-          totalReturnPct: 'Rentabilidad acumulada desde el inicio (%)',
-          annualReturnUsd: 'Rentabilidad acumulada anual (USD)',
-          annualReturnPct: 'Rentabilidad acumulada anual (%)',
+          totalReturnUsd: 'Resultado acumulado desde el inicio (USD)',
+          totalReturnPct: 'Resultado acumulado desde el inicio (%)',
+          annualReturnUsd: `Resultado acumulado anual ${getCurrentYear()} (USD)`,
+          annualReturnPct: `Resultado acumulado anual ${getCurrentYear()} (%)`,
         },
       },
       deposits: {
@@ -163,8 +166,8 @@ const resources = {
           currentValue: 'Current portfolio value (USD)',
           totalReturnUsd: 'Total return since inception (USD)',
           totalReturnPct: 'Total return since inception (%)',
-          annualReturnUsd: 'Annual return (USD)',
-          annualReturnPct: 'Annual return (%)',
+          annualReturnUsd: `Annual return ${getCurrentYear()} (USD)`,
+          annualReturnPct: `Annual return ${getCurrentYear()} (%)`,
         },
       },
       deposits: {
