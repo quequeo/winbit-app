@@ -6,6 +6,7 @@ import { KpiCard } from '../components/features/dashboard/KpiCard';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { useTranslation } from 'react-i18next';
+import { formatName } from '../utils/formatName';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
@@ -37,7 +38,7 @@ export const DashboardPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
-          {t('dashboard.welcomeBack', { name: data.name })}
+          {t('dashboard.welcomeBack', { name: formatName(data.name) })}
         </h1>
         <p className="text-gray-600 mt-1">{t('dashboard.subtitle')}</p>
       </div>

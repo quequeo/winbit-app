@@ -6,7 +6,7 @@ const getEnv = (key) => {
 
 const DASHBOARD_SHEET_NAME = 'DASHBOARD';
 const HISTORIAL_SHEET_NAME = 'HISTORIAL';
-const CODIGOS_SHEET_NAME = 'CODIGOS';
+const INVERSORES_SHEET_NAME = 'INVERSORES';
 const CORREOS_SHEET_NAME = 'CORREOS';
 
 const normalizeHeader = (value) => {
@@ -112,7 +112,7 @@ const findRowForCode = (rows, headers, code) => {
   return rows.find((row) => String(row?.[codeCol] ?? '').trim() === codeNormalized) ?? null;
 };
 
-const parseDashboardSheet = ({ values, email, investorCode }) => {
+const parseDashboardSheet = async ({ values, email, investorCode, apiKey, sheetId }) => {
   if (!values || values.length === 0) {
     throw new Error('No data found in sheet');
   }
@@ -129,9 +129,6 @@ const parseDashboardSheet = ({ values, email, investorCode }) => {
   }
 
   const idxInvestor = headers.findIndex((h) => normalizeHeader(h) === 'INVERSORES');
-  const idxNombre = headers.findIndex(
-    (h) => normalizeHeader(h) === 'NOMBRE' || normalizeHeader(h) === 'NOMBRES',
-  );
   const idxCapital = headers.findIndex((h) => normalizeHeader(h) === 'CAPITAL ACTUAL');
   const idxTotalUsd = headers.findIndex(
     (h) => normalizeHeader(h) === 'REND ACUMULADO DESDE EL INICIO',
@@ -163,7 +160,9 @@ const parseDashboardSheet = ({ values, email, investorCode }) => {
   const annualReturnPct = parseNumber(investorRow[idxAnnualPct]);
 
   const investorId = idxInvestor >= 0 ? String(investorRow[idxInvestor] ?? '').trim() : '';
-  const investorName = idxNombre >= 0 ? String(investorRow[idxNombre] ?? '').trim() : '';
+
+  // Get investor name from INVERSORES sheet
+  const investorName = await getInvestorNameFromInversoresSheet({ apiKey, sheetId, email, investorCode: investorId });
 
   return {
     email,
@@ -210,6 +209,52 @@ const getSheetValues = async ({ sheetId, apiKey, range }) => {
   }
   const result = await response.json();
   return result.values || [];
+};
+
+const getInvestorNameFromInversoresSheet = async ({ apiKey, sheetId, email, investorCode }) => {
+  try {
+    const values = await getSheetValues({ sheetId, apiKey, range: `${INVERSORES_SHEET_NAME}!A:Z` });
+    if (!values.length) {
+      return '';
+    }
+
+    const headers = values[0] ?? [];
+    const rows = values.slice(1);
+    
+    const emailCol = findEmailColumnIndex(headers);
+    const codeCol = findCodeColumnIndex(headers);
+    const nameCol = headers.findIndex((h) => normalizeHeader(h) === 'NOMBRE');
+
+    if (nameCol < 0) {
+      return '';
+    }
+
+    // Try to find by email first
+    if (emailCol >= 0 && email) {
+      const emailLower = String(email).toLowerCase().trim();
+      const row = rows.find(
+        (r) => String(r?.[emailCol] ?? '').toLowerCase().trim() === emailLower,
+      );
+      if (row) {
+        return String(row[nameCol] ?? '').trim();
+      }
+    }
+
+    // Try to find by code if email didn't work
+    if (codeCol >= 0 && investorCode) {
+      const row = rows.find(
+        (r) => String(r?.[codeCol] ?? '').trim() === investorCode,
+      );
+      if (row) {
+        return String(row[nameCol] ?? '').trim();
+      }
+    }
+
+    return '';
+  } catch (err) {
+    // If INVERSORES sheet doesn't exist or has issues, return empty name
+    return '';
+  }
 };
 
 const resolveInvestorCode = async ({ apiKey, sheetId, email }) => {
@@ -261,9 +306,9 @@ const resolveInvestorCode = async ({ apiKey, sheetId, email }) => {
     return row ? String(row?.[codeCol] ?? '').trim() : '';
   };
 
-  // Fallback 1: CODIGOS mapping (EMAIL -> CODIGO/INVERSORES/etc.)
+  // Fallback 1: INVERSORES mapping (EMAIL -> CODIGO)
   try {
-    const code = await resolveFromMappingSheet(CODIGOS_SHEET_NAME);
+    const code = await resolveFromMappingSheet(INVERSORES_SHEET_NAME);
     if (code) {
       return code;
     }
@@ -423,7 +468,7 @@ export const getInvestorData = async (email) => {
 
     if (looksLikeNewDashboard) {
       try {
-        const data = parseDashboardSheet({ values, email });
+        const data = await parseDashboardSheet({ values, email, apiKey: API_KEY, sheetId: SHEET_ID });
         return { data, error: null };
       } catch (err) {
         if (err?.message === 'Investor not found in database') {
@@ -438,7 +483,7 @@ export const getInvestorData = async (email) => {
             sheetId: SHEET_ID,
             email,
           });
-          const data = parseDashboardSheet({ values, email, investorCode });
+          const data = await parseDashboardSheet({ values, email, investorCode, apiKey: API_KEY, sheetId: SHEET_ID });
           return { data, error: null };
         }
         throw err;
