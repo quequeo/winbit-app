@@ -72,6 +72,6 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Hola, Juan')).toBeInTheDocument();
     expect(screen.getByText('Valor actual del portafolio (USD)')).toBeInTheDocument();
     expect(screen.getByText('$100.00')).toBeInTheDocument();
-    expect(screen.getByText('Performance History')).toBeInTheDocument();
+    expect(screen.getByText('Historial de Rendimiento')).toBeInTheDocument();
   });
 });

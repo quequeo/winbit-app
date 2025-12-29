@@ -7,22 +7,25 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../../ui/Card';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
 export const PerformanceChart = ({ data }) => {
+  const { t } = useTranslation();
+
   if (!data || data.length === 0) {
     return (
-      <Card title="Performance History">
+      <Card title={t('dashboard.chart.title')}>
         <div className="h-64 flex items-center justify-center text-gray-500">
-          No historical data available
+          {t('dashboard.chart.noData')}
         </div>
       </Card>
     );
   }
 
   return (
-    <Card title="Performance History">
+    <Card title={t('dashboard.chart.title')}>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>

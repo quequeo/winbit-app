@@ -15,13 +15,13 @@ vi.mock('recharts', () => ({
 describe('PerformanceChart', () => {
   it('shows empty state when no data', () => {
     render(<PerformanceChart data={[]} />);
-    expect(screen.getByText('Performance History')).toBeInTheDocument();
-    expect(screen.getByText('No historical data available')).toBeInTheDocument();
+    expect(screen.getByText('Historial de Rendimiento')).toBeInTheDocument();
+    expect(screen.getByText('No hay datos históricos disponibles')).toBeInTheDocument();
   });
 
   it('renders chart when data is present', () => {
     render(<PerformanceChart data={[{ date: 'Day 1', balance: 100 }]} />);
-    expect(screen.getByText('Performance History')).toBeInTheDocument();
+    expect(screen.getByText('Historial de Rendimiento')).toBeInTheDocument();
     expect(screen.getByTestId('rc')).toBeInTheDocument();
     expect(screen.getByTestId('lc')).toBeInTheDocument();
     expect(screen.getByTestId('line')).toBeInTheDocument();

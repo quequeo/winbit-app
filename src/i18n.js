@@ -60,6 +60,10 @@ const resources = {
           annualReturnUsd: `Resultado acumulado anual ${getCurrentYear()} (USD)`,
           annualReturnPct: `Resultado acumulado anual ${getCurrentYear()} (%)`,
         },
+        chart: {
+          title: 'Historial de Rendimiento',
+          noData: 'No hay datos históricos disponibles',
+        },
       },
       deposits: {
         title: 'Depósitos',
@@ -168,6 +172,10 @@ const resources = {
           totalReturnPct: 'Total return since inception (%)',
           annualReturnUsd: `Annual return ${getCurrentYear()} (USD)`,
           annualReturnPct: `Annual return ${getCurrentYear()} (%)`,
+        },
+        chart: {
+          title: 'Performance History',
+          noData: 'No historical data available',
         },
       },
       deposits: {
