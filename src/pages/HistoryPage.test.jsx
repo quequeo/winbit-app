@@ -30,7 +30,7 @@ describe('HistoryPage', () => {
     render(<HistoryPage />);
     expect(screen.getByText('Historial')).toBeInTheDocument();
     expect(screen.getByText('Depósito')).toBeInTheDocument();
-    expect(screen.getByText('$10,000.00')).toBeInTheDocument();
+    expect(screen.getByText('$10.000,00')).toBeInTheDocument();
     expect(screen.getByText('Completado')).toBeInTheDocument();
   });
 });

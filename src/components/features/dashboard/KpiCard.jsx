@@ -2,10 +2,10 @@ import { Card } from '../../ui/Card';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { formatPercentage } from '../../../utils/formatPercentage';
 
-export const KpiCard = ({ title, value, variant, highlighted = false }) => {
+export const KpiCard = ({ title, value, variant, highlighted = false, showSign = false }) => {
   const displayValue =
     variant === 'currency'
-      ? formatCurrency(value)
+      ? formatCurrency(value, showSign)
       : variant === 'percentage'
         ? formatPercentage(value)
         : String(value ?? '');

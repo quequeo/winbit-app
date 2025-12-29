@@ -63,6 +63,7 @@ export const DashboardPage = () => {
           title={t('dashboard.kpis.totalReturnUsd')}
           value={data.totalReturnUsd ?? 0}
           variant="currency"
+          showSign={true}
         />
         <KpiCard
           title={t('dashboard.kpis.totalReturnPct')}
@@ -77,6 +78,7 @@ export const DashboardPage = () => {
           title={t('dashboard.kpis.annualReturnUsd')}
           value={data.annualReturnUsd ?? 0}
           variant="currency"
+          showSign={true}
         />
         <KpiCard
           title={t('dashboard.kpis.annualReturnPct')}
