@@ -277,14 +277,14 @@ const getLastUpdatedDateFromHistorial = async ({ apiKey, sheetId, investorCode }
       apiKey,
       range: `${HISTORIAL_SHEET_NAME}!A:Z`,
     });
-    
+
     if (!values.length) {
       return new Date().toISOString(); // Fallback to current date
     }
 
     const headers = values[0] ?? [];
     const rows = values.slice(1);
-    
+
     const codeCol = headers.findIndex((h) => normalizeHeader(h) === 'CODIGO');
     const dateCol = headers.findIndex((h) => normalizeHeader(h) === 'FECHA');
 
