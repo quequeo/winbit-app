@@ -36,6 +36,3 @@ export const useInvestorHistory = (email) => {
 
   return { data, loading, error, refetch: fetchData };
 };
-
-
-
