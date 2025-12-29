@@ -43,7 +43,25 @@ When hosting the panel under `/app`, the development URL is typically:
 
 - Default language: **Español**
 - Language switcher: **Header (top-right)** (Spanish / English)
-- Language preference: stored in localStorage (planned)
+- Language preference: stored in localStorage
+- Translation system: `react-i18next`
+
+## Number Format (Argentine Standard)
+
+The app uses Argentine number formatting:
+
+- **Thousands separator:** Point (`.`) - Example: `15.226`
+- **Decimal separator:** Comma (`,`) - Example: `15.226,00`
+- **Currency format:** `$15.226,00` (no space between $ and number)
+- **Percentage format:** `+1,50%` (always show sign for positive values)
+- **Return values:** Show `+` sign for positive results (except portfolio value)
+- **Zero values:** No sign for zero (`$0,00`, `0,00%`)
+
+### Examples:
+- Portfolio value: `$15.226,50` (no sign)
+- Positive returns: `+$1.500,75` and `+1,50%`
+- Negative returns: `-$500,25` and `-2,30%`
+- Zero: `$0,00` and `0,00%`
 
 ## Prerequisites
 

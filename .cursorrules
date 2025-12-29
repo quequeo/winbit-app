@@ -315,28 +315,53 @@ VITE_EMAILJS_PUBLIC_KEY=
 - Historical data available from investor's signup date
 - Each investor sees only their own data
 
-## Brand Assets (Confirmed)
+## Localization & Formatting Rules
 
-- **Brand name:** Winbit
-- **Primary color:** #58b098 (green)
-- **Secondary color:** #ffffff (white)
-- **Accent color:** #e5ebc3 (light yellow, for subtle highlights)
-- **Typography:** Montserrat (Google Fonts)
+### Number Format (Argentine Standard)
+- **Thousands separator:** Point (`.`) - Example: `15.226`
+- **Decimal separator:** Comma (`,`) - Example: `15.226,00`
+- **Currency format:** `$15.226,00` (no space between $ and number)
+- **Percentage format:** `+1,50%` (always show sign for positive values)
+- **Return values:** Always show `+` sign for positive results (except portfolio value)
+- **Zero values:** No sign for zero (`$0,00`, `0,00%`)
 
-## Business Rules
+### Internationalization (i18n)
+- **Default language:** Spanish (ES)
+- **Secondary language:** English (EN)
+- **Language selector:** Header top-right corner
+- **Translation files:** Located in `src/i18n.js`
+- **Text keys:** Use descriptive nested keys (e.g., `dashboard.kpis.currentValue`)
+- **Dynamic content:** Support for interpolation (e.g., `{{name}}`, `{{year}}`)
+- **Persistence:** Language preference saved in localStorage
+- **Fallback:** Spanish for missing translations
 
-### Portfolio Updates
-- Balance updates once per day
+### Format Examples
 
-### Processing Hours
-- Requests from 6pm to 8am → processed between 8-10am
-- Requests from 10am to 6pm → processed at 6pm
-- Show these hours clearly in withdrawal/deposit forms
+**Currency (Argentine format):**
+```javascript
+// Portfolio value (no sign)
+formatCurrency(15226.50) → "$15.226,50"
 
-### Investor Data
-- Historical data available from investor's signup date
-- Each investor sees only their own data
+// Return values (with + sign)
+formatCurrency(1500.75, true) → "+$1.500,75"
+formatCurrency(-500.25, true) → "-$500,25"
+formatCurrency(0, true) → "$0,00"
+```
 
+**Percentages:**
+```javascript
+formatPercentage(1.5) → "+1,50%"
+formatPercentage(-2.3) → "-2,30%"
+formatPercentage(0) → "+0,00%"
+```
+
+**Translation usage:**
+```jsx
+import { useTranslation } from 'react-i18next';
+
+const { t } = useTranslation();
+return <h1>{t('dashboard.welcomeBack', { name: 'Juan' })}</h1>;
+```
 
 ## Git Workflow
 
