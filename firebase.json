@@ -5,6 +5,7 @@
     "predeploy": ["npm run build"],
     "redirects": [
       { "source": "/", "destination": "/app/", "type": 302 },
+      { "source": "/app", "destination": "/app/", "type": 302 },
       { "source": "/login", "destination": "/app/login", "type": 302 },
       { "source": "/dashboard", "destination": "/app/dashboard", "type": 302 },
       { "source": "/wallets", "destination": "/app/wallets", "type": 302 },
