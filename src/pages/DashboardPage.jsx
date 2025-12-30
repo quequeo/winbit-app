@@ -1,5 +1,6 @@
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
+import { useInvestorHistory } from '../hooks/useInvestorHistory';
 import { PerformanceChart } from '../components/features/dashboard/PerformanceChart';
 import { KpiCard } from '../components/features/dashboard/KpiCard';
 import { Spinner } from '../components/ui/Spinner';
@@ -11,6 +12,7 @@ import { formatName } from '../utils/formatName';
 export const DashboardPage = () => {
   const { user } = useAuth();
   const { data, loading, error, unauthorized, refetch } = useInvestorData(user?.email);
+  const { data: historyRows, loading: historyLoading } = useInvestorHistory(user?.email);
   const { t } = useTranslation();
 
   if (loading) {
@@ -87,7 +89,11 @@ export const DashboardPage = () => {
         />
       </div>
 
-      <PerformanceChart data={data.historicalData} />
+      <PerformanceChart
+        data={data.historicalData}
+        historyRows={historyRows}
+        historyLoading={historyLoading}
+      />
     </div>
   );
 };

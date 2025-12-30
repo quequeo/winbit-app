@@ -71,6 +71,13 @@ const resources = {
         chart: {
           title: 'Historial de Rendimiento',
           noData: 'No hay datos históricos disponibles',
+          totalGain: 'Ganancia del período',
+          range: {
+            '7d': '7D',
+            '30d': '30D',
+            ytd: 'YTD',
+            all: 'Todo',
+          },
         },
       },
       deposits: {
@@ -249,6 +256,13 @@ const resources = {
         chart: {
           title: 'Performance History',
           noData: 'No historical data available',
+          totalGain: 'Period gain',
+          range: {
+            '7d': '7D',
+            '30d': '30D',
+            ytd: 'YTD',
+            all: 'All',
+          },
         },
       },
       deposits: {

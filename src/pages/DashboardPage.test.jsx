@@ -3,9 +3,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { DashboardPage } from './DashboardPage';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
+import { useInvestorHistory } from '../hooks/useInvestorHistory';
 
 vi.mock('../hooks/useAuth');
 vi.mock('../hooks/useInvestorData');
+vi.mock('../hooks/useInvestorHistory');
 
 describe('DashboardPage', () => {
   it('shows spinner when loading', () => {
@@ -13,6 +15,12 @@ describe('DashboardPage', () => {
     useInvestorData.mockReturnValue({
       data: null,
       loading: true,
+      error: null,
+      refetch: vi.fn(),
+    });
+    useInvestorHistory.mockReturnValue({
+      data: null,
+      loading: false,
       error: null,
       refetch: vi.fn(),
     });
@@ -30,6 +38,12 @@ describe('DashboardPage', () => {
       error: 'Oops',
       refetch,
     });
+    useInvestorHistory.mockReturnValue({
+      data: null,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
 
     render(<DashboardPage />);
     expect(screen.getByText('Ocurrió un error')).toBeInTheDocument();
@@ -40,6 +54,12 @@ describe('DashboardPage', () => {
   it('shows fallback error when data is missing', () => {
     useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
     useInvestorData.mockReturnValue({
+      data: null,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+    useInvestorHistory.mockReturnValue({
       data: null,
       loading: false,
       error: null,
@@ -66,6 +86,12 @@ describe('DashboardPage', () => {
         historicalData: [],
         lastUpdated: '2024-01-01T00:00:00.000Z',
       },
+    });
+    useInvestorHistory.mockReturnValue({
+      data: [],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
     });
 
     render(<DashboardPage />);
