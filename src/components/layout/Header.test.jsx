@@ -58,18 +58,23 @@ describe('Header', () => {
     });
 
     renderWithRouter(<Header />);
-    const logoutButton = screen.getByText('Salir');
-    fireEvent.click(logoutButton);
+    const logoutButtons = screen.getAllByRole('button', { name: 'Salir' });
+    fireEvent.click(logoutButtons[0]);
     expect(mockLogout).toHaveBeenCalled();
   });
 
-  it('displays user email when logged in', () => {
+  it('toggles mobile menu when hamburger button is clicked', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
       logout: vi.fn(),
     });
 
     renderWithRouter(<Header />);
-    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+
+    const menuButton = screen.getByLabelText('Abrir menú');
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(menuButton);
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
   });
 });

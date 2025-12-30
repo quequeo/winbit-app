@@ -26,6 +26,8 @@ const resources = {
         loading: 'Cargando...',
         sending: 'Enviando...',
         sendRequest: 'Enviar solicitud',
+        openMenu: 'Abrir menú',
+        closeMenu: 'Cerrar menú',
       },
       errors: {
         somethingWentWrong: 'Ocurrió un error',
@@ -211,6 +213,8 @@ const resources = {
         loading: 'Loading...',
         sending: 'Sending...',
         sendRequest: 'Send request',
+        openMenu: 'Open menu',
+        closeMenu: 'Close menu',
       },
       errors: {
         somethingWentWrong: 'Something went wrong',
