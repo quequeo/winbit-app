@@ -1,14 +1,37 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { WithdrawalForm } from './WithdrawalForm';
 import { sendWithdrawalRequest } from '../../../services/email';
+import { i18n } from '../../../i18n';
 
 vi.mock('../../../services/email', () => ({
   sendWithdrawalRequest: vi.fn(),
 }));
 
 describe('WithdrawalForm', () => {
+  it('renders English strings when language is en', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('en');
+    });
+    render(<WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />);
+
+    expect(screen.getByText('Request withdrawal')).toBeInTheDocument();
+    expect(screen.getByText('Withdrawal type')).toBeInTheDocument();
+
+    const amountInput = screen.getByLabelText(/Amount/);
+    expect(amountInput).toHaveAttribute('placeholder', 'Enter amount in USD');
+
+    expect(screen.getByRole('button', { name: 'Send request' })).toBeInTheDocument();
+
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
+  });
+
   it('validates partial amount', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
     const { container } = render(
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );
@@ -17,6 +40,7 @@ describe('WithdrawalForm', () => {
   });
 
   it('validates amount cannot exceed balance', async () => {
+    await i18n.changeLanguage('es');
     const { container } = render(
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );

@@ -35,7 +35,7 @@ export const DashboardPage = () => {
   }
 
   if (!data) {
-    return <ErrorMessage message="No hay datos disponibles para tu cuenta" />;
+    return <ErrorMessage message={t('dashboard.noDataForAccount')} />;
   }
 
   return (

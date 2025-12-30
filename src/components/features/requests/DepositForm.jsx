@@ -9,8 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 const WINBIT_LEMONTAG = 'lemontag-winbit-pending';
 
-const networkOptions = [
-  { value: '', label: 'Seleccioná una red' },
+const BASE_NETWORK_OPTIONS = [
   { value: 'USDT-TRC20', label: 'USDT (TRC20)' },
   { value: 'USDT-BEP20', label: 'USDT (BEP20)' },
   { value: 'USDT-ERC20', label: 'USDT (ERC20)' },
@@ -45,6 +44,11 @@ export const DepositForm = ({ userName, userEmail }) => {
     international: t('requests.registered.international'),
   };
 
+  const networkOptions = [
+    { value: '', label: t('deposits.requestForm.network.placeholder') },
+    ...BASE_NETWORK_OPTIONS,
+  ];
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -56,12 +60,12 @@ export const DepositForm = ({ userName, userEmail }) => {
     e.preventDefault();
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      setMessage({ type: 'error', text: 'Ingresá un monto válido' });
+      setMessage({ type: 'error', text: t('deposits.requestForm.validation.invalidAmount') });
       return;
     }
 
     if (formData.method === 'crypto' && !formData.network) {
-      setMessage({ type: 'error', text: 'Seleccioná una red' });
+      setMessage({ type: 'error', text: t('deposits.requestForm.validation.selectNetwork') });
       return;
     }
 
@@ -89,13 +93,13 @@ export const DepositForm = ({ userName, userEmail }) => {
     } else {
       setMessage({
         type: 'error',
-        text: result.error || 'No se pudo enviar la solicitud. Intentá de nuevo.',
+        text: result.error || t('requests.errors.sendFailed'),
       });
     }
   };
 
   return (
-    <Card title="Registrar depósito">
+    <Card title={t('deposits.requestForm.title')}>
       <form onSubmit={handleSubmit} className="space-y-6">
         {toast && (
           <Toast
@@ -126,7 +130,7 @@ export const DepositForm = ({ userName, userEmail }) => {
         )}
 
         <Input
-          label="Monto"
+          label={t('deposits.requestForm.amount.label')}
           type="number"
           id="amount"
           name="amount"
@@ -136,13 +140,13 @@ export const DepositForm = ({ userName, userEmail }) => {
           required
           min="0.01"
           step="0.01"
-          placeholder="Ingresá el monto en USD"
+          placeholder={t('deposits.requestForm.amount.placeholder')}
         />
 
         {formData.method === 'crypto' && (
           <>
             <Select
-              label="Red"
+              label={t('deposits.requestForm.network.label')}
               id="network"
               name="network"
               value={formData.network}
@@ -153,14 +157,14 @@ export const DepositForm = ({ userName, userEmail }) => {
             />
 
             <Input
-              label="Hash de transacción (opcional)"
+              label={t('deposits.requestForm.transactionHash.label')}
               type="text"
               id="transactionHash"
               name="transactionHash"
               value={formData.transactionHash}
               onChange={handleChange}
               disabled={loading}
-              placeholder="Ingresá el hash o ID"
+              placeholder={t('deposits.requestForm.transactionHash.placeholder')}
             />
           </>
         )}
@@ -177,7 +181,7 @@ export const DepositForm = ({ userName, userEmail }) => {
         )}
 
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Enviando...' : 'Enviar solicitud'}
+          {loading ? t('common.sending') : t('common.sendRequest')}
         </Button>
       </form>
     </Card>

@@ -1,20 +1,47 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { DepositForm } from './DepositForm';
 import { sendDepositRequest } from '../../../services/email';
+import { i18n } from '../../../i18n';
 
 vi.mock('../../../services/email', () => ({
   sendDepositRequest: vi.fn(),
 }));
 
 describe('DepositForm', () => {
+  it('renders English strings when language is en', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('en');
+    });
+    render(<DepositForm userName="Test" userEmail="t@e.com" />);
+
+    expect(screen.getByText('Register deposit')).toBeInTheDocument();
+
+    const amountInput = screen.getByLabelText(/Amount/);
+    expect(amountInput).toHaveAttribute('placeholder', 'Enter amount in USD');
+
+    // Network fields appear only for crypto (default).
+    expect(screen.getByLabelText(/Network/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send request' })).toBeInTheDocument();
+
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
+  });
+
   it('validates amount', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
     fireEvent.submit(container.querySelector('form'));
     expect(await screen.findByRole('alert')).toHaveTextContent('Ingresá un monto válido');
   });
 
   it('validates network selection', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
     fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
     fireEvent.submit(container.querySelector('form'));
@@ -22,6 +49,9 @@ describe('DepositForm', () => {
   });
 
   it('submits successfully', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
     sendDepositRequest.mockResolvedValueOnce({ success: true, error: null });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 

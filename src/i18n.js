@@ -24,6 +24,8 @@ const resources = {
         important: 'Importante',
         retry: 'Reintentar',
         loading: 'Cargando...',
+        sending: 'Enviando...',
+        sendRequest: 'Enviar solicitud',
       },
       errors: {
         somethingWentWrong: 'Ocurrió un error',
@@ -44,6 +46,11 @@ const resources = {
         failedToSignIn: 'No se pudo iniciar sesión. Intentá de nuevo.',
         unauthorizedDomain: 'Este dominio no está autorizado para iniciar sesión.',
         operationNotAllowed: 'El inicio de sesión con Google está deshabilitado.',
+        login: {
+          subtitle: 'Gestión de Portafolio',
+          disclaimer:
+            'Al iniciar sesión, aceptás acceder a tu información de forma segura. Solo inversores registrados pueden acceder a la plataforma.',
+        },
       },
       footer: {
         rights: 'Todos los derechos reservados.',
@@ -53,6 +60,7 @@ const resources = {
       dashboard: {
         welcomeBack: 'Hola, {{name}}',
         subtitle: 'Resumen de tu portafolio',
+        noDataForAccount: 'No hay datos disponibles para tu cuenta',
         kpis: {
           currentValue: 'Valor actual del portafolio (USD)',
           totalReturnUsd: 'Resultado acumulado desde el inicio (USD)',
@@ -75,6 +83,25 @@ const resources = {
         noWalletsMessage: 'No hay direcciones de depósito configuradas todavía.',
         copy: 'Copiar',
         copied: '✓ ¡Copiado!',
+        requestForm: {
+          title: 'Registrar depósito',
+          amount: {
+            label: 'Monto',
+            placeholder: 'Ingresá el monto en USD',
+          },
+          network: {
+            label: 'Red',
+            placeholder: 'Seleccioná una red',
+          },
+          transactionHash: {
+            label: 'Hash de transacción (opcional)',
+            placeholder: 'Ingresá el hash o ID',
+          },
+          validation: {
+            invalidAmount: 'Ingresá un monto válido',
+            selectNetwork: 'Seleccioná una red',
+          },
+        },
       },
       withdrawals: {
         title: 'Retiros',
@@ -85,8 +112,27 @@ const resources = {
           'Las solicitudes se reciben hasta las 17:00 (GMT-3) y se ejecutan a las 18:00 (GMT-3).',
         processingHoursLine2:
           'Las solicitudes ingresadas luego de las 17:00 (GMT-3) se procesan al día siguiente.',
+        form: {
+          type: {
+            label: 'Tipo de retiro',
+            partial: 'Parcial',
+            full: 'Total',
+          },
+          amount: {
+            label: 'Monto',
+            placeholder: 'Ingresá el monto en USD',
+          },
+          validation: {
+            invalidAmount: 'Ingresá un monto válido',
+            exceedsBalance: 'El monto supera el saldo actual',
+            lemonTagRequired: 'Ingresá tu Lemontag',
+          },
+        },
       },
       requests: {
+        errors: {
+          sendFailed: 'No se pudo enviar la solicitud. Intentá de nuevo.',
+        },
         method: {
           label: 'Método',
           crypto: 'USDT / USDC',
@@ -113,6 +159,16 @@ const resources = {
         subtitle: 'Movimientos y estados de tu cuenta',
         emptyTitle: 'Sin movimientos todavía',
         emptyDescription: 'Cuando haya movimientos, los vas a ver reflejados acá.',
+        movement: {
+          deposit: 'Depósito',
+          withdrawal: 'Retiro',
+        },
+        status: {
+          completed: 'Completado',
+          pending: 'Pendiente',
+          rejected: 'Rechazado',
+          cancelled: 'Cancelado',
+        },
         errors: {
           emailMappingNotConfigured:
             'Falta configurar el mapeo de tu usuario (email) al código de inversor en Google Sheets (solapa CODIGOS o columna EMAIL en DASHBOARD).',
@@ -146,6 +202,8 @@ const resources = {
         important: 'Important',
         retry: 'Retry',
         loading: 'Loading...',
+        sending: 'Sending...',
+        sendRequest: 'Send request',
       },
       errors: {
         somethingWentWrong: 'Something went wrong',
@@ -166,6 +224,11 @@ const resources = {
         failedToSignIn: 'Failed to sign in. Please try again.',
         unauthorizedDomain: 'This domain is not authorized for sign-in.',
         operationNotAllowed: 'Google sign-in is disabled for this project.',
+        login: {
+          subtitle: 'Portfolio Management',
+          disclaimer:
+            'By signing in, you agree to access your information securely. Only registered investors can access the platform.',
+        },
       },
       footer: {
         rights: 'All rights reserved.',
@@ -175,6 +238,7 @@ const resources = {
       dashboard: {
         welcomeBack: 'Welcome back, {{name}}',
         subtitle: 'Here is your portfolio overview',
+        noDataForAccount: 'No data available for your account',
         kpis: {
           currentValue: 'Current portfolio value (USD)',
           totalReturnUsd: 'Total return since inception (USD)',
@@ -197,6 +261,25 @@ const resources = {
         noWalletsMessage: 'No deposit addresses have been configured yet.',
         copy: 'Copy',
         copied: '✓ Copied!',
+        requestForm: {
+          title: 'Register deposit',
+          amount: {
+            label: 'Amount',
+            placeholder: 'Enter amount in USD',
+          },
+          network: {
+            label: 'Network',
+            placeholder: 'Select a network',
+          },
+          transactionHash: {
+            label: 'Transaction hash (optional)',
+            placeholder: 'Enter hash or ID',
+          },
+          validation: {
+            invalidAmount: 'Enter a valid amount',
+            selectNetwork: 'Select a network',
+          },
+        },
       },
       withdrawals: {
         title: 'Withdrawals',
@@ -206,8 +289,27 @@ const resources = {
         processingHoursLine1:
           'Requests are received until 17:00 (GMT-3) and executed at 18:00 (GMT-3).',
         processingHoursLine2: 'Requests submitted after 17:00 (GMT-3) are processed the next day.',
+        form: {
+          type: {
+            label: 'Withdrawal type',
+            partial: 'Partial',
+            full: 'Full',
+          },
+          amount: {
+            label: 'Amount',
+            placeholder: 'Enter amount in USD',
+          },
+          validation: {
+            invalidAmount: 'Enter a valid amount',
+            exceedsBalance: 'Amount exceeds current balance',
+            lemonTagRequired: 'Enter your Lemontag',
+          },
+        },
       },
       requests: {
+        errors: {
+          sendFailed: 'Could not send the request. Please try again.',
+        },
         method: {
           label: 'Method',
           crypto: 'USDT / USDC',
@@ -234,6 +336,16 @@ const resources = {
         subtitle: 'Account movements and status',
         emptyTitle: 'No movements yet',
         emptyDescription: 'When there are movements, you will see them here.',
+        movement: {
+          deposit: 'Deposit',
+          withdrawal: 'Withdrawal',
+        },
+        status: {
+          completed: 'Completed',
+          pending: 'Pending',
+          rejected: 'Rejected',
+          cancelled: 'Cancelled',
+        },
         errors: {
           emailMappingNotConfigured:
             'Missing configuration to map your user (email) to the investor code in Google Sheets (CODIGOS sheet or EMAIL column in DASHBOARD).',

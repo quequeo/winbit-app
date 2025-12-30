@@ -12,6 +12,39 @@ export const HistoryPage = () => {
   const { user } = useAuth();
   const { data, loading, error, refetch } = useInvestorHistory(user?.email);
 
+  const normalize = (value) =>
+    String(value ?? '')
+      .trim()
+      .toLowerCase();
+
+  const translateMovement = (movement) => {
+    const m = normalize(movement);
+    if (m === 'depósito' || m === 'deposito' || m === 'deposit') {
+      return t('history.movement.deposit');
+    }
+    if (m === 'retiro' || m === 'withdrawal') {
+      return t('history.movement.withdrawal');
+    }
+    return movement;
+  };
+
+  const translateStatus = (status) => {
+    const s = normalize(status);
+    if (s === 'completado' || s === 'completed') {
+      return t('history.status.completed');
+    }
+    if (s === 'pendiente' || s === 'pending') {
+      return t('history.status.pending');
+    }
+    if (s === 'rechazado' || s === 'rejected') {
+      return t('history.status.rejected');
+    }
+    if (s === 'cancelado' || s === 'cancelled' || s === 'canceled') {
+      return t('history.status.cancelled');
+    }
+    return status;
+  };
+
   const translatedError = (() => {
     if (!error) {
       return null;
@@ -103,7 +136,7 @@ export const HistoryPage = () => {
                       {formatDate(row.date)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                      {row.movement}
+                      {translateMovement(row.movement)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
                       {formatCurrency(row.amount)}
@@ -115,7 +148,7 @@ export const HistoryPage = () => {
                       {formatCurrency(row.newBalance)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                      {row.status}
+                      {translateStatus(row.status)}
                     </td>
                   </tr>
                 ))}

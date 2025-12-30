@@ -54,7 +54,7 @@ export const LoginPage = () => {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary mb-2">Winbit</h1>
-          <p className="text-gray-600">Portfolio Management</p>
+          <p className="text-gray-600">{t('auth.login.subtitle')}</p>
         </div>
 
         <div className="space-y-4">
@@ -99,10 +99,7 @@ export const LoginPage = () => {
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
-            Al iniciar sesión, aceptás acceder a tu información de forma segura. Solo inversores
-            registrados pueden acceder a la plataforma.
-          </p>
+          <p className="text-xs text-gray-500 text-center">{t('auth.login.disclaimer')}</p>
         </div>
       </div>
     </div>
