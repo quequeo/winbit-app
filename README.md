@@ -6,7 +6,6 @@ Progressive Web Application (PWA) for investors to view their portfolio balance,
 
 - 🔐 **Google Authentication** - Secure login with Firebase Auth
 - 📊 **Dashboard** - Portfolio metrics and performance tracking
-- 📈 **Performance Charts** - Visual representation of historical data
 - 💰 **Depósitos** - View deposit addresses (USDT/USDC only)
 - 📤 **Retiros** - Submit partial or full withdrawal requests
 - 🧾 **Historial** - Movements table (planned)
@@ -20,7 +19,6 @@ Progressive Web Application (PWA) for investors to view their portfolio balance,
 - **Authentication:** Firebase Auth (Google Sign-In)
 - **Data Source:** Google Sheets API
 - **Hosting:** Firebase Hosting
-- **Charts:** Recharts
 - **Email:** EmailJS
 - **Testing:** Vitest + React Testing Library
 
@@ -117,7 +115,7 @@ Your Google Sheet should have the following structure:
 - **Column C:** Current balance (USD)
 - **Column D:** Total invested (USD)
 - **Column E:** Returns/Performance (%)
-- **Columns F+:** Historical balance data for charts
+ 
 
 ### 4. Configure Wallets
 
