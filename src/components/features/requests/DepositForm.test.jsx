@@ -72,10 +72,12 @@ describe('DepositForm', () => {
     await waitFor(() => {
       expect(createInvestorRequest).toHaveBeenCalledWith(
         expect.objectContaining({
-          investorEmail: 't@e.com',
-          requestType: 'DEPOSITO',
+          email: 't@e.com',
+          type: 'DEPOSIT',
           amount: 10,
-          walletType: 'USDT-TRC20',
+          method: 'USDT',
+          network: 'TRC20',
+          transactionHash: 'abc',
         }),
       );
     });

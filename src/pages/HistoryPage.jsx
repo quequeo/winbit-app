@@ -26,6 +26,9 @@ export const HistoryPage = () => {
     if (m === 'retiro' || m === 'withdrawal') {
       return t('history.movement.withdrawal');
     }
+    if (m === 'profit' || m === 'ganancia' || m === 'rendimiento') {
+      return t('history.movement.profit', 'Ganancia');
+    }
     return movement;
   };
 
@@ -150,7 +153,7 @@ export const HistoryPage = () => {
                       {t('history.table.previousBalance')}
                     </div>
                     <div className="mt-1 text-sm font-semibold text-gray-900">
-                      {formatCurrency(row.previousBalance)}
+                      {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
                     </div>
                   </div>
                   <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
@@ -158,7 +161,7 @@ export const HistoryPage = () => {
                       {t('history.table.newBalance')}
                     </div>
                     <div className="mt-1 text-sm font-semibold text-gray-900">
-                      {formatCurrency(row.newBalance)}
+                      {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                     </div>
                   </div>
                 </div>
@@ -226,10 +229,10 @@ export const HistoryPage = () => {
                         {formatCurrency(row.amount)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
-                        {formatCurrency(row.previousBalance)}
+                        {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
-                        {formatCurrency(row.newBalance)}
+                        {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
                         {translateStatus(row.status)}
