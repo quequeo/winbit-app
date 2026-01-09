@@ -73,4 +73,72 @@ describe('LoginPage', () => {
     expect(await screen.findByText(/Este dominio no está autorizado/)).toBeInTheDocument();
     expect(screen.getByText(/\(auth\/unauthorized-domain\)/)).toBeInTheDocument();
   });
+
+  it('shows popup closed error message', async () => {
+    const loginWithGoogle = vi.fn().mockResolvedValue({
+      user: null,
+      error: { code: 'auth/popup-closed-by-user', message: 'Popup closed' },
+    });
+    useAuth.mockReturnValue({
+      user: null,
+      loading: false,
+      loginWithGoogle,
+    });
+
+    renderAt('/login');
+    fireEvent.click(screen.getByText('Ingresar con Google'));
+
+    expect(await screen.findByText(/cerraste la ventana de autenticación/)).toBeInTheDocument();
+  });
+
+  it('shows cancelled popup error message', async () => {
+    const loginWithGoogle = vi.fn().mockResolvedValue({
+      user: null,
+      error: { code: 'auth/cancelled-popup-request' },
+    });
+    useAuth.mockReturnValue({
+      user: null,
+      loading: false,
+      loginWithGoogle,
+    });
+
+    renderAt('/login');
+    fireEvent.click(screen.getByText('Ingresar con Google'));
+
+    expect(await screen.findByText(/cerraste la ventana de autenticación/)).toBeInTheDocument();
+  });
+
+  it('shows generic error for unknown errors', async () => {
+    const loginWithGoogle = vi.fn().mockResolvedValue({
+      user: null,
+      error: { code: 'auth/unknown-error', message: 'Something went wrong' },
+    });
+    useAuth.mockReturnValue({
+      user: null,
+      loading: false,
+      loginWithGoogle,
+    });
+
+    renderAt('/login');
+    fireEvent.click(screen.getByText('Ingresar con Google'));
+
+    expect(await screen.findByText(/Something went wrong/)).toBeInTheDocument();
+  });
+
+  it('shows unauthorized investor message', async () => {
+    const loginWithGoogle = vi.fn().mockResolvedValue({
+      user: null,
+      error: { code: 'auth/unauthorized', message: 'Not an investor' },
+    });
+    useAuth.mockReturnValue({
+      user: null,
+      loading: false,
+      loginWithGoogle,
+      validationError: { code: 'auth/unauthorized', message: 'Not an investor' },
+    });
+
+    renderAt('/login');
+    
+    expect(screen.getByText(/Not an investor/)).toBeInTheDocument();
+  });
 });
