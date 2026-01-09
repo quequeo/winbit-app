@@ -18,13 +18,8 @@ const API_BASE_URL = getApiUrl();
  * Los 404 son esperados cuando un inversor no existe o está inactivo
  */
 const silentFetch = async (url, options = {}) => {
-  try {
-    const response = await fetch(url, options);
-    return response;
-  } catch (error) {
-    // Re-throw para que el código que llama pueda manejarlo
-    throw error;
-  }
+  const response = await fetch(url, options);
+  return response;
 };
 
 /**
