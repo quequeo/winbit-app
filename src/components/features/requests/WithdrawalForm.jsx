@@ -56,13 +56,21 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     setLoading(true);
     setMessage(null);
 
+    // Mapear el método al formato que espera el backend
+    const methodMap = {
+      crypto: 'USDT', // Por defecto USDT para crypto
+      lemon: 'LEMON_CASH',
+      cash: 'CASH',
+      international: 'SWIFT',
+    };
+
     // Enviar solicitud al backend de Rails
     const apiResult = await createInvestorRequest({
-      investorEmail: userEmail,
-      requestType: type === 'full' ? 'RETIRO_TOTAL' : 'RETIRO_PARCIAL',
-      amount: type === 'full' ? 0 : withdrawalAmount, // 0 para retiro total
-      walletType: method,
-      notes: method === 'lemon' && lemonTag.trim() ? `Lemon Tag: ${lemonTag.trim()}` : '',
+      email: userEmail,
+      type: 'WITHDRAWAL',
+      amount: withdrawalAmount,
+      method: methodMap[method] || 'USDT',
+      lemontag: method === 'lemon' && lemonTag.trim() ? lemonTag.trim() : null,
     });
 
     // También enviar por email como backup

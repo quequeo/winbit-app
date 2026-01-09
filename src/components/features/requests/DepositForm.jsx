@@ -73,16 +73,43 @@ export const DepositForm = ({ userName, userEmail }) => {
     setLoading(true);
     setMessage(null);
 
+    // Mapear el método y network al formato del backend
+    let method = 'USDT'; // Por defecto
+    let network = null;
+
+    if (formData.method === 'crypto') {
+      // Extraer el asset (USDT o USDC) del network
+      if (formData.network.includes('USDT')) {
+        method = 'USDT';
+      } else if (formData.network.includes('USDC')) {
+        method = 'USDC';
+      }
+
+      // Extraer el network (TRC20, BEP20, etc.)
+      if (formData.network.includes('TRC20')) {
+        network = 'TRC20';
+      } else if (formData.network.includes('BEP20')) {
+        network = 'BEP20';
+      } else if (formData.network.includes('ERC20')) {
+        network = 'ERC20';
+      } else if (formData.network.includes('POLYGON')) {
+        network = 'POLYGON';
+      }
+    } else if (formData.method === 'lemon') {
+      method = 'LEMON_CASH';
+    } else if (formData.method === 'cash') {
+      method = 'CASH';
+    }
+
     // Enviar solicitud al backend de Rails
     const apiResult = await createInvestorRequest({
-      investorEmail: userEmail,
-      requestType: 'DEPOSITO',
+      email: userEmail,
+      type: 'DEPOSIT',
       amount: parseFloat(formData.amount),
-      walletType: formData.method === 'crypto' ? formData.network : formData.method,
-      notes:
-        formData.method === 'crypto' && formData.transactionHash
-          ? `Transaction Hash: ${formData.transactionHash}`
-          : '',
+      method: method,
+      network: network,
+      transactionHash:
+        formData.method === 'crypto' && formData.transactionHash ? formData.transactionHash : null,
     });
 
     // También enviar por email como backup
