@@ -138,7 +138,7 @@ describe('LoginPage', () => {
     });
 
     renderAt('/login');
-    
+
     expect(screen.getByText(/Not an investor/)).toBeInTheDocument();
   });
 });

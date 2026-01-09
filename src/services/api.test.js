@@ -49,9 +49,7 @@ describe('api service', () => {
       const result = await getInvestorData('test@example.com');
       expect(result.data).toBeDefined();
       expect(result.error).toBeNull();
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('test%40example.com'),
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('test%40example.com'));
     });
 
     it('returns error when fetch fails', async () => {
@@ -82,9 +80,7 @@ describe('api service', () => {
       });
 
       await getInvestorData('user+test@example.com');
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('user%2Btest%40example.com'),
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('user%2Btest%40example.com'));
     });
   });
 
