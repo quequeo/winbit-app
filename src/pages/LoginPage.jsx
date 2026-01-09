@@ -6,14 +6,18 @@ import { Spinner } from '../components/ui/Spinner';
 import { useTranslation } from 'react-i18next';
 
 export const LoginPage = () => {
-  const { user, loading, loginWithGoogle } = useAuth();
+  const { user, loading, loginWithGoogle, validationError, clearValidationError } = useAuth();
   const [error, setError] = useState(null);
   const [loggingIn, setLoggingIn] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
+    // Limpiar errores al montar el componente
     setError(null);
   }, []);
+
+  // Mostrar el error de validación si existe
+  const displayError = validationError || error;
 
   if (loading) {
     return (
@@ -30,11 +34,21 @@ export const LoginPage = () => {
   const handleLogin = async () => {
     setLoggingIn(true);
     setError(null);
+    if (clearValidationError) {
+      clearValidationError();
+    }
 
     const result = await loginWithGoogle();
 
     if (result.error) {
       const code = result.error?.code;
+
+      // Si es un error de inversor no autorizado, mostrar el mensaje personalizado
+      if (code === 'auth/unauthorized') {
+        setError(result.error.message);
+        setLoggingIn(false);
+        return;
+      }
 
       // User-friendly defaults + keep the real code visible for debugging Firebase deploy issues.
       let message = t('auth.failedToSignIn');
@@ -93,8 +107,10 @@ export const LoginPage = () => {
             )}
           </Button>
 
-          {error && (
-            <div className="p-4 bg-red-50 text-red-800 rounded-lg text-sm text-center">{error}</div>
+          {displayError && (
+            <div className="p-4 bg-red-50 text-red-800 rounded-lg text-sm text-center">
+              {displayError}
+            </div>
           )}
         </div>
 

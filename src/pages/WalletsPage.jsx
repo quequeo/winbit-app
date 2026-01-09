@@ -2,11 +2,17 @@ import { WalletList } from '../components/features/wallets/WalletList';
 import { WALLETS } from '../config/wallets';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
+import { useWallets } from '../hooks/useWallets';
 import { DepositForm } from '../components/features/requests/DepositForm';
+import { Spinner } from '../components/ui/Spinner';
 
 export const WalletsPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { wallets, loading, error } = useWallets();
+
+  // Fallback a wallets hardcoded si hay error o no hay backend disponible
+  const displayWallets = error || wallets.length === 0 ? WALLETS : wallets;
 
   return (
     <div className="space-y-6">
@@ -22,7 +28,13 @@ export const WalletsPage = () => {
         </p>
       </div>
 
-      <WalletList wallets={WALLETS} />
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : (
+        <WalletList wallets={displayWallets} />
+      )}
 
       <DepositForm userName={user?.displayName || 'Investor'} userEmail={user?.email} />
     </div>

@@ -5,6 +5,7 @@ import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { Toast } from '../../ui/Toast';
 import { sendWithdrawalRequest } from '../../../services/email';
+import { createInvestorRequest } from '../../../services/api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 
@@ -55,7 +56,19 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     setLoading(true);
     setMessage(null);
 
-    const result = await sendWithdrawalRequest({
+    // Enviar solicitud al backend de Rails
+    const apiResult = await createInvestorRequest({
+      investorEmail: userEmail,
+      requestType: type === 'full' ? 'RETIRO_TOTAL' : 'RETIRO_PARCIAL',
+      amount: type === 'full' ? 0 : withdrawalAmount, // 0 para retiro total
+      walletType: method,
+      notes: method === 'lemon' && lemonTag.trim() 
+        ? `Lemon Tag: ${lemonTag.trim()}` 
+        : '',
+    });
+
+    // También enviar por email como backup
+    const emailResult = await sendWithdrawalRequest({
       userName,
       userEmail,
       type: type === 'full' ? 'Full Withdrawal' : 'Partial Withdrawal',
@@ -66,7 +79,10 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
 
     setLoading(false);
 
-    if (result.success) {
+    // Consideramos éxito si al menos uno de los dos funciona
+    const success = apiResult.data || emailResult.success;
+
+    if (success) {
       setToast({
         type: 'success',
         title: t('requests.registered.title'),
@@ -79,7 +95,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     } else {
       setMessage({
         type: 'error',
-        text: result.error || t('requests.errors.sendFailed'),
+        text: apiResult.error || emailResult.error || t('requests.errors.sendFailed'),
       });
     }
   };

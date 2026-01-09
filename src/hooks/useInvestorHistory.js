@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getInvestorHistory } from '../services/sheets';
+import { getInvestorHistory } from '../services/api';
+import { useAuth } from './useAuth';
 
 export const useInvestorHistory = (email) => {
+  const { isValidated } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchData = useCallback(async () => {
-    if (!email) {
+    // No intentar cargar datos hasta que el usuario esté validado
+    if (!email || !isValidated) {
       setLoading(false);
       return;
     }
@@ -28,7 +31,7 @@ export const useInvestorHistory = (email) => {
     } finally {
       setLoading(false);
     }
-  }, [email]);
+  }, [email, isValidated]);
 
   useEffect(() => {
     fetchData();

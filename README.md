@@ -17,7 +17,7 @@ Progressive Web Application (PWA) for investors to view their portfolio balance,
 - **Frontend:** React 18 + Vite
 - **Styling:** Tailwind CSS
 - **Authentication:** Firebase Auth (Google Sign-In)
-- **Data Source:** Google Sheets API
+- **Data Source:** Winbit Rails API (PostgreSQL)
 - **Hosting:** Firebase Hosting
 - **Email:** EmailJS
 - **Testing:** Vitest + React Testing Library
@@ -65,7 +65,7 @@ The app uses Argentine number formatting:
 
 - Node.js 18+ and npm
 - Firebase project with Authentication and Hosting enabled
-- Google Cloud project with Sheets API enabled
+- Winbit Rails backend running (see ../winbit-rails/README.md)
 - EmailJS account for email notifications
 
 ## Setup Instructions
@@ -83,7 +83,7 @@ npm install
 Create a `.env` file in the root directory:
 
 ```bash
-# Firebase Configuration
+# Firebase Configuration (para autenticación con Google)
 VITE_FIREBASE_API_KEY=your_firebase_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your_project_id
@@ -91,9 +91,10 @@ VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 
-# Google Sheets API
-VITE_GOOGLE_SHEETS_API_KEY=your_google_sheets_api_key
-VITE_GOOGLE_SHEETS_ID=your_sheet_id
+# Winbit Rails API URL
+# Desarrollo local: http://localhost:3000
+# Producción: https://winbit-rails-55a941b2fe50.herokuapp.com
+VITE_API_URL=http://localhost:3000
 
 # EmailJS Configuration
 VITE_EMAILJS_SERVICE_ID=your_emailjs_service_id
@@ -260,9 +261,9 @@ To finish the dashboard and history, we need the Google Sheet to explicitly defi
 ### Security
 
 - Only authenticated users with Google Sign-In
-- User email must exist in Google Sheet
-- Firebase security rules enforce authentication
-- Google Sheets API key restricted to Sheets API only
+- User email must exist in Winbit Rails database as an active investor
+- Firebase Auth validates authentication
+- Rails API validates investor status before returning data
 
 ## Browser Support
 
@@ -283,14 +284,15 @@ Users can install Winbit as a native app:
 
 ### User not found error
 
-- Ensure user's email exists in Column A of Google Sheet
-- Check that email matches exactly (case-sensitive)
+- Ensure user's email exists in the Winbit Rails database as an investor
+- Check that investor status is 'ACTIVE'
+- Contact winbit.cfds@gmail.com to register as an investor
 
-### Google Sheets API errors
+### API connection errors
 
-- Verify API key is correct and not restricted
-- Check that Sheets API is enabled in Google Cloud Console
-- Ensure sheet is shared with "Anyone with the link can view"
+- Verify Rails backend is running at the correct URL
+- Check that VITE_API_URL is configured correctly
+- Ensure investor exists and is active in the database
 
 ### Email notifications not working
 

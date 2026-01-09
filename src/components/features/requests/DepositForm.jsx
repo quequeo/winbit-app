@@ -5,6 +5,7 @@ import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { Toast } from '../../ui/Toast';
 import { sendDepositRequest } from '../../../services/email';
+import { createInvestorRequest } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
 const WINBIT_LEMONTAG = 'lemontag-winbit-pending';
@@ -72,7 +73,19 @@ export const DepositForm = ({ userName, userEmail }) => {
     setLoading(true);
     setMessage(null);
 
-    const result = await sendDepositRequest({
+    // Enviar solicitud al backend de Rails
+    const apiResult = await createInvestorRequest({
+      investorEmail: userEmail,
+      requestType: 'DEPOSITO',
+      amount: parseFloat(formData.amount),
+      walletType: formData.method === 'crypto' ? formData.network : formData.method,
+      notes: formData.method === 'crypto' && formData.transactionHash 
+        ? `Transaction Hash: ${formData.transactionHash}` 
+        : '',
+    });
+
+    // También enviar por email como backup
+    const emailResult = await sendDepositRequest({
       userName,
       userEmail,
       amount: `$${parseFloat(formData.amount).toFixed(2)}`,
@@ -83,7 +96,10 @@ export const DepositForm = ({ userName, userEmail }) => {
 
     setLoading(false);
 
-    if (result.success) {
+    // Consideramos éxito si al menos uno de los dos funciona
+    const success = apiResult.data || emailResult.success;
+
+    if (success) {
       setToast({
         type: 'success',
         title: t('requests.registered.title'),
@@ -93,7 +109,7 @@ export const DepositForm = ({ userName, userEmail }) => {
     } else {
       setMessage({
         type: 'error',
-        text: result.error || t('requests.errors.sendFailed'),
+        text: apiResult.error || emailResult.error || t('requests.errors.sendFailed'),
       });
     }
   };
