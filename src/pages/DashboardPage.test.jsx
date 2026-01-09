@@ -1,11 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { DashboardPage } from './DashboardPage';
-import { useAuth } from '../hooks/useAuth';
-import { useInvestorData } from '../hooks/useInvestorData';
+import * as useAuthModule from '../hooks/useAuth';
+import * as useInvestorDataModule from '../hooks/useInvestorData';
 
-vi.mock('../hooks/useAuth');
-vi.mock('../hooks/useInvestorData');
+const useAuth = vi.spyOn(useAuthModule, 'useAuth');
+const useInvestorData = vi.spyOn(useInvestorDataModule, 'useInvestorData');
 
 describe('DashboardPage', () => {
   it('shows spinner when loading', () => {

@@ -2,10 +2,15 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest';
 import { DepositForm } from './DepositForm';
 import { sendDepositRequest } from '../../../services/email';
+import { createInvestorRequest } from '../../../services/api';
 import { i18n } from '../../../i18n';
 
 vi.mock('../../../services/email', () => ({
   sendDepositRequest: vi.fn(),
+}));
+
+vi.mock('../../../services/api', () => ({
+  createInvestorRequest: vi.fn(),
 }));
 
 describe('DepositForm', () => {
@@ -52,6 +57,7 @@ describe('DepositForm', () => {
     await act(async () => {
       await i18n.changeLanguage('es');
     });
+    createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
     sendDepositRequest.mockResolvedValueOnce({ success: true, error: null });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
@@ -64,14 +70,12 @@ describe('DepositForm', () => {
     fireEvent.submit(container.querySelector('form'));
 
     await waitFor(() => {
-      expect(sendDepositRequest).toHaveBeenCalledWith(
+      expect(createInvestorRequest).toHaveBeenCalledWith(
         expect.objectContaining({
-          userName: 'Test',
-          userEmail: 't@e.com',
-          amount: '$10.00',
-          method: 'crypto',
-          network: 'USDT-TRC20',
-          transactionHash: 'abc',
+          investorEmail: 't@e.com',
+          requestType: 'DEPOSITO',
+          amount: 10,
+          walletType: 'USDT-TRC20',
         }),
       );
     });
@@ -80,6 +84,7 @@ describe('DepositForm', () => {
   });
 
   it('shows service error', async () => {
+    createInvestorRequest.mockResolvedValueOnce({ data: null, error: 'Fail' });
     sendDepositRequest.mockResolvedValueOnce({ success: false, error: 'Fail' });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 

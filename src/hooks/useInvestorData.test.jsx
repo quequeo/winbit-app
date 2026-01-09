@@ -1,10 +1,14 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useInvestorData } from './useInvestorData';
-import { getInvestorData } from '../services/sheets';
+import { getInvestorData } from '../services/api';
 
-vi.mock('../services/sheets', () => ({
+vi.mock('../services/api', () => ({
   getInvestorData: vi.fn(),
+}));
+
+vi.mock('./useAuth', () => ({
+  useAuth: () => ({ isValidated: true }),
 }));
 
 describe('useInvestorData', () => {

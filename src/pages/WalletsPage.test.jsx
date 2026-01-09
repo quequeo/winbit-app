@@ -6,11 +6,15 @@ vi.mock('../hooks/useAuth', () => ({
   useAuth: () => ({ user: { email: 'test@example.com', displayName: 'Test' } }),
 }));
 
-vi.mock('../config/wallets', () => ({
-  WALLETS: [
-    { network: 'USDT (TRC20)', address: 'abc', icon: '₮' },
-    { network: 'USDC (TRC20)', address: 'def', icon: '$' },
-  ],
+vi.mock('../hooks/useWallets', () => ({
+  useWallets: () => ({
+    wallets: [
+      { network: 'USDT (TRC20)', address: 'abc', icon: '₮' },
+      { network: 'USDC (TRC20)', address: 'def', icon: '$' },
+    ],
+    loading: false,
+    error: null,
+  }),
 }));
 
 describe('WalletsPage', () => {
