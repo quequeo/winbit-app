@@ -62,9 +62,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
       requestType: type === 'full' ? 'RETIRO_TOTAL' : 'RETIRO_PARCIAL',
       amount: type === 'full' ? 0 : withdrawalAmount, // 0 para retiro total
       walletType: method,
-      notes: method === 'lemon' && lemonTag.trim() 
-        ? `Lemon Tag: ${lemonTag.trim()}` 
-        : '',
+      notes: method === 'lemon' && lemonTag.trim() ? `Lemon Tag: ${lemonTag.trim()}` : '',
     });
 
     // También enviar por email como backup

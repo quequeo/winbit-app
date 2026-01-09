@@ -6,7 +6,7 @@
 const getApiUrl = () => {
   // Obtener URL base de la API desde variables de entorno
   const apiUrl = import.meta.env?.VITE_API_URL ?? globalThis?.process?.env?.VITE_API_URL;
-  
+
   // Default para desarrollo local
   return apiUrl || 'http://localhost:3000';
 };
@@ -35,7 +35,7 @@ export const getInvestorData = async (email) => {
 
     const encodedEmail = encodeURIComponent(email);
     const url = `${API_BASE_URL}/api/public/investor/${encodedEmail}`;
-    
+
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -153,7 +153,7 @@ export const getWallets = async () => {
 export const createInvestorRequest = async (requestData) => {
   try {
     const url = `${API_BASE_URL}/api/public/requests`;
-    
+
     const response = await silentFetch(url, {
       method: 'POST',
       headers: {
@@ -187,24 +187,24 @@ export const validateInvestor = async (email) => {
 
     const encodedEmail = encodeURIComponent(email);
     const url = `${API_BASE_URL}/api/public/investor/${encodedEmail}`;
-    
+
     const response = await silentFetch(url);
 
     if (response.status === 404) {
       // 404 es esperado cuando el inversor no existe - no es un error
-      return { 
-        valid: false, 
-        investor: null, 
-        error: 'Investor not found in database' 
+      return {
+        valid: false,
+        investor: null,
+        error: 'Investor not found in database',
       };
     }
 
     if (response.status === 403) {
       // 403 es esperado cuando el inversor está inactivo
-      return { 
-        valid: false, 
-        investor: null, 
-        error: 'Investor account is not active' 
+      return {
+        valid: false,
+        investor: null,
+        error: 'Investor account is not active',
       };
     }
 
@@ -214,16 +214,16 @@ export const validateInvestor = async (email) => {
     }
 
     const result = await response.json();
-    return { 
-      valid: true, 
-      investor: result.data.investor, 
-      error: null 
+    return {
+      valid: true,
+      investor: result.data.investor,
+      error: null,
     };
   } catch (error) {
-    return { 
-      valid: false, 
-      investor: null, 
-      error: error.message 
+    return {
+      valid: false,
+      investor: null,
+      error: error.message,
     };
   }
 };

@@ -22,11 +22,11 @@ export const AuthProvider = ({ children }) => {
     const handleRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
-        
+
         // Si hay un resultado de redirect (usuario acaba de loguearse)
         if (result?.user) {
           const validation = await validateInvestor(result.user.email);
-          
+
           if (!validation.valid) {
             // Hacer logout si el inversor no es válido
             await signOut(auth);
@@ -55,33 +55,35 @@ export const AuthProvider = ({ children }) => {
     // Limpiar error anterior y marcar como no validado mientras valida
     setValidationError(null);
     setIsValidated(false);
-    
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      
+
       // Validar que el inversor existe en la base de datos
       const validation = await validateInvestor(result.user.email);
-      
+
       if (!validation.valid) {
         // Preparar mensaje de error
         let errorMessage = 'No estás autorizado para acceder a este portal.';
         if (validation.error === 'Investor not found in database') {
-          errorMessage = 'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
+          errorMessage =
+            'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
         } else if (validation.error === 'Investor account is not active') {
-          errorMessage = 'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
+          errorMessage =
+            'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
         } else {
           errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
         }
-        
+
         // Guardar el error antes de hacer logout
         setValidationError(errorMessage);
-        
+
         // Marcar como validado (aunque falló) para que no se ejecuten los hooks
         setIsValidated(true);
-        
+
         // Hacer logout inmediatamente si el inversor no es válido
         await signOut(auth);
-        
+
         return {
           user: null,
           error: {
@@ -90,7 +92,7 @@ export const AuthProvider = ({ children }) => {
           },
         };
       }
-      
+
       // Login exitoso - limpiar cualquier error y marcar como validado
       setValidationError(null);
       setIsValidated(true);

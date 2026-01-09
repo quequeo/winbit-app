@@ -40,4 +40,3 @@ describe('formatName', () => {
     expect(formatName('jean-paul')).toBe('Jean-Paul');
   });
 });
-

@@ -79,9 +79,10 @@ export const DepositForm = ({ userName, userEmail }) => {
       requestType: 'DEPOSITO',
       amount: parseFloat(formData.amount),
       walletType: formData.method === 'crypto' ? formData.network : formData.method,
-      notes: formData.method === 'crypto' && formData.transactionHash 
-        ? `Transaction Hash: ${formData.transactionHash}` 
-        : '',
+      notes:
+        formData.method === 'crypto' && formData.transactionHash
+          ? `Transaction Hash: ${formData.transactionHash}`
+          : '',
     });
 
     // También enviar por email como backup
