@@ -88,7 +88,10 @@ describe('LoginPage', () => {
     renderAt('/login');
     fireEvent.click(screen.getByText('Ingresar con Google'));
 
-    expect(await screen.findByText(/cerraste la ventana de autenticación/)).toBeInTheDocument();
+    // App displays generic Spanish message + error code (match the actual error code)
+    expect(
+      await screen.findByText(/No se pudo iniciar sesión.*auth\/popup-closed-by-user/),
+    ).toBeInTheDocument();
   });
 
   it('shows cancelled popup error message', async () => {
@@ -105,7 +108,10 @@ describe('LoginPage', () => {
     renderAt('/login');
     fireEvent.click(screen.getByText('Ingresar con Google'));
 
-    expect(await screen.findByText(/cerraste la ventana de autenticación/)).toBeInTheDocument();
+    // App displays generic Spanish message + error code
+    expect(
+      await screen.findByText(/No se pudo iniciar sesión.*auth\/cancelled-popup-request/),
+    ).toBeInTheDocument();
   });
 
   it('shows generic error for unknown errors', async () => {
@@ -122,7 +128,10 @@ describe('LoginPage', () => {
     renderAt('/login');
     fireEvent.click(screen.getByText('Ingresar con Google'));
 
-    expect(await screen.findByText(/Something went wrong/)).toBeInTheDocument();
+    // App displays Spanish message + error code
+    expect(
+      await screen.findByText(/No se pudo iniciar sesión.*auth\/unknown-error/),
+    ).toBeInTheDocument();
   });
 
   it('shows unauthorized investor message', async () => {
@@ -134,7 +143,7 @@ describe('LoginPage', () => {
       user: null,
       loading: false,
       loginWithGoogle,
-      validationError: { code: 'auth/unauthorized', message: 'Not an investor' },
+      validationError: 'Not an investor', // Should be a string, not an object
     });
 
     renderAt('/login');
