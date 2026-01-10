@@ -203,9 +203,38 @@ npm run test:coverage
 
 ## Deployment
 
+### Environment Variables
+
+#### Development (`.env`)
+
+```bash
+VITE_API_URL=http://localhost:3000
+VITE_FIREBASE_API_KEY=xxx
+VITE_FIREBASE_AUTH_DOMAIN=xxx
+# ... other Firebase config
+```
+
+#### Production (`.env.production`)
+
+> **⚠️ IMPORTANTE**: Este archivo NO está en git. Debes crearlo manualmente.
+
+```bash
+# Rails API URL - Heroku production
+VITE_API_URL=https://winbit-rails-55a941b2fe50.herokuapp.com
+
+# Firebase config (same as development)
+VITE_FIREBASE_API_KEY=xxx
+VITE_FIREBASE_AUTH_DOMAIN=xxx
+# ... other Firebase config
+```
+
+Ver `.env.production.example` para referencia completa.
+
 ### Firebase Hosting
 
-1. Install Firebase CLI:
+**URL de producción:** https://winbit-6579c.web.app
+
+1. Install Firebase CLI (si no lo tienes):
 
 ```bash
 npm install -g firebase-tools
@@ -217,25 +246,27 @@ npm install -g firebase-tools
 firebase login
 ```
 
-3. Initialize Firebase (if not done):
+3. Build y deploy:
 
 ```bash
-firebase init
+# Asegúrate de tener .env.production configurado
+npm run build          # Usa .env.production automáticamente
+firebase deploy        # Deploy a Firebase Hosting
 ```
 
-Select:
+### CORS Configuration
 
-- Hosting
-- Use existing project
-- Public directory: `dist`
-- Single-page app: Yes
-- GitHub actions: No
-
-4. Build and deploy:
+El backend Rails debe permitir el origen de Firebase Hosting. Esto ya está configurado en Heroku:
 
 ```bash
-npm run build
-firebase deploy
+# Variable de entorno en Heroku
+CORS_ORIGINS=http://localhost:5173,https://winbit-6579c.web.app,https://winbit-6579c.firebaseapp.com
+```
+
+Si necesitas agregar otro dominio:
+
+```bash
+heroku config:set CORS_ORIGINS="existing_origins,new_origin" -a winbit-rails
 ```
 
 ## Project Structure
