@@ -354,6 +354,33 @@ Users can install Winbit as a native app:
 - Check that VITE_API_URL is configured correctly
 - Ensure investor exists and is active in the database
 
+### CORS errors in production
+
+If you see `No 'Access-Control-Allow-Origin' header` errors:
+
+1. Verify CORS_ORIGINS is set in Heroku:
+   ```bash
+   heroku config:get CORS_ORIGINS -a winbit-rails
+   ```
+2. Should include: `https://winbit-6579c.web.app,https://winbit-6579c.firebaseapp.com`
+3. Update if needed:
+   ```bash
+   heroku config:set CORS_ORIGINS="http://localhost:5173,https://winbit-6579c.web.app,https://winbit-6579c.firebaseapp.com" -a winbit-rails
+   ```
+
+### Firebase Auth errors (Invalid API Key)
+
+If you see `auth/api-key-not-valid` errors:
+
+1. Verify the API key in `.env.production` matches your Firebase project
+2. Check API key restrictions in Google Cloud Console
+3. Ensure the key has "Identity Toolkit API" enabled
+4. Verify authorized domains in Firebase Console include your hosting domain
+
+### Cross-Origin-Opener-Policy warnings
+
+Warnings like `COOP policy would block the window.closed call` are **normal** and don't affect functionality. These appear due to security headers in `firebase.json` and can be safely ignored.
+
 ### Email notifications not working
 
 - Verify EmailJS credentials are correct
