@@ -99,6 +99,8 @@ const resources = {
             invalidAmount: 'Ingresá un monto válido',
             selectNetwork: 'Seleccioná una red',
           },
+          submit: 'Enviar solicitud',
+          submitting: 'Enviando...',
         },
       },
       withdrawals: {
@@ -275,6 +277,8 @@ const resources = {
             invalidAmount: 'Enter a valid amount',
             selectNetwork: 'Select a network',
           },
+          submit: 'Send request',
+          submitting: 'Sending...',
         },
       },
       withdrawals: {

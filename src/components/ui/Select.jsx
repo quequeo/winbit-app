@@ -5,6 +5,7 @@ export const Select = ({
   value,
   onChange,
   options,
+  children,
   required = false,
   disabled = false,
   error,
@@ -29,11 +30,12 @@ export const Select = ({
           error ? 'border-red-500' : 'border-gray-300'
         }`}
       >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {children ||
+          options?.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
       </select>
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>

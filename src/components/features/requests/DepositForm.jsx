@@ -6,9 +6,8 @@ import { Button } from '../../ui/Button';
 import { Toast } from '../../ui/Toast';
 import { sendDepositRequest } from '../../../services/email';
 import { createInvestorRequest } from '../../../services/api';
+import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
-
-const WINBIT_LEMONTAG = 'lemontag-winbit-pending';
 
 const BASE_NETWORK_OPTIONS = [
   { value: 'USDT-TRC20', label: 'USDT (TRC20)' },
@@ -27,6 +26,8 @@ export const DepositForm = ({ userName, userEmail }) => {
     network: '',
     transactionHash: '',
   });
+  const [attachment, setAttachment] = useState(null);
+  const [attachmentPreview, setAttachmentPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [toast, setToast] = useState(null);
@@ -57,6 +58,24 @@ export const DepositForm = ({ userName, userEmail }) => {
     });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAttachment(file);
+      // Crear preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAttachmentPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachment(null);
+    setAttachmentPreview(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -72,6 +91,18 @@ export const DepositForm = ({ userName, userEmail }) => {
 
     setLoading(true);
     setMessage(null);
+
+    // Subir imagen si hay
+    let attachmentUrl = null;
+    if (attachment) {
+      const uploadResult = await uploadImage(attachment, 'deposits');
+      if (uploadResult.error) {
+        setMessage({ type: 'error', text: uploadResult.error });
+        setLoading(false);
+        return;
+      }
+      attachmentUrl = uploadResult.url;
+    }
 
     // Mapear el método y network al formato del backend
     let method = 'USDT'; // Por defecto
@@ -110,6 +141,7 @@ export const DepositForm = ({ userName, userEmail }) => {
       network: network,
       transactionHash:
         formData.method === 'crypto' && formData.transactionHash ? formData.transactionHash : null,
+      attachmentUrl: attachmentUrl, // Nueva línea
     });
 
     // También enviar por email como backup
@@ -134,6 +166,7 @@ export const DepositForm = ({ userName, userEmail }) => {
         message: registeredTextByMethod[formData.method] || t('requests.registered.crypto'),
       });
       setFormData({ amount: '', method: 'crypto', network: '', transactionHash: '' });
+      removeAttachment(); // Limpiar archivo
     } else {
       setMessage({
         type: 'error',
@@ -150,82 +183,165 @@ export const DepositForm = ({ userName, userEmail }) => {
             type={toast.type}
             title={toast.title}
             message={toast.message}
-            duration={8000}
             onClose={() => setToast(null)}
           />
         )}
 
-        <Select
-          label={t('requests.method.label')}
-          id="method"
-          name="method"
-          value={formData.method}
-          onChange={handleChange}
-          options={methodOptions}
-          disabled={loading}
-          required
-        />
+        <div>
+          <label htmlFor="amount" className="mb-2 block text-sm font-medium text-gray-700">
+            {t('deposits.requestForm.amount.label')} *
+          </label>
+          <Input
+            id="amount"
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            value={formData.amount}
+            onChange={handleChange}
+            placeholder="1000"
+            required
+          />
+        </div>
 
-        {formData.method === 'lemon' && (
-          <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
-            <p className="font-medium">{t('requests.lemonTag.winbitLabel')}</p>
-            <p className="mt-1 font-mono">{WINBIT_LEMONTAG}</p>
-          </div>
-        )}
-
-        <Input
-          label={t('deposits.requestForm.amount.label')}
-          type="number"
-          id="amount"
-          name="amount"
-          value={formData.amount}
-          onChange={handleChange}
-          disabled={loading}
-          required
-          min="0.01"
-          step="0.01"
-          placeholder={t('deposits.requestForm.amount.placeholder')}
-        />
+        <div>
+          <label htmlFor="method" className="mb-2 block text-sm font-medium text-gray-700">
+            {t('requests.method.label')} *
+          </label>
+          <Select
+            id="method"
+            name="method"
+            value={formData.method}
+            onChange={handleChange}
+            required
+          >
+            {methodOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </div>
 
         {formData.method === 'crypto' && (
           <>
-            <Select
-              label={t('deposits.requestForm.network.label')}
-              id="network"
-              name="network"
-              value={formData.network}
-              onChange={handleChange}
-              options={networkOptions}
-              disabled={loading}
-              required
-            />
+            <div>
+              <label htmlFor="network" className="mb-2 block text-sm font-medium text-gray-700">
+                {t('deposits.requestForm.network.label')} *
+              </label>
+              <Select
+                id="network"
+                name="network"
+                value={formData.network}
+                onChange={handleChange}
+                required
+              >
+                {networkOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
 
-            <Input
-              label={t('deposits.requestForm.transactionHash.label')}
-              type="text"
-              id="transactionHash"
-              name="transactionHash"
-              value={formData.transactionHash}
-              onChange={handleChange}
-              disabled={loading}
-              placeholder={t('deposits.requestForm.transactionHash.placeholder')}
-            />
+            <div>
+              <label
+                htmlFor="transactionHash"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                {t('deposits.requestForm.transactionHash.label')}
+              </label>
+              <Input
+                id="transactionHash"
+                name="transactionHash"
+                type="text"
+                value={formData.transactionHash}
+                onChange={handleChange}
+                placeholder="0x..."
+              />
+            </div>
           </>
         )}
+
+        <div>
+          <label htmlFor="attachment" className="mb-2 block text-sm font-medium text-gray-700">
+            Comprobante (opcional)
+          </label>
+          <p className="text-xs text-gray-500 mb-2">
+            Adjuntá una captura del comprobante de pago (JPG, PNG o WEBP, máx 5MB)
+          </p>
+
+          {!attachmentPreview ? (
+            <div className="relative">
+              <input
+                id="attachment"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="attachment"
+                className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+              >
+                <svg
+                  className="w-6 h-6 text-gray-400 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="text-sm text-gray-600">Subir comprobante</span>
+              </label>
+            </div>
+          ) : (
+            <div className="relative inline-block">
+              <img
+                src={attachmentPreview}
+                alt="Preview"
+                className="max-w-xs max-h-48 rounded-lg border border-gray-300"
+              />
+              <button
+                type="button"
+                onClick={removeAttachment}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
 
         {message && (
           <div
             role="alert"
-            className={`p-4 rounded-lg ${
-              message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            className={`rounded-lg p-4 ${
+              message.type === 'error'
+                ? 'bg-red-50 text-red-800'
+                : message.type === 'success'
+                  ? 'bg-green-50 text-green-800'
+                  : 'bg-blue-50 text-blue-800'
             }`}
           >
-            {message.text}
+            <p className="text-sm">{message.text}</p>
           </div>
         )}
 
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? t('common.sending') : t('common.sendRequest')}
+          {loading ? t('deposits.requestForm.submitting') : t('deposits.requestForm.submit')}
         </Button>
       </form>
     </Card>

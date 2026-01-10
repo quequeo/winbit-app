@@ -23,7 +23,7 @@ describe('DepositForm', () => {
     expect(screen.getByText('Register deposit')).toBeInTheDocument();
 
     const amountInput = screen.getByLabelText(/Amount/);
-    expect(amountInput).toHaveAttribute('placeholder', 'Enter amount in USD');
+    expect(amountInput).toHaveAttribute('placeholder', '1000');
 
     // Network fields appear only for crypto (default).
     expect(screen.getByLabelText(/Network/)).toBeInTheDocument();
@@ -78,6 +78,7 @@ describe('DepositForm', () => {
           method: 'USDT',
           network: 'TRC20',
           transactionHash: 'abc',
+          attachmentUrl: null,
         }),
       );
     });
