@@ -95,6 +95,11 @@ const resources = {
             label: 'Hash de transacción (opcional)',
             placeholder: 'Ingresá el hash o ID',
           },
+          attachment: {
+            label: 'Comprobante (opcional)',
+            description: 'Adjuntá una captura del comprobante de pago (JPG, PNG o WEBP, máx 5MB)',
+            upload: 'Subir comprobante',
+          },
           validation: {
             invalidAmount: 'Ingresá un monto válido',
             selectNetwork: 'Seleccioná una red',
@@ -272,6 +277,11 @@ const resources = {
           transactionHash: {
             label: 'Transaction hash (optional)',
             placeholder: 'Enter hash or ID',
+          },
+          attachment: {
+            label: 'Receipt (optional)',
+            description: 'Attach a screenshot of the payment receipt (JPG, PNG or WEBP, max 5MB)',
+            upload: 'Upload receipt',
           },
           validation: {
             invalidAmount: 'Enter a valid amount',

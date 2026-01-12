@@ -265,10 +265,10 @@ export const DepositForm = ({ userName, userEmail }) => {
 
         <div>
           <label htmlFor="attachment" className="mb-2 block text-sm font-medium text-gray-700">
-            Comprobante (opcional)
+            {t('deposits.requestForm.attachment.label')}
           </label>
           <p className="text-xs text-gray-500 mb-2">
-            Adjuntá una captura del comprobante de pago (JPG, PNG o WEBP, máx 5MB)
+            {t('deposits.requestForm.attachment.description')}
           </p>
 
           {!attachmentPreview ? (
@@ -297,7 +297,7 @@ export const DepositForm = ({ userName, userEmail }) => {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span className="text-sm text-gray-600">Subir comprobante</span>
+                <span className="text-sm text-gray-600">{t('deposits.requestForm.attachment.upload')}</span>
               </label>
             </div>
           ) : (
