@@ -297,7 +297,9 @@ export const DepositForm = ({ userName, userEmail }) => {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span className="text-sm text-gray-600">{t('deposits.requestForm.attachment.upload')}</span>
+                <span className="text-sm text-gray-600">
+                  {t('deposits.requestForm.attachment.upload')}
+                </span>
               </label>
             </div>
           ) : (
