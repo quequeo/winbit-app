@@ -4,7 +4,6 @@ import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { Toast } from '../../ui/Toast';
-import { sendDepositRequest } from '../../../services/email';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
@@ -141,36 +140,23 @@ export const DepositForm = ({ userName, userEmail }) => {
       network: network,
       transactionHash:
         formData.method === 'crypto' && formData.transactionHash ? formData.transactionHash : null,
-      attachmentUrl: attachmentUrl, // Nueva línea
-    });
-
-    // También enviar por email como backup
-    const emailResult = await sendDepositRequest({
-      userName,
-      userEmail,
-      amount: `$${parseFloat(formData.amount).toFixed(2)}`,
-      method: formData.method,
-      network: formData.method === 'crypto' ? formData.network : formData.method,
-      transactionHash: formData.method === 'crypto' ? formData.transactionHash : '',
+      attachmentUrl: attachmentUrl,
     });
 
     setLoading(false);
 
-    // Consideramos éxito si al menos uno de los dos funciona
-    const success = apiResult.data || emailResult.success;
-
-    if (success) {
+    if (apiResult.data) {
       setToast({
         type: 'success',
         title: t('requests.registered.title'),
         message: registeredTextByMethod[formData.method] || t('requests.registered.crypto'),
       });
       setFormData({ amount: '', method: 'crypto', network: '', transactionHash: '' });
-      removeAttachment(); // Limpiar archivo
+      removeAttachment();
     } else {
       setMessage({
         type: 'error',
-        text: apiResult.error || emailResult.error || t('requests.errors.sendFailed'),
+        text: apiResult.error || t('requests.errors.sendFailed'),
       });
     }
   };

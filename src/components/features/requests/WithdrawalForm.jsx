@@ -4,7 +4,6 @@ import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { Toast } from '../../ui/Toast';
-import { sendWithdrawalRequest } from '../../../services/email';
 import { createInvestorRequest } from '../../../services/api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
@@ -73,22 +72,9 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
       lemontag: method === 'lemon' && lemonTag.trim() ? lemonTag.trim() : null,
     });
 
-    // También enviar por email como backup
-    const emailResult = await sendWithdrawalRequest({
-      userName,
-      userEmail,
-      type: type === 'full' ? 'Full Withdrawal' : 'Partial Withdrawal',
-      amount: formatCurrency(withdrawalAmount),
-      method,
-      lemonTag: lemonTag.trim(),
-    });
-
     setLoading(false);
 
-    // Consideramos éxito si al menos uno de los dos funciona
-    const success = apiResult.data || emailResult.success;
-
-    if (success) {
+    if (apiResult.data) {
       setToast({
         type: 'success',
         title: t('requests.registered.title'),
@@ -101,7 +87,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     } else {
       setMessage({
         type: 'error',
-        text: apiResult.error || emailResult.error || t('requests.errors.sendFailed'),
+        text: apiResult.error || t('requests.errors.sendFailed'),
       });
     }
   };
