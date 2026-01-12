@@ -6,18 +6,9 @@
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "predeploy": ["npm run build"],
-    "redirects": [
-      { "source": "/", "destination": "/app/", "type": 302 },
-      { "source": "/app", "destination": "/app/", "type": 302 },
-      { "source": "/login", "destination": "/app/login", "type": 302 },
-      { "source": "/dashboard", "destination": "/app/dashboard", "type": 302 },
-      { "source": "/wallets", "destination": "/app/wallets", "type": 302 },
-      { "source": "/requests", "destination": "/app/requests", "type": 302 },
-      { "source": "/history", "destination": "/app/history", "type": 302 }
-    ],
     "rewrites": [
       {
-        "source": "/app/**",
+        "source": "**",
         "destination": "/index.html"
       }
     ],
