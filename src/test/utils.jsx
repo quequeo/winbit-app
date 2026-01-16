@@ -41,6 +41,5 @@ const customRenderHook = (hook, options) => {
 // Export custom versions
 export { customRender as render, customRenderHook as renderHook };
 
-// Re-export everything else from testing library
-// eslint-disable-next-line react-refresh/only-export-components
-export * from '@testing-library/react';
+// Re-export commonly used utilities
+export { screen, waitFor, fireEvent, within, act };
