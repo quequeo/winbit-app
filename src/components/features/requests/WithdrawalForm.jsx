@@ -8,7 +8,7 @@ import { createInvestorRequest } from '../../../services/api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 
-export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
+export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [type, setType] = useState('partial');
   const [method, setMethod] = useState('crypto');
   const [amount, setAmount] = useState('');

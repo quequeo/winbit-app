@@ -12,9 +12,11 @@ const createTestQueryClient = () => new QueryClient({
 
 export const createWrapper = () => {
     const queryClient = createTestQueryClient();
-    return ({ children }) => (
+    const Wrapper = ({ children }) => (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
+    Wrapper.displayName = 'TestWrapper';
+    return Wrapper;
 };
 
 const customRender = (ui, options) => {
@@ -22,6 +24,7 @@ const customRender = (ui, options) => {
     const Wrapper = ({ children }) => (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
+    Wrapper.displayName = 'TestRenderWrapper';
     return render(ui, { wrapper: Wrapper, ...options });
 };
 
@@ -30,11 +33,12 @@ const customRenderHook = (hook, options) => {
     const Wrapper = ({ children }) => (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
+    Wrapper.displayName = 'TestHookWrapper';
     return renderHook(hook, { wrapper: Wrapper, ...options });
 };
 
-// Re-export everything
-export * from '@testing-library/react';
-
 // Override render and renderHook
 export { customRender as render, customRenderHook as renderHook };
+
+// Re-export everything else
+export * from '@testing-library/react';

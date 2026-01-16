@@ -17,7 +17,7 @@ const BASE_NETWORK_OPTIONS = [
   { value: 'USDC-POLYGON', label: 'USDC (Polygon)' },
 ];
 
-export const DepositForm = ({ userName, userEmail }) => {
+export const DepositForm = ({ userEmail }) => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     amount: '',
