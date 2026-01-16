@@ -296,8 +296,7 @@ const resources = {
         formTitle: 'Request withdrawal',
         subtitle: 'Request a partial or full withdrawal',
         processingHoursTitle: '⏰ Processing hours:',
-        processingHoursLine1:
-          'Requests are received until 16:00 and executed at 18:00.',
+        processingHoursLine1: 'Requests are received until 16:00 and executed at 18:00.',
         processingHoursLine2: 'Requests submitted after 16:00 are processed at 10:00 the next day.',
         form: {
           type: {

@@ -103,96 +103,95 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       />
       <Card title={t('withdrawals.formTitle')}>
         <form onSubmit={handleSubmit} className="space-y-6">
-
-        <Select
-          label={t('requests.method.label')}
-          id="method"
-          name="method"
-          value={method}
-          onChange={(e) => setMethod(e.target.value)}
-          options={methodOptions}
-          disabled={loading}
-          required
-        />
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            {t('withdrawals.form.type.label')} <span className="text-red-500">*</span>
-          </label>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="type"
-                value="partial"
-                checked={type === 'partial'}
-                onChange={(e) => setType(e.target.value)}
-                className="w-4 h-4 text-primary"
-              />
-              <span>{t('withdrawals.form.type.partial')}</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="type"
-                value="full"
-                checked={type === 'full'}
-                onChange={(e) => setType(e.target.value)}
-                className="w-4 h-4 text-primary"
-              />
-              <span>{t('withdrawals.form.type.full')}</span>
-            </label>
-          </div>
-        </div>
-
-        <Input
-          label={t('withdrawals.form.amount.label')}
-          type="number"
-          id="amount"
-          name="amount"
-          value={type === 'full' ? formatCurrency(currentBalance) : amount}
-          onChange={(e) => setAmount(e.target.value)}
-          disabled={type === 'full' || loading}
-          required={type === 'partial'}
-          min="0.01"
-          step="0.01"
-          placeholder={t('withdrawals.form.amount.placeholder')}
-        />
-
-        {method === 'lemon' && (
-          <Input
-            label={t('requests.lemonTag.label')}
-            type="text"
-            id="lemonTag"
-            name="lemonTag"
-            value={lemonTag}
-            onChange={(e) => setLemonTag(e.target.value)}
+          <Select
+            label={t('requests.method.label')}
+            id="method"
+            name="method"
+            value={method}
+            onChange={(e) => setMethod(e.target.value)}
+            options={methodOptions}
             disabled={loading}
             required
-            placeholder={t('requests.lemonTag.placeholder')}
           />
-        )}
 
-        <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
-          <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
-          <p>• {t('withdrawals.processingHoursLine1')}</p>
-          <p>• {t('withdrawals.processingHoursLine2')}</p>
-        </div>
-
-        {message && (
-          <div
-            role="alert"
-            className={`p-4 rounded-lg ${
-              message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-            }`}
-          >
-            {message.text}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              {t('withdrawals.form.type.label')} <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="type"
+                  value="partial"
+                  checked={type === 'partial'}
+                  onChange={(e) => setType(e.target.value)}
+                  className="w-4 h-4 text-primary"
+                />
+                <span>{t('withdrawals.form.type.partial')}</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="type"
+                  value="full"
+                  checked={type === 'full'}
+                  onChange={(e) => setType(e.target.value)}
+                  className="w-4 h-4 text-primary"
+                />
+                <span>{t('withdrawals.form.type.full')}</span>
+              </label>
+            </div>
           </div>
-        )}
 
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? t('common.sending') : t('common.sendRequest')}
-        </Button>
+          <Input
+            label={t('withdrawals.form.amount.label')}
+            type="number"
+            id="amount"
+            name="amount"
+            value={type === 'full' ? formatCurrency(currentBalance) : amount}
+            onChange={(e) => setAmount(e.target.value)}
+            disabled={type === 'full' || loading}
+            required={type === 'partial'}
+            min="0.01"
+            step="0.01"
+            placeholder={t('withdrawals.form.amount.placeholder')}
+          />
+
+          {method === 'lemon' && (
+            <Input
+              label={t('requests.lemonTag.label')}
+              type="text"
+              id="lemonTag"
+              name="lemonTag"
+              value={lemonTag}
+              onChange={(e) => setLemonTag(e.target.value)}
+              disabled={loading}
+              required
+              placeholder={t('requests.lemonTag.placeholder')}
+            />
+          )}
+
+          <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
+            <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
+            <p>• {t('withdrawals.processingHoursLine1')}</p>
+            <p>• {t('withdrawals.processingHoursLine2')}</p>
+          </div>
+
+          {message && (
+            <div
+              role="alert"
+              className={`p-4 rounded-lg ${
+                message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? t('common.sending') : t('common.sendRequest')}
+          </Button>
         </form>
       </Card>
     </>

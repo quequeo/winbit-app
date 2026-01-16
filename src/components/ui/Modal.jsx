@@ -24,11 +24,7 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
         : 'bg-blue-50 border-blue-200';
 
   const iconColorClass =
-    type === 'success'
-      ? 'text-green-600'
-      : type === 'error'
-        ? 'text-red-600'
-        : 'text-blue-600';
+    type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-blue-600';
 
   const buttonColorClass =
     type === 'success'
