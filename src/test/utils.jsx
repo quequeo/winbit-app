@@ -1,4 +1,7 @@
-import { render, renderHook } from '@testing-library/react';
+import {
+  render as rtlRender,
+  renderHook as rtlRenderHook,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Create a new client for every test to avoid shared state
@@ -26,7 +29,7 @@ const customRender = (ui, options) => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
   Wrapper.displayName = 'TestRenderWrapper';
-  return render(ui, { wrapper: Wrapper, ...options });
+  return rtlRender(ui, { wrapper: Wrapper, ...options });
 };
 
 const customRenderHook = (hook, options) => {
@@ -35,10 +38,10 @@ const customRenderHook = (hook, options) => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
   Wrapper.displayName = 'TestHookWrapper';
-  return renderHook(hook, { wrapper: Wrapper, ...options });
+  return rtlRenderHook(hook, { wrapper: Wrapper, ...options });
 };
 
-// Override render and renderHook
+// Export custom versions
 export { customRender as render, customRenderHook as renderHook };
 
 // Re-export everything else from testing library
