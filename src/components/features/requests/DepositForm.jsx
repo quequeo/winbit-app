@@ -312,6 +312,12 @@ export const DepositForm = ({ userEmail }) => {
             )}
           </div>
 
+          <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
+            <p className="font-medium mb-1">{t('deposits.processingHoursTitle')}</p>
+            <p>• {t('deposits.processingHoursLine1')}</p>
+            <p>• {t('deposits.processingHoursLine2')}</p>
+          </div>
+
           {message && (
             <div
               role="alert"

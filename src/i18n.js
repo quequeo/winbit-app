@@ -81,6 +81,11 @@ const resources = {
         noWalletsMessage: 'No hay direcciones de depósito configuradas todavía.',
         copy: 'Copiar',
         copied: '✓ ¡Copiado!',
+        processingHoursTitle: '⏰ Horario de procesamiento:',
+        processingHoursLine1:
+          'Las solicitudes se reciben hasta las 16:00 y se ejecutan a las 18:00.',
+        processingHoursLine2:
+          'Las solicitudes ingresadas luego de las 16:00 se procesan a las 10:00 del día siguiente.',
         requestForm: {
           title: 'Registrar depósito',
           amount: {
@@ -264,6 +269,9 @@ const resources = {
         noWalletsMessage: 'No deposit addresses have been configured yet.',
         copy: 'Copy',
         copied: '✓ Copied!',
+        processingHoursTitle: '⏰ Processing hours:',
+        processingHoursLine1: 'Requests are received until 16:00 and executed at 18:00.',
+        processingHoursLine2: 'Requests submitted after 16:00 are processed at 10:00 the next day.',
         requestForm: {
           title: 'Register deposit',
           amount: {
