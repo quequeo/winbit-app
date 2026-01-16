@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getWallets } from '../services/api';
 
 /**
@@ -6,32 +6,21 @@ import { getWallets } from '../services/api';
  * @returns {Object} { wallets, loading, error }
  */
 export const useWallets = () => {
-  const [wallets, setWallets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchWallets = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const result = await getWallets();
-
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
-        setWallets(result.data || []);
-      } catch (err) {
-        setError(err.message);
-        setWallets([]);
-      } finally {
-        setLoading(false);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['wallets'],
+    queryFn: async () => {
+      const result = await getWallets();
+      if (result.error) {
+        throw new Error(result.error);
       }
-    };
+      return result.data || [];
+    },
+    staleTime: 1000 * 60 * 60, // Cache wallets for 1 hour
+  });
 
-    fetchWallets();
-  }, []);
-
-  return { wallets, loading, error };
+  return {
+    wallets: data || [],
+    loading: isLoading,
+    error: error?.message || null,
+  };
 };

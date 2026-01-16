@@ -1,13 +1,8 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { WithdrawalForm } from './WithdrawalForm';
-import { sendWithdrawalRequest } from '../../../services/email';
 import { createInvestorRequest } from '../../../services/api';
 import { i18n } from '../../../i18n';
-
-vi.mock('../../../services/email', () => ({
-  sendWithdrawalRequest: vi.fn(),
-}));
 
 vi.mock('../../../services/api', () => ({
   createInvestorRequest: vi.fn(),
@@ -57,7 +52,6 @@ describe('WithdrawalForm', () => {
 
   it('submits full withdrawal (amount disabled)', async () => {
     createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
-    sendWithdrawalRequest.mockResolvedValueOnce({ success: true, error: null });
     const { container } = render(
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );
@@ -71,12 +65,14 @@ describe('WithdrawalForm', () => {
     await waitFor(() => {
       expect(createInvestorRequest).toHaveBeenCalled();
     });
+    // Modal should appear with success message
     expect(await screen.findByText('Solicitud registrada')).toBeInTheDocument();
+    // Modal should have an "Aceptar" button
+    expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
   });
 
   it('shows error from service', async () => {
     createInvestorRequest.mockResolvedValueOnce({ data: null, error: 'Nope' });
-    sendWithdrawalRequest.mockResolvedValueOnce({ success: false, error: 'Nope' });
     const { container } = render(
       <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
     );

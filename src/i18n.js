@@ -114,9 +114,9 @@ const resources = {
         subtitle: 'Solicitá un retiro parcial o total',
         processingHoursTitle: '⏰ Horario de procesamiento:',
         processingHoursLine1:
-          'Las solicitudes se reciben hasta las 17:00 (GMT-3) y se ejecutan a las 18:00 (GMT-3).',
+          'Las solicitudes se reciben hasta las 16:00 y se ejecutan a las 18:00.',
         processingHoursLine2:
-          'Las solicitudes ingresadas luego de las 17:00 (GMT-3) se procesan al día siguiente.',
+          'Las solicitudes ingresadas luego de las 16:00 se procesan a las 10:00 del día siguiente.',
         form: {
           type: {
             label: 'Tipo de retiro',
@@ -297,8 +297,8 @@ const resources = {
         subtitle: 'Request a partial or full withdrawal',
         processingHoursTitle: '⏰ Processing hours:',
         processingHoursLine1:
-          'Requests are received until 17:00 (GMT-3) and executed at 18:00 (GMT-3).',
-        processingHoursLine2: 'Requests submitted after 17:00 (GMT-3) are processed the next day.',
+          'Requests are received until 16:00 and executed at 18:00.',
+        processingHoursLine2: 'Requests submitted after 16:00 are processed at 10:00 the next day.',
         form: {
           type: {
             label: 'Withdrawal type',

@@ -3,7 +3,7 @@ import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
-import { Toast } from '../../ui/Toast';
+import { Modal } from '../../ui/Modal';
 import { createInvestorRequest } from '../../../services/api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
   const [lemonTag, setLemonTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [toast, setToast] = useState(null);
+  const [modal, setModal] = useState(null);
   const { t } = useTranslation();
 
   const methodOptions = [
@@ -75,7 +75,7 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
     setLoading(false);
 
     if (apiResult.data) {
-      setToast({
+      setModal({
         type: 'success',
         title: t('requests.registered.title'),
         message: registeredTextByMethod[method] || t('requests.registered.crypto'),
@@ -93,17 +93,16 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
   };
 
   return (
-    <Card title={t('withdrawals.formTitle')}>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {toast && (
-          <Toast
-            type={toast.type}
-            title={toast.title}
-            message={toast.message}
-            duration={8000}
-            onClose={() => setToast(null)}
-          />
-        )}
+    <>
+      <Modal
+        isOpen={modal !== null}
+        onClose={() => setModal(null)}
+        title={modal?.title}
+        message={modal?.message}
+        type={modal?.type}
+      />
+      <Card title={t('withdrawals.formTitle')}>
+        <form onSubmit={handleSubmit} className="space-y-6">
 
         <Select
           label={t('requests.method.label')}
@@ -194,7 +193,8 @@ export const WithdrawalForm = ({ userName, userEmail, currentBalance }) => {
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? t('common.sending') : t('common.sendRequest')}
         </Button>
-      </form>
-    </Card>
+        </form>
+      </Card>
+    </>
   );
 };

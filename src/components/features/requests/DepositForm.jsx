@@ -3,7 +3,7 @@ import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
-import { Toast } from '../../ui/Toast';
+import { Modal } from '../../ui/Modal';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +29,7 @@ export const DepositForm = ({ userName, userEmail }) => {
   const [attachmentPreview, setAttachmentPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [toast, setToast] = useState(null);
+  const [modal, setModal] = useState(null);
 
   const methodOptions = [
     { value: 'crypto', label: t('requests.method.crypto') },
@@ -146,7 +146,7 @@ export const DepositForm = ({ userName, userEmail }) => {
     setLoading(false);
 
     if (apiResult.data) {
-      setToast({
+      setModal({
         type: 'success',
         title: t('requests.registered.title'),
         message: registeredTextByMethod[formData.method] || t('requests.registered.crypto'),
@@ -162,16 +162,16 @@ export const DepositForm = ({ userName, userEmail }) => {
   };
 
   return (
-    <Card title={t('deposits.requestForm.title')}>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {toast && (
-          <Toast
-            type={toast.type}
-            title={toast.title}
-            message={toast.message}
-            onClose={() => setToast(null)}
-          />
-        )}
+    <>
+      <Modal
+        isOpen={modal !== null}
+        onClose={() => setModal(null)}
+        title={modal?.title}
+        message={modal?.message}
+        type={modal?.type}
+      />
+      <Card title={t('deposits.requestForm.title')}>
+        <form onSubmit={handleSubmit} className="space-y-6">
 
         <div>
           <label htmlFor="amount" className="mb-2 block text-sm font-medium text-gray-700">
@@ -331,7 +331,8 @@ export const DepositForm = ({ userName, userEmail }) => {
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? t('deposits.requestForm.submitting') : t('deposits.requestForm.submit')}
         </Button>
-      </form>
-    </Card>
+        </form>
+      </Card>
+    </>
   );
 };

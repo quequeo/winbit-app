@@ -1,13 +1,8 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { DepositForm } from './DepositForm';
-import { sendDepositRequest } from '../../../services/email';
 import { createInvestorRequest } from '../../../services/api';
 import { i18n } from '../../../i18n';
-
-vi.mock('../../../services/email', () => ({
-  sendDepositRequest: vi.fn(),
-}));
 
 vi.mock('../../../services/api', () => ({
   createInvestorRequest: vi.fn(),
@@ -58,7 +53,6 @@ describe('DepositForm', () => {
       await i18n.changeLanguage('es');
     });
     createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
-    sendDepositRequest.mockResolvedValueOnce({ success: true, error: null });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
     fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
@@ -83,12 +77,14 @@ describe('DepositForm', () => {
       );
     });
 
+    // Modal should appear with success message
     expect(await screen.findByText('Solicitud registrada')).toBeInTheDocument();
+    // Modal should have an "Aceptar" button
+    expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
   });
 
   it('shows service error', async () => {
     createInvestorRequest.mockResolvedValueOnce({ data: null, error: 'Fail' });
-    sendDepositRequest.mockResolvedValueOnce({ success: false, error: 'Fail' });
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
     fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });

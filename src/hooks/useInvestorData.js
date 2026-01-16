@@ -1,57 +1,39 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getInvestorData } from '../services/api';
 import { useAuth } from './useAuth';
 
 export const useInvestorData = (email) => {
   const { isValidated } = useAuth();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [unauthorized, setUnauthorized] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    // No intentar cargar datos hasta que el usuario esté validado
-    if (!email || !isValidated) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      setUnauthorized(false);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['investor', email],
+    queryFn: async () => {
       const result = await getInvestorData(email);
-
       if (result.error) {
         throw new Error(result.error);
       }
+      return result.data;
+    },
+    enabled: !!email && !!isValidated,
+    retry: false, // Don't retry on 404/403
+  });
 
-      setData(result.data);
-    } catch (err) {
-      const errorMessage = err.message;
+  // Calculate unauthorized state from error message
+  const errorMessage = error?.message;
+  const unauthorized =
+    errorMessage?.includes('Investor not found in database') ||
+    errorMessage?.includes('Investor email mapping not configured') ||
+    errorMessage?.includes('not found in sheet');
 
-      // Check for unauthorized user errors
-      if (
-        errorMessage.includes('Investor not found in database') ||
-        errorMessage.includes('Investor email mapping not configured') ||
-        errorMessage.includes('not found in sheet')
-      ) {
-        setUnauthorized(true);
-        setError(null);
-      } else {
-        setError(errorMessage);
-        setUnauthorized(false);
-      }
+  // If unauthorized, we clear the general error string to match old behavior
+  // (In old hook: "setUnauthorized(true); setError(null);")
+  const exposedError = unauthorized ? null : errorMessage || null;
 
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [email, isValidated]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, unauthorized, refetch: fetchData };
+  return {
+    data: data || null,
+    loading: isLoading, // Map isLoading to loading
+    error: exposedError,
+    unauthorized: !!unauthorized,
+    refetch,
+  };
 };

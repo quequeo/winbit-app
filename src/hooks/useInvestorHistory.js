@@ -1,41 +1,26 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getInvestorHistory } from '../services/api';
 import { useAuth } from './useAuth';
 
 export const useInvestorHistory = (email) => {
   const { isValidated } = useAuth();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  const fetchData = useCallback(async () => {
-    // No intentar cargar datos hasta que el usuario esté validado
-    if (!email || !isValidated) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['investor', email, 'history'],
+    queryFn: async () => {
       const result = await getInvestorHistory(email);
-
       if (result.error) {
         throw new Error(result.error);
       }
+      return result.data;
+    },
+    enabled: !!email && !!isValidated,
+  });
 
-      setData(result.data);
-    } catch (err) {
-      setError(err.message);
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [email, isValidated]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, refetch: fetchData };
+  return {
+    data: data || null,
+    loading: isLoading,
+    error: error?.message || null,
+    refetch,
+  };
 };

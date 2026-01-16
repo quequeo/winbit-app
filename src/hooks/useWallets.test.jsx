@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '../test/utils';
 import { describe, it, expect, vi } from 'vitest';
 import { useWallets } from './useWallets';
 import * as api from '../services/api';
