@@ -15,6 +15,7 @@ export const Header = () => {
     { path: '/wallets', label: t('nav.deposits') },
     { path: '/requests', label: t('nav.withdrawals') },
     { path: '/history', label: t('nav.history') },
+    { path: '/operational', label: t('nav.operating') },
   ];
 
   const handleLanguageChange = (lng) => {

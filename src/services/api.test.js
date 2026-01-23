@@ -60,6 +60,36 @@ describe('api service', () => {
       expect(result.error).toBe('Network error');
     });
 
+    it('derives total return from balance when accumulated return is 0', async () => {
+      const mockData = {
+        data: {
+          investor: {
+            email: 'test@example.com',
+            name: 'Test User',
+          },
+          portfolio: {
+            currentBalance: 10171,
+            totalInvested: 10000,
+            accumulatedReturnUSD: 0,
+            accumulatedReturnPercent: 0,
+            annualReturnUSD: 0,
+            annualReturnPercent: 0,
+            updatedAt: '2024-01-01T00:00:00.000Z',
+          },
+        },
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockData,
+      });
+
+      const result = await getInvestorData('test@example.com');
+      expect(result.error).toBeNull();
+      expect(result.data.totalReturnUsd).toBeCloseTo(171, 5);
+      expect(result.data.totalReturnPct).toBeCloseTo(1.71, 2);
+    });
     it('returns error when response is not ok', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,

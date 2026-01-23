@@ -51,10 +51,12 @@ describe('HistoryPage', () => {
     expect(within(mobile).getByText('Depósito')).toBeInTheDocument();
     expect(within(mobile).getByText('$10.000,00')).toBeInTheDocument();
     expect(within(mobile).getByText('Completado')).toBeInTheDocument();
+    expect(within(mobile).getByTestId('icon-deposit-completed')).toBeInTheDocument();
 
     // Sorted by most recent first
     const cards = within(mobile).getAllByText(/Depósito|Retiro/);
     expect(cards[0].textContent).toBe('Depósito');
+    expect(within(mobile).queryByTestId('icon-withdrawal-completed')).not.toBeInTheDocument();
   });
 
   it('handles events in English format (DEPOSIT, WITHDRAWAL, PROFIT)', () => {
@@ -98,7 +100,8 @@ describe('HistoryPage', () => {
     // All events should be translated to Spanish
     expect(screen.getAllByText('Depósito').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Retiro').length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Ganancia/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Rendimiento/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Ene\/2024/i).length).toBeGreaterThan(0);
   });
 
   it('displays dash for null balances (pending requests)', () => {
@@ -125,5 +128,68 @@ describe('HistoryPage', () => {
     // Should show "-" instead of "$0,00" for null balances
     const dashes = within(mobile).getAllByText('-');
     expect(dashes.length).toBeGreaterThanOrEqual(2); // At least 2 for prev and new balance
+  });
+
+  it('aggregates operating results by month on /history', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          code: '001',
+          date: '2025-12-01T17:00:00.000Z',
+          movement: 'OPERATING_RESULT',
+          amount: -50,
+          previousBalance: 1000,
+          newBalance: 950,
+          status: 'COMPLETED',
+        },
+        {
+          code: '001',
+          date: '2025-12-15T17:00:00.000Z',
+          movement: 'OPERATING_RESULT',
+          amount: 20,
+          previousBalance: 950,
+          newBalance: 970,
+          status: 'COMPLETED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<HistoryPage />);
+
+    // Should show a single aggregated row for Dec 2025
+    const mobile = screen.getByTestId('history-mobile');
+    expect(within(mobile).getAllByText(/Resultado Operativo.*Dic 2025/i).length).toBe(1);
+  });
+
+  it("shows current-month operating results as 'a la fecha' (no end-of-month fake date)", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-23T12:00:00.000Z'));
+
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          code: '001',
+          date: '2026-01-02T17:00:00.000Z',
+          movement: 'OPERATING_RESULT',
+          amount: 7.45,
+          previousBalance: 14887.7,
+          newBalance: 14895.15,
+          status: 'COMPLETED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<HistoryPage />);
+
+    expect(screen.getAllByText(/Resultado Operativo.*a la fecha/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Resultado Operativo - Ene 2026/i)).not.toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 });

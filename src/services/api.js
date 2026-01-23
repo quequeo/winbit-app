@@ -51,14 +51,33 @@ export const getInvestorData = async (email) => {
     const result = await response.json();
     const { investor, portfolio } = result.data;
 
+    const balance = portfolio?.currentBalance ?? 0;
+    const totalInvested = portfolio?.totalInvested ?? 0;
+
+    // Rails keeps accumulated return fields, but during manual testing they can be 0 while balance already includes PROFIT.
+    // Fallback: derive the return from balances so the dashboard reflects the investor's gain/loss.
+    const derivedReturnUsd = balance - totalInvested;
+    const hasDerivedReturn =
+      Number.isFinite(derivedReturnUsd) && Math.abs(derivedReturnUsd) > 0.0001;
+
+    const apiTotalReturnUsd = portfolio?.accumulatedReturnUSD ?? 0;
+    const apiTotalReturnPct = portfolio?.accumulatedReturnPercent ?? 0;
+
+    const totalReturnUsd =
+      apiTotalReturnUsd === 0 && hasDerivedReturn ? derivedReturnUsd : apiTotalReturnUsd;
+    const totalReturnPct =
+      apiTotalReturnPct === 0 && hasDerivedReturn && totalInvested > 0
+        ? (derivedReturnUsd / totalInvested) * 100
+        : apiTotalReturnPct;
+
     // Mapear la respuesta de la API al formato esperado por la aplicación
     const mappedData = {
       email: investor.email,
       name: investor.name,
-      balance: portfolio?.currentBalance ?? 0,
-      totalInvested: portfolio?.totalInvested ?? 0,
-      totalReturnUsd: portfolio?.accumulatedReturnUSD ?? 0,
-      totalReturnPct: portfolio?.accumulatedReturnPercent ?? 0,
+      balance,
+      totalInvested,
+      totalReturnUsd,
+      totalReturnPct,
       annualReturnUsd: portfolio?.annualReturnUSD ?? 0,
       annualReturnPct: portfolio?.annualReturnPercent ?? 0,
       lastUpdated: portfolio?.updatedAt ?? new Date().toISOString(),
@@ -112,6 +131,8 @@ export const getInvestorHistory = async (email) => {
       previousBalance: item.previousBalance,
       newBalance: item.newBalance,
       status: item.status,
+      tradingFeePeriodLabel: item.tradingFeePeriodLabel ?? null,
+      tradingFeePercentage: item.tradingFeePercentage ?? null,
     }));
 
     return { data: mappedHistory, error: null };

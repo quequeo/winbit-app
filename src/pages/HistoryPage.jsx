@@ -5,31 +5,224 @@ import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { EmptyState } from '../components/ui/EmptyState';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
+import { formatPercentage } from '../utils/formatPercentage';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+
+const formatFeePercentage = (value) => {
+  if (value === null || value === undefined) return '';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  const formatted = new Intl.NumberFormat('es-AR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(n);
+  return `${formatted}%`;
+};
+
+const monthNamesEs = [
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
+];
+
+const normalize = (value) =>
+  String(value ?? '')
+    .trim()
+    .toLowerCase();
+
+const parseDateSafe = (value) => {
+  const d = value ? new Date(value) : null;
+  return d && !Number.isNaN(d.getTime()) ? d : null;
+};
+
+const monthKeyUtc = (dateStr) => {
+  const d = parseDateSafe(dateStr);
+  if (!d) return null;
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+  return `${yyyy}-${mm}`;
+};
+
+const endOfMonthIsoUtc = (ym) => {
+  // ym: YYYY-MM
+  const m = String(ym || '').match(/^(\d{4})-(\d{2})$/);
+  if (!m) return null;
+  const yyyy = parseInt(m[1], 10);
+  const month = parseInt(m[2], 10); // 1..12
+  const end = new Date(Date.UTC(yyyy, month, 0));
+  const dd = String(end.getUTCDate()).padStart(2, '0');
+  const mm = String(month).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const formatMonthYearSlash = (dateStr) => {
+  const d = parseDateSafe(dateStr);
+  if (!d) return '';
+  const mm = monthNamesEs[d.getUTCMonth()] || '';
+  const yyyy = d.getUTCFullYear();
+  return mm && yyyy ? `${mm}/${yyyy}` : '';
+};
+
+const formatMonthYearSpace = (dateStr) => {
+  const d = parseDateSafe(dateStr);
+  if (!d) return '';
+  const mm = monthNamesEs[d.getUTCMonth()] || '';
+  const yyyy = d.getUTCFullYear();
+  return mm && yyyy ? `${mm} ${yyyy}` : '';
+};
+
+const aggregateOperatingResultsByMonth = (rows) => {
+  const now = new Date();
+  const currentMonthKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+  const opRows = [];
+  const otherRows = [];
+
+  rows.forEach((r) => {
+    const m = normalize(r?.movement);
+    if (m === 'operating_result') opRows.push(r);
+    else otherRows.push(r);
+  });
+
+  const groups = new Map();
+
+  opRows.forEach((r) => {
+    const key = monthKeyUtc(r?.date);
+    if (!key) {
+      otherRows.push(r);
+      return;
+    }
+
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(r);
+  });
+
+  const aggregated = Array.from(groups.entries()).map(([ym, rs]) => {
+    const sortedAsc = [...rs].sort((a, b) => {
+      const aT = a?.date ? new Date(a.date).getTime() : 0;
+      const bT = b?.date ? new Date(b.date).getTime() : 0;
+      return aT - bT;
+    });
+
+    const first = sortedAsc[0];
+    const last = sortedAsc[sortedAsc.length - 1];
+
+    const sumAmount = sortedAsc.reduce((acc, it) => acc + (Number(it?.amount) || 0), 0);
+
+    const compoundedPercent = (() => {
+      let factor = 1;
+      sortedAsc.forEach((it) => {
+        const prev = Number(it?.previousBalance);
+        const amt = Number(it?.amount);
+        if (!Number.isFinite(prev) || prev <= 0) return;
+        if (!Number.isFinite(amt)) return;
+        const pct = (amt / prev) * 100;
+        factor *= 1 + pct / 100;
+      });
+      return (factor - 1) * 100;
+    })();
+
+    const operatingResultPercent = Number.isFinite(compoundedPercent)
+      ? Math.round(compoundedPercent * 100) / 100
+      : null;
+
+    const isCurrentMonth = ym === currentMonthKey;
+    const date = isCurrentMonth ? last?.date : endOfMonthIsoUtc(ym) || last?.date;
+
+    return {
+      id: `operating_result_${ym}`,
+      code: first?.code ?? '',
+      date,
+      movement: 'OPERATING_RESULT',
+      amount: sumAmount,
+      previousBalance: first?.previousBalance ?? null,
+      newBalance: last?.newBalance ?? null,
+      status: last?.status ?? 'COMPLETED',
+      operatingResultPartial: isCurrentMonth,
+      operatingResultPercent,
+    };
+  });
+
+  return [...otherRows, ...aggregated];
+};
 
 export const HistoryPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { data, loading, error, refetch } = useInvestorHistory(user?.email);
 
-  const normalize = (value) =>
-    String(value ?? '')
-      .trim()
-      .toLowerCase();
-
   const translateMovement = (movement) => {
     const m = normalize(movement);
-    if (m === 'depósito' || m === 'deposito' || m === 'deposit') {
+    if (m === 'depósito' || m === 'deposito' || m === 'deposit' || m === 'deposito') {
       return t('history.movement.deposit');
     }
     if (m === 'retiro' || m === 'withdrawal') {
       return t('history.movement.withdrawal');
     }
     if (m === 'profit' || m === 'ganancia' || m === 'rendimiento') {
-      return t('history.movement.profit', 'Ganancia');
+      return t('history.movement.profit', 'Rendimiento');
+    }
+    if (m === 'operating_result' || m === 'resultado_operativo' || m === 'resultado operativo') {
+      return t('history.movement.operating_result', 'Resultado Operativo');
+    }
+    if (m === 'trading_fee' || m === 'comisión' || m === 'comision') {
+      return t('history.movement.trading_fee', 'Comisión de Trading');
     }
     return movement;
+  };
+
+  const movementLabel = (row) => {
+    const base = translateMovement(row?.movement);
+    const m = normalize(row?.movement);
+
+    if (m === 'profit') {
+      const my = formatMonthYearSlash(row?.date);
+      return my ? `${base} ${my}` : base;
+    }
+
+    if (m === 'operating_result') {
+      const pct =
+        row?.operatingResultPercent !== null && row?.operatingResultPercent !== undefined
+          ? ` ${formatPercentage(Number(row.operatingResultPercent))}`
+          : '';
+
+      if (row?.operatingResultPartial) {
+        return `${base}${pct} a la fecha`;
+      }
+      const my = formatMonthYearSpace(row?.date);
+      return my ? `${base}${pct} - ${my}` : `${base}${pct}`;
+    }
+
+    if (m === 'trading_fee' && row?.tradingFeePeriodLabel) {
+      const feePct = formatFeePercentage(row?.tradingFeePercentage);
+      return feePct
+        ? `${base} ${feePct} - ${row.tradingFeePeriodLabel}`
+        : `${base} - ${row.tradingFeePeriodLabel}`;
+    }
+
+    return base;
+  };
+
+  const shouldShowStatusPill = (movement) => {
+    const m = normalize(movement);
+    return (
+      m === 'deposit' ||
+      m === 'deposito' ||
+      m === 'depósito' ||
+      m === 'retiro' ||
+      m === 'withdrawal'
+    );
   };
 
   const translateStatus = (status) => {
@@ -49,6 +242,97 @@ export const HistoryPage = () => {
     return status;
   };
 
+  const isCompletedStatus = (status) => {
+    const s = normalize(status);
+    return s === 'completado' || s === 'completed';
+  };
+
+  const movementKind = (movement) => {
+    const m = normalize(movement);
+    if (m === 'deposit' || m === 'deposito' || m === 'depósito') return 'deposit';
+    if (m === 'retiro' || m === 'withdrawal') return 'withdrawal';
+    return null;
+  };
+
+  const movementCompletedIcon = (row) => {
+    if (!row) return null;
+    if (!isCompletedStatus(row.status)) return null;
+
+    const kind = movementKind(row.movement);
+    if (kind === 'deposit') {
+      return (
+        <span
+          data-testid="icon-deposit-completed"
+          className="inline-flex"
+          aria-hidden="true"
+          title="Depósito completado"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-primary">
+            <path
+              fillRule="evenodd"
+              d="M10 2a.75.75 0 01.75.75v8.69l2.22-2.22a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 111.06-1.06l2.22 2.22V2.75A.75.75 0 0110 2z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </span>
+      );
+    }
+
+    if (kind === 'withdrawal') {
+      return (
+        <span
+          data-testid="icon-withdrawal-completed"
+          className="inline-flex"
+          aria-hidden="true"
+          title="Retiro completado"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-primary">
+            <path
+              fillRule="evenodd"
+              d="M10 18a.75.75 0 01-.75-.75v-8.69l-2.22 2.22a.75.75 0 11-1.06-1.06l3.5-3.5a.75.75 0 011.06 0l3.5 3.5a.75.75 0 11-1.06 1.06l-2.22-2.22v8.69A.75.75 0 0110 18z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </span>
+      );
+    }
+
+    return null;
+  };
+
+  const desktopRowClass = (row) => {
+    const m = normalize(row?.movement);
+
+    if (m === 'trading_fee') {
+      return 'bg-blue-50 hover:bg-blue-100';
+    }
+
+    if (m === 'operating_result') {
+      const pct = Number(row?.operatingResultPercent);
+      const sign = Number.isFinite(pct) ? pct : Number(row?.amount);
+      if (sign > 0) return 'bg-green-50 hover:bg-green-100';
+      if (sign < 0) return 'bg-red-50 hover:bg-red-100';
+      return 'bg-gray-50 hover:bg-gray-100';
+    }
+
+    return 'hover:bg-gray-50';
+  };
+
+  const mobileCardBgClass = (row) => {
+    const m = normalize(row?.movement);
+
+    if (m === 'trading_fee') return 'bg-blue-50';
+
+    if (m === 'operating_result') {
+      const pct = Number(row?.operatingResultPercent);
+      const sign = Number.isFinite(pct) ? pct : Number(row?.amount);
+      if (sign > 0) return 'bg-green-50';
+      if (sign < 0) return 'bg-red-50';
+    }
+
+    return 'bg-white';
+  };
+
   const translatedError = (() => {
     if (!error) {
       return null;
@@ -63,7 +347,8 @@ export const HistoryPage = () => {
   })();
 
   const rows = useMemo(() => {
-    return Array.isArray(data) ? data : [];
+    const raw = Array.isArray(data) ? data : [];
+    return aggregateOperatingResultsByMonth(raw);
   }, [data]);
 
   const sortedRows = useMemo(() => {
@@ -73,23 +358,6 @@ export const HistoryPage = () => {
       return bT - aT;
     });
   }, [rows]);
-
-  const getStatusBadgeClasses = (status) => {
-    const s = normalize(status);
-    if (s === 'completado' || s === 'completed') {
-      return 'bg-green-50 text-green-700 border-green-200';
-    }
-    if (s === 'pendiente' || s === 'pending') {
-      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-    }
-    if (s === 'rechazado' || s === 'rejected') {
-      return 'bg-red-50 text-red-700 border-red-200';
-    }
-    if (s === 'cancelado' || s === 'cancelled' || s === 'canceled') {
-      return 'bg-gray-50 text-gray-700 border-gray-200';
-    }
-    return 'bg-gray-50 text-gray-700 border-gray-200';
-  };
 
   if (loading) {
     return (
@@ -123,12 +391,20 @@ export const HistoryPage = () => {
             {sortedRows.map((row, idx) => (
               <div
                 key={`${row.code}-${row.date}-${idx}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+                className={`${mobileCardBgClass(row)} rounded-xl shadow-sm border border-gray-200 p-4`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-gray-900 truncate">
-                      {translateMovement(row.movement)}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="text-sm font-semibold text-gray-900 truncate">
+                        {movementLabel(row)}
+                      </div>
+                      {movementCompletedIcon(row)}
+                      {shouldShowStatusPill(row?.movement) && row?.status ? (
+                        <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white whitespace-nowrap">
+                          {translateStatus(row.status)}
+                        </span>
+                      ) : null}
                     </div>
                     <div className="text-xs text-gray-500 mt-0.5">{formatDate(row.date)}</div>
                   </div>
@@ -136,13 +412,6 @@ export const HistoryPage = () => {
                   <div className="shrink-0 text-right">
                     <div className="text-base font-semibold text-gray-900">
                       {formatCurrency(row.amount)}
-                    </div>
-                    <div
-                      className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${getStatusBadgeClasses(
-                        row.status,
-                      )}`}
-                    >
-                      {translateStatus(row.status)}
                     </div>
                   </div>
                 </div>
@@ -208,22 +477,24 @@ export const HistoryPage = () => {
                     >
                       {t('history.table.newBalance')}
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {t('history.table.status')}
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sortedRows.map((row, idx) => (
-                    <tr key={`${row.code}-${row.date}-${idx}`} className="hover:bg-gray-50">
+                    <tr key={`${row.code}-${row.date}-${idx}`} className={desktopRowClass(row)}>
                       <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
                         {formatDate(row.date)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                        {translateMovement(row.movement)}
+                        <div className="flex items-center gap-2">
+                          <span>{movementLabel(row)}</span>
+                          {movementCompletedIcon(row)}
+                          {shouldShowStatusPill(row?.movement) && row?.status ? (
+                            <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white">
+                              {translateStatus(row.status)}
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
                         {formatCurrency(row.amount)}
@@ -233,9 +504,6 @@ export const HistoryPage = () => {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
                         {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                        {translateStatus(row.status)}
                       </td>
                     </tr>
                   ))}

@@ -40,6 +40,7 @@ const resources = {
         deposits: 'Depósitos',
         withdrawals: 'Retiros',
         history: 'Historial',
+        operating: 'Operativa',
       },
       auth: {
         logout: 'Salir',
@@ -65,6 +66,7 @@ const resources = {
         noDataForAccount: 'No hay datos disponibles para tu cuenta',
         kpis: {
           currentValue: 'Valor actual del portafolio (USD)',
+          totalInvested: 'Total invertido (USD)',
           totalReturnUsd: 'Resultado acumulado desde el inicio (USD)',
           totalReturnPct: 'Resultado acumulado desde el inicio (%)',
           annualReturnUsd: `Resultado acumulado anual ${getCurrentYear()} (USD)`,
@@ -172,6 +174,8 @@ const resources = {
         movement: {
           deposit: 'Depósito',
           withdrawal: 'Retiro',
+          trading_fee: 'Comisión de Trading',
+          operating_result: 'Resultado Operativo',
         },
         status: {
           completed: 'Completado',
@@ -228,6 +232,7 @@ const resources = {
         deposits: 'Deposits',
         withdrawals: 'Withdrawals',
         history: 'History',
+        operating: 'Operating',
       },
       auth: {
         logout: 'Logout',
@@ -253,6 +258,7 @@ const resources = {
         noDataForAccount: 'No data available for your account',
         kpis: {
           currentValue: 'Current portfolio value (USD)',
+          totalInvested: 'Total invested (USD)',
           totalReturnUsd: 'Total return since inception (USD)',
           totalReturnPct: 'Total return since inception (%)',
           annualReturnUsd: `Annual return ${getCurrentYear()} (USD)`,
@@ -356,6 +362,8 @@ const resources = {
         movement: {
           deposit: 'Deposit',
           withdrawal: 'Withdrawal',
+          trading_fee: 'Trading Fee',
+          operating_result: 'Operating Result',
         },
         status: {
           completed: 'Completed',
