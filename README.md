@@ -1,16 +1,14 @@
-# Winbit App
+# Winbit App (Portal inversores) — winbit-app
 
-Progressive Web Application (PWA) for investors to view their portfolio balance, performance, and request withdrawals or deposits.
+Portal para inversores (React + Vite + Firebase Auth) conectado a la API de `winbit-rails`.
 
 ## Features
-
-- 🔐 **Google Authentication** - Secure login with Firebase Auth
-- 📊 **Dashboard** - Portfolio metrics and performance tracking
-- 💰 **Depósitos** - View deposit addresses (USDT/USDC only)
-- 📤 **Retiros** - Submit partial or full withdrawal requests
-- 🧾 **Historial** - Movements table (planned)
-- 📱 **PWA Support** - Install as native app on mobile devices
-- 🎨 **Responsive Design** - Optimized for mobile and desktop
+- 🔐 Google Sign-In (Firebase Auth)
+- 📊 Dashboard (saldo + resultado estrategia YTD e histórico)
+- 💰 Depósitos (direcciones)
+- 📤 Retiros (solicitudes)
+- 🧾 Historial + Operativa (detalle diario de resultados operativos)
+- 📱 PWA
 
 ## Tech Stack
 
@@ -22,20 +20,9 @@ Progressive Web Application (PWA) for investors to view their portfolio balance,
 - **Email:** EmailJS
 - **Testing:** Vitest + React Testing Library
 
-## App Placement (Public Website + Investor Panel)
-
-The investor panel can live either:
-
-- As a route under the same domain (recommended): `/app` (e.g. `winbit.../app`)
-- As a subdomain: `app.winbit...`
-
-In both cases, the investor panel routes remain protected behind Firebase Auth.
-
-### Local development note
-
-When hosting the panel under `/app`, the development URL is typically:
-
-- `http://localhost:5173/app/`
+## Fórmulas / finanzas
+La explicación de balances y retornos vive en:
+- `../FORMULAS.md`
 
 ## Language
 
@@ -68,9 +55,9 @@ The app uses Argentine number formatting:
 - Winbit Rails backend running (see ../winbit-rails/README.md)
 - EmailJS account for email notifications
 
-## Setup Instructions
+## Setup
 
-### 1. Clone and Install
+### 1) Install
 
 ```bash
 git clone <repository-url>
@@ -103,20 +90,8 @@ VITE_EMAILJS_TEMPLATE_ID_DEPOSIT=your_deposit_template_id
 VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key
 ```
 
-### 3. Configure Google Sheet
-
-Your Google Sheet should have the following structure:
-
-| Column A | Column B | Column C | Column D | Column E | Column F+       |
-| -------- | -------- | -------- | -------- | -------- | --------------- |
-| Email    | Name     | Balance  | Invested | Returns% | Historical Data |
-
-- **Column A:** Investor email (must match Google Sign-In email)
-- **Column B:** Investor name
-- **Column C:** Current balance (USD)
-- **Column D:** Total invested (USD)
-- **Column E:** Returns/Performance (%)
- 
+### (Removido) Google Sheet
+Este portal ya no usa Google Sheets como fuente de datos: consume la API de `winbit-rails`.
 
 ### 4. Configure Wallets
 
@@ -163,43 +138,8 @@ npm run build
 npm run preview
 ```
 
-## Testing & Coverage
-
-The project uses Vitest and React Testing Library.
-
-**Current Test Coverage:** ~89.6%
-
-| Metric | Percentage |
-|--------|-----------|
-| Lines | 89.6% |
-| Statements | 89.6% |
-| Branches | 72.45% |
-| Functions | 83.33% |
-
-### Test Suite
-
-- **Total Tests:** 167+ tests passing
-- **Test Framework:** Vitest + React Testing Library
-- **Test Files:** 40+ test files
-
-### Key Coverage Areas
-
-- ✅ **UI Components:** 100% coverage (Button, Card, Input, Select, Spinner, Toast, etc.)
-- ✅ **Utils:** 98.96% coverage (formatCurrency, formatDate, formatName, etc.)
-- ✅ **Hooks:** 98.63% coverage (useAuth, useInvestorData, useInvestorHistory, useWallets)
-- ✅ **Services:**
-  - `api.js` - 93.88% (critical API service with Rails backend)
-  - `email.js` - 100%
-- ✅ **Pages:** 92.23% average coverage
-- ⚠️ **Authentication:** 53.42% (AuthProvider - Firebase integration, complex to test)
-
-```bash
-# Run all tests
-npm run test
-
-# Generate coverage report
-npm run test:coverage
-```
+## Notas
+- El dashboard muestra **resultado estrategia (TWR)** como métrica principal.
 
 ## Deployment
 

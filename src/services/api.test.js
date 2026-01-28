@@ -87,8 +87,9 @@ describe('api service', () => {
 
       const result = await getInvestorData('test@example.com');
       expect(result.error).toBeNull();
-      expect(result.data.totalReturnUsd).toBeCloseTo(171, 5);
-      expect(result.data.totalReturnPct).toBeCloseTo(1.71, 2);
+      // When legacy accumulated return is 0, we derive strategyReturnAll from balance - totalInvested.
+      expect(result.data.strategyReturnAllUsd).toBeCloseTo(171, 5);
+      expect(result.data.strategyReturnAllPct).toBeCloseTo(1.71, 2);
     });
     it('returns error when response is not ok', async () => {
       mockFetch.mockResolvedValueOnce({

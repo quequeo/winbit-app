@@ -10,27 +10,20 @@ import { useTranslation } from 'react-i18next';
 
 export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [type, setType] = useState('partial');
-  const [method, setMethod] = useState('crypto');
+  const [method, setMethod] = useState('CASH_ARS');
   const [amount, setAmount] = useState('');
-  const [lemonTag, setLemonTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
   const { t } = useTranslation();
 
   const methodOptions = [
-    { value: 'crypto', label: t('requests.method.crypto') },
-    { value: 'lemon', label: t('requests.method.lemon') },
-    { value: 'cash', label: t('requests.method.cash') },
-    { value: 'international', label: t('requests.method.international') },
+    { value: 'CASH_ARS', label: t('requests.method.cash_ars') },
+    { value: 'CASH_USD', label: t('requests.method.cash_usd') },
+    { value: 'TRANSFER_ARS', label: t('requests.method.transfer_ars') },
+    { value: 'SWIFT', label: t('requests.method.swift') },
+    { value: 'CRYPTO', label: t('requests.method.crypto') },
   ];
-
-  const registeredTextByMethod = {
-    crypto: t('requests.registered.crypto'),
-    lemon: t('requests.registered.crypto'),
-    cash: t('requests.registered.cash'),
-    international: t('requests.registered.international'),
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,29 +40,17 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       return;
     }
 
-    if (method === 'lemon' && !lemonTag.trim()) {
-      setMessage({ type: 'error', text: t('withdrawals.form.validation.lemonTagRequired') });
-      return;
-    }
-
     setLoading(true);
     setMessage(null);
-
-    // Mapear el método al formato que espera el backend
-    const methodMap = {
-      crypto: 'USDT', // Por defecto USDT para crypto
-      lemon: 'LEMON_CASH',
-      cash: 'CASH',
-      international: 'SWIFT',
-    };
 
     // Enviar solicitud al backend de Rails
     const apiResult = await createInvestorRequest({
       email: userEmail,
       type: 'WITHDRAWAL',
       amount: withdrawalAmount,
-      method: methodMap[method] || 'USDT',
-      lemontag: method === 'lemon' && lemonTag.trim() ? lemonTag.trim() : null,
+      method: method,
+      network: null,
+      lemontag: null,
     });
 
     setLoading(false);
@@ -78,12 +59,11 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       setModal({
         type: 'success',
         title: t('requests.registered.title'),
-        message: registeredTextByMethod[method] || t('requests.registered.crypto'),
+        message: t('requests.registered.crypto'),
       });
       setAmount('');
       setType('partial');
-      setMethod('crypto');
-      setLemonTag('');
+      // keep method selection
     } else {
       setMessage({
         type: 'error',
@@ -157,20 +137,6 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             step="0.01"
             placeholder={t('withdrawals.form.amount.placeholder')}
           />
-
-          {method === 'lemon' && (
-            <Input
-              label={t('requests.lemonTag.label')}
-              type="text"
-              id="lemonTag"
-              name="lemonTag"
-              value={lemonTag}
-              onChange={(e) => setLemonTag(e.target.value)}
-              disabled={loading}
-              required
-              placeholder={t('requests.lemonTag.placeholder')}
-            />
-          )}
 
           <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
             <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>

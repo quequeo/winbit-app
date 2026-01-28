@@ -34,6 +34,12 @@ export const Input = ({
         min={min}
         max={max}
         step={step}
+        onWheel={(e) => {
+          // Prevent mouse wheel from changing number inputs (common UX bug on desktop trackpads/mice)
+          if (type === 'number') {
+            e.currentTarget.blur();
+          }
+        }}
         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed ${
           error ? 'border-red-500' : 'border-gray-300'
         }`}

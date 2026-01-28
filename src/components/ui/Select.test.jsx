@@ -17,15 +17,17 @@ describe('Select', () => {
   it('renders all options', () => {
     render(<Select options={options} />);
     expect(screen.getByText('Select option')).toBeInTheDocument();
-    expect(screen.getByText('Option 1')).toBeInTheDocument();
-    expect(screen.getByText('Option 2')).toBeInTheDocument();
+    // Options are shown when dropdown is opened.
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByRole('option', { name: 'Option 1' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Option 2' })).toBeInTheDocument();
   });
 
   it('calls onChange when option is selected', () => {
     const handleChange = vi.fn();
-    render(<Select options={options} onChange={handleChange} />);
-    const select = screen.getByRole('combobox');
-    fireEvent.change(select, { target: { value: '1' } });
+    render(<Select id="test-select" name="test" options={options} onChange={handleChange} />);
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('option', { name: 'Option 1' }));
     expect(handleChange).toHaveBeenCalled();
   });
 
@@ -41,13 +43,11 @@ describe('Select', () => {
 
   it('disables select when disabled prop is true', () => {
     render(<Select options={options} disabled />);
-    const select = screen.getByRole('combobox');
-    expect(select).toBeDisabled();
+    expect(screen.getByRole('button')).toBeDisabled();
   });
 
   it('sets selected value', () => {
     render(<Select options={options} value="1" onChange={() => {}} />);
-    const select = screen.getByRole('combobox');
-    expect(select).toHaveValue('1');
+    expect(screen.getByRole('button')).toHaveTextContent('Option 1');
   });
 });

@@ -54,21 +54,36 @@ export const getInvestorData = async (email) => {
     const balance = portfolio?.currentBalance ?? 0;
     const totalInvested = portfolio?.totalInvested ?? 0;
 
-    // Rails keeps accumulated return fields, but during manual testing they can be 0 while balance already includes PROFIT.
-    // Fallback: derive the return from balances so the dashboard reflects the investor's gain/loss.
+    // Strategy return (main metric): TWR-based, independent of deposits/withdrawals.
+    // Fallbacks keep the app usable even if backend hasn't been updated.
     const derivedReturnUsd = balance - totalInvested;
-    const hasDerivedReturn =
-      Number.isFinite(derivedReturnUsd) && Math.abs(derivedReturnUsd) > 0.0001;
+    const hasDerivedReturn = Number.isFinite(derivedReturnUsd) && Math.abs(derivedReturnUsd) > 0.0001;
 
-    const apiTotalReturnUsd = portfolio?.accumulatedReturnUSD ?? 0;
-    const apiTotalReturnPct = portfolio?.accumulatedReturnPercent ?? 0;
+    const strategyReturnYtdUsd = portfolio?.strategyReturnYtdUSD ?? 0;
+    const strategyReturnYtdPct = portfolio?.strategyReturnYtdPercent ?? 0;
+    const strategyReturnYtdFrom = portfolio?.strategyReturnYtdFrom ?? null;
 
-    const totalReturnUsd =
-      apiTotalReturnUsd === 0 && hasDerivedReturn ? derivedReturnUsd : apiTotalReturnUsd;
-    const totalReturnPct =
-      apiTotalReturnPct === 0 && hasDerivedReturn && totalInvested > 0
-        ? (derivedReturnUsd / totalInvested) * 100
-        : apiTotalReturnPct;
+    const apiAllUsd = portfolio?.strategyReturnAllUSD;
+    const apiAllPct = portfolio?.strategyReturnAllPercent;
+
+    const legacyAllUsd = portfolio?.accumulatedReturnUSD ?? 0;
+    const legacyAllPct = portfolio?.accumulatedReturnPercent ?? 0;
+
+    const strategyReturnAllUsd =
+      apiAllUsd !== undefined && apiAllUsd !== null
+        ? apiAllUsd
+        : legacyAllUsd === 0 && hasDerivedReturn
+          ? derivedReturnUsd
+          : legacyAllUsd;
+
+    const strategyReturnAllPct =
+      apiAllPct !== undefined && apiAllPct !== null
+        ? apiAllPct
+        : legacyAllPct === 0 && hasDerivedReturn && totalInvested > 0
+          ? (derivedReturnUsd / totalInvested) * 100
+          : legacyAllPct;
+
+    const strategyReturnAllFrom = portfolio?.strategyReturnAllFrom ?? null;
 
     // Mapear la respuesta de la API al formato esperado por la aplicación
     const mappedData = {
@@ -76,8 +91,12 @@ export const getInvestorData = async (email) => {
       name: investor.name,
       balance,
       totalInvested,
-      totalReturnUsd,
-      totalReturnPct,
+      strategyReturnYtdUsd,
+      strategyReturnYtdPct,
+      strategyReturnYtdFrom,
+      strategyReturnAllUsd,
+      strategyReturnAllPct,
+      strategyReturnAllFrom,
       annualReturnUsd: portfolio?.annualReturnUSD ?? 0,
       annualReturnPct: portfolio?.annualReturnPercent ?? 0,
       lastUpdated: portfolio?.updatedAt ?? new Date().toISOString(),
@@ -161,6 +180,11 @@ export const getWallets = async () => {
   }
 };
 
+/**
+ * Obtiene los métodos de pago disponibles desde el backend
+ * @param {string | null} requestType - 'DEPOSIT' o 'WITHDRAWAL' (opcional)
+ * @returns {Promise<{data: array | null, error: string | null}>}
+ */
 /**
  * Crea una solicitud de depósito o retiro
  * @param {object} requestData - Datos de la solicitud

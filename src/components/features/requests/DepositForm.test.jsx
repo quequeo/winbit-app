@@ -19,9 +19,6 @@ describe('DepositForm', () => {
 
     const amountInput = screen.getByLabelText(/Amount/);
     expect(amountInput).toHaveAttribute('placeholder', '1000');
-
-    // Network fields appear only for crypto (default).
-    expect(screen.getByLabelText(/Network/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send request' })).toBeInTheDocument();
 
     await act(async () => {
@@ -38,16 +35,6 @@ describe('DepositForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Ingresá un monto válido');
   });
 
-  it('validates network selection', async () => {
-    await act(async () => {
-      await i18n.changeLanguage('es');
-    });
-    const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
-    fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
-    fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Seleccioná una red');
-  });
-
   it('submits successfully', async () => {
     await act(async () => {
       await i18n.changeLanguage('es');
@@ -56,10 +43,6 @@ describe('DepositForm', () => {
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
     fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText(/Red/), { target: { value: 'USDT-TRC20' } });
-    fireEvent.change(screen.getByLabelText(/Hash de transacción/), {
-      target: { value: 'abc' },
-    });
 
     fireEvent.submit(container.querySelector('form'));
 
@@ -69,9 +52,9 @@ describe('DepositForm', () => {
           email: 't@e.com',
           type: 'DEPOSIT',
           amount: 10,
-          method: 'USDT',
-          network: 'TRC20',
-          transactionHash: 'abc',
+          method: 'CASH_ARS',
+          network: null,
+          transactionHash: null,
           attachmentUrl: null,
         }),
       );
@@ -88,7 +71,6 @@ describe('DepositForm', () => {
     const { container } = render(<DepositForm userName="Test" userEmail="t@e.com" />);
 
     fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText(/Red/), { target: { value: 'USDC-ERC20' } });
     fireEvent.submit(container.querySelector('form'));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Fail');

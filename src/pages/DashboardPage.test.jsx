@@ -65,8 +65,10 @@ describe('DashboardPage', () => {
         name: 'Juan',
         balance: 100,
         totalInvested: 80,
-        totalReturnUsd: 50,
-        totalReturnPct: 10,
+        strategyReturnYtdUsd: 20,
+        strategyReturnYtdPct: 25,
+        strategyReturnAllUsd: 20,
+        strategyReturnAllPct: 25,
         lastUpdated: '2024-01-01T00:00:00.000Z',
       },
     });
@@ -77,7 +79,8 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Valor actual del portafolio (USD)')).toBeInTheDocument();
     expect(screen.getByText('Total invertido (USD)')).toBeInTheDocument();
     expect(screen.getByText('$100,00')).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Rango de tiempo del gráfico' })).toBeInTheDocument();
+    // Range buttons are grouped under the chart aria-label.
+    expect(screen.getByRole('group', { name: 'Evolución del portafolio' })).toBeInTheDocument();
     expect(screen.getByText('7 días')).toBeInTheDocument();
     expect(screen.getByText('1 mes')).toBeInTheDocument();
     expect(screen.getByText('3 meses')).toBeInTheDocument();

@@ -8,6 +8,23 @@ vi.mock('../../../services/api', () => ({
   createInvestorRequest: vi.fn(),
 }));
 
+vi.mock('../../../hooks/usePaymentMethods', () => ({
+  usePaymentMethods: (requestType) => {
+    if (requestType === 'WITHDRAWAL') {
+      // Default (first) method should not require extra fields for tests.
+      return {
+        paymentMethods: [
+          { code: 'SWIFT', name: 'Transferencia Internacional', kind: 'INTERNATIONAL', requiresNetwork: false, requiresLemontag: false },
+          { code: 'LEMON_CASH', name: 'Lemon Cash', kind: 'LEMON_CASH', requiresNetwork: false, requiresLemontag: true },
+        ],
+        loading: false,
+        error: null,
+      };
+    }
+    return { paymentMethods: [], loading: false, error: null };
+  },
+}));
+
 describe('WithdrawalForm', () => {
   it('renders English strings when language is en', async () => {
     await act(async () => {

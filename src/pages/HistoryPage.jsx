@@ -198,7 +198,7 @@ export const HistoryPage = () => {
           : '';
 
       if (row?.operatingResultPartial) {
-        return `${base}${pct} a la fecha`;
+        return `${base}${pct} ${t('history.movement.toDate')}`;
       }
       const my = formatMonthYearSpace(row?.date);
       return my ? `${base}${pct} - ${my}` : `${base}${pct}`;
@@ -245,6 +245,14 @@ export const HistoryPage = () => {
   const isCompletedStatus = (status) => {
     const s = normalize(status);
     return s === 'completado' || s === 'completed';
+  };
+
+  const statusPillClass = (status) => {
+    const s = normalize(status);
+    if (s === 'rechazado' || s === 'rejected') {
+      return 'bg-red-100 text-red-800';
+    }
+    return 'bg-primary text-white';
   };
 
   const movementKind = (movement) => {
@@ -401,7 +409,11 @@ export const HistoryPage = () => {
                       </div>
                       {movementCompletedIcon(row)}
                       {shouldShowStatusPill(row?.movement) && row?.status ? (
-                        <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${statusPillClass(
+                            row.status
+                          )}`}
+                        >
                           {translateStatus(row.status)}
                         </span>
                       ) : null}
@@ -490,7 +502,11 @@ export const HistoryPage = () => {
                           <span>{movementLabel(row)}</span>
                           {movementCompletedIcon(row)}
                           {shouldShowStatusPill(row?.movement) && row?.status ? (
-                            <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white">
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${statusPillClass(
+                                row.status
+                              )}`}
+                            >
                               {translateStatus(row.status)}
                             </span>
                           ) : null}

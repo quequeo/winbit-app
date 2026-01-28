@@ -9,6 +9,7 @@ import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { UnauthorizedPage } from './UnauthorizedPage';
 import { formatName } from '../utils/formatName';
 import { formatCurrency } from '../utils/formatCurrency';
+import { formatDate } from '../utils/formatDate';
 
 const toIsoDate = (value) => {
   const d = value ? new Date(value) : null;
@@ -25,7 +26,9 @@ const parseIsoDateUtcMs = (isoDate) => {
   return Number.isFinite(t) ? t : null;
 };
 
-const PortfolioLineChart = ({ series }) => {
+const PortfolioLineChart = ({ series, title }) => {
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const width = 900;
   const height = 240;
   const padX = 52;
@@ -73,21 +76,88 @@ const PortfolioLineChart = ({ series }) => {
       const x = padX + (idx / Math.max(1, n - 1)) * (width - padX * 2);
       const yNorm = (p.total - minV) / range;
       const y = padY + (1 - yNorm) * (height - padY * 2);
-      return { x, y };
+      return { x, y, date: p.date, total: p.total, index: idx };
     });
   }, [series, minV, range]);
+
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const svgX = ((e.clientX - rect.left) / rect.width) * width;
+    const svgY = ((e.clientY - rect.top) / rect.height) * height;
+
+    // Find the closest point by X coordinate (date), not by distance
+    // This ensures we show the balance for the date the user is hovering over
+    let closestPoint = null;
+    let minDistance = Infinity;
+    const hoverRadius = 30; // pixels for Y-axis tolerance
+
+    points.forEach((point) => {
+      const xDistance = Math.abs(svgX - point.x);
+      const yDistance = Math.abs(svgY - point.y);
+      // Prioritize X distance (date), but also check Y is close
+      if (xDistance < hoverRadius && yDistance < hoverRadius) {
+        const distance = xDistance * 2 + yDistance; // Weight X more heavily
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPoint = point;
+        }
+      }
+    });
+    
+    // If no point found by distance, find the closest by X (date) only
+    if (!closestPoint && points.length > 0) {
+      closestPoint = points.reduce((closest, point) => {
+        const xDist = Math.abs(svgX - point.x);
+        const closestDist = Math.abs(svgX - closest.x);
+        return xDist < closestDist ? point : closest;
+      });
+    }
+
+    if (closestPoint) {
+      setHoveredPoint(closestPoint);
+      // Position tooltip near cursor, but adjust if too close to edges
+      const tooltipWidth = 150; // approximate tooltip width
+      const tooltipHeight = 60; // approximate tooltip height
+      let x = e.clientX + 15;
+      let y = e.clientY - tooltipHeight - 10;
+
+      // Adjust if tooltip would go off right edge
+      if (x + tooltipWidth > window.innerWidth) {
+        x = e.clientX - tooltipWidth - 15;
+      }
+      // Adjust if tooltip would go off left edge
+      if (x < 0) {
+        x = 10;
+      }
+      // Adjust if tooltip would go off top edge
+      if (y < 0) {
+        y = e.clientY + 20;
+      }
+
+      setTooltipPosition({ x, y });
+    } else {
+      setHoveredPoint(null);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredPoint(null);
+  };
 
   const line = points.map((pt) => `${pt.x.toFixed(2)},${pt.y.toFixed(2)}`).join(' ');
   const area = `${padX},${height - padY} ${line} ${width - padX},${height - padY}`;
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="h-56 w-full"
         role="img"
-        aria-label="Evolución del portafolio"
+        aria-label={title}
         preserveAspectRatio="none"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
       >
         <defs>
           <linearGradient id="portfolioArea" x1="0" y1="0" x2="0" y2="1">
@@ -118,6 +188,7 @@ const PortfolioLineChart = ({ series }) => {
           );
         })}
 
+        {/* X-axis line */}
         <line
           x1={padX}
           y1={height - padY}
@@ -137,35 +208,79 @@ const PortfolioLineChart = ({ series }) => {
           strokeLinecap="round"
         />
 
-        {points.length > 0 ? (
+        {/* Invisible larger circles for hover detection */}
+        {points.map((point, idx) => (
           <circle
-            cx={points[points.length - 1].x}
-            cy={points[points.length - 1].y}
-            r="3"
-            fill="#1d4ed8"
+            key={`hover-${idx}`}
+            cx={point.x}
+            cy={point.y}
+            r="8"
+            fill="transparent"
+            stroke="none"
+            style={{ cursor: 'pointer' }}
           />
-        ) : null}
+        ))}
+
+        {/* Visible circles on points - only show on hover */}
+        {hoveredPoint && (
+          <circle
+            cx={hoveredPoint.x}
+            cy={hoveredPoint.y}
+            r="5"
+            fill="#1e40af"
+            style={{ transition: 'r 0.2s, fill 0.2s' }}
+          />
+        )}
+
+        {/* Vertical line on hover */}
+        {hoveredPoint && (
+          <line
+            x1={hoveredPoint.x}
+            y1={padY}
+            x2={hoveredPoint.x}
+            y2={height - padY}
+            stroke="#94a3b8"
+            strokeWidth="1"
+            strokeDasharray="4,4"
+            opacity="0.5"
+          />
+        )}
       </svg>
 
+      {/* Tooltip */}
+      {hoveredPoint && (
+        <div
+          className="fixed bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg pointer-events-none z-50"
+          style={{
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y}px`,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          <div className="font-semibold">{formatDate(hoveredPoint.date)}</div>
+          <div className="text-blue-300 mt-1">{formatCurrency(hoveredPoint.total)}</div>
+        </div>
+      )}
+
       <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-        <span>{series[0]?.date}</span>
-        <span>{series[series.length - 1]?.date}</span>
+        <span>{series[0]?.date ? formatDate(series[0].date) : ''}</span>
+        <span>{series[series.length - 1]?.date ? formatDate(series[series.length - 1].date) : ''}</span>
       </div>
     </div>
   );
 };
 
-const RANGE_OPTIONS = [
-  { key: '7D', label: '7 días', kind: 'days', value: 7 },
-  { key: '1M', label: '1 mes', kind: 'months', value: 1 },
-  { key: '3M', label: '3 meses', kind: 'months', value: 3 },
-  { key: '6M', label: '6 meses', kind: 'months', value: 6 },
-  { key: '1Y', label: '1 año', kind: 'years', value: 1 },
-  { key: 'ALL', label: 'Todo', kind: 'all' },
+const getRangeOptions = (t) => [
+  { key: '7D', label: t('dashboard.ranges.7D'), kind: 'days', value: 7 },
+  { key: '1M', label: t('dashboard.ranges.1M'), kind: 'months', value: 1 },
+  { key: '3M', label: t('dashboard.ranges.3M'), kind: 'months', value: 3 },
+  { key: '6M', label: t('dashboard.ranges.6M'), kind: 'months', value: 6 },
+  { key: '1Y', label: t('dashboard.ranges.1Y'), kind: 'years', value: 1 },
+  { key: 'ALL', label: t('dashboard.ranges.ALL'), kind: 'all' },
 ];
 
-const rangeStartMs = (endMs, rangeKey) => {
-  const opt = RANGE_OPTIONS.find((r) => r.key === rangeKey);
+const rangeStartMs = (endMs, rangeKey, rangeOptions) => {
+  const opt = rangeOptions.find((r) => r.key === rangeKey);
   if (!opt || !Number.isFinite(endMs)) return null;
   if (opt.kind === 'all') return null;
 
@@ -194,21 +309,38 @@ export const DashboardPage = () => {
   const { t } = useTranslation();
 
   const [rangeKey, setRangeKey] = useState('3M');
+  const rangeOptions = getRangeOptions(t);
 
   const fullSeries = useMemo(() => {
     const rows = Array.isArray(historyData) ? historyData : [];
 
-    const points = rows
-      .filter((r) => r?.newBalance !== null && r?.newBalance !== undefined)
+    // Get all points with newBalance, sorted by date
+    const allPoints = rows
+      .filter((r) => r?.newBalance !== null && r?.newBalance !== undefined && r?.status === 'COMPLETED')
       .map((r) => {
         const date = toIsoDate(r?.date);
-        return date ? { date, total: Number(r.newBalance) || 0 } : null;
+        return date ? { date, total: Number(r.newBalance) || 0, timestamp: parseIsoDateUtcMs(date) } : null;
       })
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+    if (allPoints.length === 0) return [];
+
+    // For each unique date, use the last balance of that day (latest timestamp)
+    const dateMap = new Map();
+    allPoints.forEach((point) => {
+      const dateKey = point.date; // YYYY-MM-DD
+      const existing = dateMap.get(dateKey);
+      // Keep the point with the latest timestamp for each date
+      if (!existing || (point.timestamp && point.timestamp > (existing.timestamp || 0))) {
+        dateMap.set(dateKey, point);
+      }
+    });
+
+    const points = Array.from(dateMap.values()).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 
     if (points.length < 2) return [];
 
-    points.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     return points;
   }, [historyData]);
 
@@ -218,7 +350,7 @@ export const DashboardPage = () => {
     const endMs = parseIsoDateUtcMs(fullSeries[fullSeries.length - 1]?.date);
     if (!endMs) return fullSeries;
 
-    const startMs = rangeStartMs(endMs, rangeKey);
+    const startMs = rangeStartMs(endMs, rangeKey, rangeOptions);
     if (!startMs) return fullSeries;
 
     const filtered = fullSeries.filter((p) => {
@@ -230,22 +362,12 @@ export const DashboardPage = () => {
     return filtered.length >= 2 ? filtered : fullSeries;
   }, [fullSeries, rangeKey]);
 
-  const stats = useMemo(() => {
-    if (!series || series.length < 2) return null;
-    const first = series[0].total;
-    const last = series[series.length - 1].total;
-    const delta = last - first;
-    const deltaPct = first > 0 ? (delta / first) * 100 : 0;
-
-    return { first, last, delta, deltaPct };
-  }, [series]);
-
   const rangeSubtitle = useMemo(() => {
-    const opt = RANGE_OPTIONS.find((r) => r.key === rangeKey);
+    const opt = rangeOptions.find((r) => r.key === rangeKey);
     if (!opt) return '';
-    if (opt.kind === 'all') return 'Todo desde el inicio';
-    return `Últimos ${opt.label}`;
-  }, [rangeKey]);
+    if (opt.kind === 'all') return t('dashboard.chart.rangeAll');
+    return t('dashboard.chart.rangeLast', { label: opt.label });
+  }, [rangeKey, rangeOptions, t]);
 
   if (loading) {
     return (
@@ -299,48 +421,51 @@ export const DashboardPage = () => {
       {/* Segunda línea - Resultado desde el inicio */}
       <div className="grid gap-4 md:grid-cols-2 mb-4">
         <KpiCard
-          title={t('dashboard.kpis.totalReturnUsd')}
-          value={data.totalReturnUsd ?? 0}
+          title={t('dashboard.kpis.strategyReturnYtdUsd')}
+          value={data.strategyReturnYtdUsd ?? 0}
           variant="currency"
           showSign={true}
         />
         <KpiCard
-          title={t('dashboard.kpis.totalReturnPct')}
-          value={data.totalReturnPct ?? 0}
+          title={t('dashboard.kpis.strategyReturnYtdPct')}
+          value={data.strategyReturnYtdPct ?? 0}
           variant="percentage"
         />
       </div>
 
+      {/* No mostramos "Desde" en dashboard (evita confusión). */}
+
+      {/* Tercera línea - Resultado histórico (estrategia) */}
+      <div className="grid gap-4 md:grid-cols-2 mb-4">
+        <KpiCard
+          title={t('dashboard.kpis.strategyReturnAllUsd')}
+          value={data.strategyReturnAllUsd ?? 0}
+          variant="currency"
+          showSign={true}
+        />
+        <KpiCard
+          title={t('dashboard.kpis.strategyReturnAllPct')}
+          value={data.strategyReturnAllPct ?? 0}
+          variant="percentage"
+        />
+      </div>
+
+      {/* No mostramos "Desde" en dashboard (evita confusión). */}
+
       <div className="rounded-lg bg-white p-6 shadow" data-testid="portfolio-evolution">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Evolución del portafolio</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('dashboard.chart.title')}</h2>
             <p className="text-sm text-gray-500">{rangeSubtitle}</p>
           </div>
-
-          {stats ? (
-            <div className="text-sm text-gray-700">
-              <span className="font-medium">{formatCurrency(stats.first)}</span>
-              <span className="mx-2 text-gray-300">→</span>
-              <span className="font-medium">{formatCurrency(stats.last)}</span>
-              <span
-                className={`ml-3 font-semibold ${stats.delta >= 0 ? 'text-green-700' : 'text-red-700'}`}
-                title="Variación del período"
-              >
-                {stats.delta >= 0 ? '+' : ''}
-                {formatCurrency(stats.delta)}
-                {stats.first > 0 ? ` (${stats.deltaPct.toFixed(2)}%)` : ''}
-              </span>
-            </div>
-          ) : null}
         </div>
 
         <div
           className="mt-4 flex flex-wrap gap-2"
           role="group"
-          aria-label="Rango de tiempo del gráfico"
+          aria-label={t('dashboard.chart.title')}
         >
-          {RANGE_OPTIONS.map((opt) => {
+          {rangeOptions.map((opt) => {
             const isActive = opt.key === rangeKey;
             return (
               <button
@@ -361,12 +486,12 @@ export const DashboardPage = () => {
 
         <div className="mt-4">
           {historyLoading ? (
-            <div className="text-sm text-gray-500">Cargando evolución…</div>
+            <div className="text-sm text-gray-500">{t('dashboard.chart.loading')}</div>
           ) : series.length >= 2 ? (
-            <PortfolioLineChart series={series} />
+            <PortfolioLineChart series={series} title={t('dashboard.chart.title')} />
           ) : (
             <div className="rounded-md border border-dashed border-gray-200 p-6 text-sm text-gray-500">
-              Sin datos históricos todavía.
+              {t('dashboard.chart.noData')}
             </div>
           )}
         </div>
