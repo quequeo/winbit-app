@@ -14,20 +14,8 @@ vi.mock('../../../hooks/usePaymentMethods', () => ({
       // Default (first) method should not require extra fields for tests.
       return {
         paymentMethods: [
-          {
-            code: 'SWIFT',
-            name: 'Transferencia Internacional',
-            kind: 'INTERNATIONAL',
-            requiresNetwork: false,
-            requiresLemontag: false,
-          },
-          {
-            code: 'LEMON_CASH',
-            name: 'Lemon Cash',
-            kind: 'LEMON_CASH',
-            requiresNetwork: false,
-            requiresLemontag: true,
-          },
+          { code: 'SWIFT', name: 'Transferencia Internacional', kind: 'INTERNATIONAL', requiresNetwork: false, requiresLemontag: false },
+          { code: 'LEMON_CASH', name: 'Lemon Cash', kind: 'LEMON_CASH', requiresNetwork: false, requiresLemontag: true },
         ],
         loading: false,
         error: null,

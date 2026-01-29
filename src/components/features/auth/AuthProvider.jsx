@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
             await signOut(auth);
           }
         }
-      } catch (error) {
+      } catch (_error) {
         // Intentionally swallow here; UI handles login errors on demand.
       }
     };

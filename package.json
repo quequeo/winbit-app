@@ -12,11 +12,11 @@
     "test:watch": "vitest --watch",
     "test:coverage:raw": "vitest run --coverage",
     "test:coverage": "node -e \"const { spawn } = require('child_process'); const cmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'; const p = spawn(cmd, ['run','-s','test:coverage:raw'], { stdio: ['inherit','pipe','pipe'] }); let out=''; const on=(d)=>{ const s=d.toString(); out+=s; process.stdout.write(s); }; const onErr=(d)=>{ const s=d.toString(); out+=s; process.stderr.write(s); }; p.stdout.on('data', on); p.stderr.on('data', onErr); p.on('close', (code)=>{ const m = out.match(/^All files\\s*\\|\\s*([\\d.]+)\\s*\\|\\s*([\\d.]+)\\s*\\|\\s*([\\d.]+)\\s*\\|\\s*([\\d.]+)/m); if (m) { const stmts=m[1], branches=m[2], funcs=m[3], lines=m[4]; console.log('\\n=== Coverage Summary ===\\n' + 'Lines: ' + lines + '% | Stmts: ' + stmts + '% | Branch: ' + branches + '% | Funcs: ' + funcs + '%\\n' + '========================\\n'); } process.exit(code); });\"",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "prepush": "npm run lint && npm run format:check && npm run test:ci",
-    "prepare": "husky"
+    "prepare": "sh -c \"[ -d .git ] && husky || true\""
   },
   "dependencies": {
     "@emailjs/browser": "^3.11.0",
@@ -28,27 +28,33 @@
     "recharts": "^2.10.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
-    "@vitejs/plugin-react": "^4.2.1",
-    "@vitest/coverage-v8": "^1.0.4",
+    "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.55.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.5",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^17.2.0",
     "husky": "^9.1.7",
     "i18next": "^25.7.3",
-    "jsdom": "^23.0.1",
+    "jsdom": "^27.4.0",
     "postcss": "^8.4.32",
     "prettier": "^3.7.4",
     "react-i18next": "^16.5.0",
     "tailwindcss": "^3.3.6",
     "vite": "^5.0.8",
-    "vite-plugin-pwa": "^0.17.4",
-    "vitest": "^1.0.4"
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "magic-string": "^0.30.21",
+    "source-map": "^0.7.4"
   }
 }

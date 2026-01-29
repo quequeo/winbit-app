@@ -264,7 +264,7 @@ const getInvestorNameFromInversoresSheet = async ({ apiKey, sheetId, email, inve
     }
 
     return '';
-  } catch (err) {
+  } catch (_err) {
     // If INVERSORES sheet doesn't exist or has issues, return empty name
     return '';
   }
@@ -312,7 +312,7 @@ const getLastUpdatedDateFromHistorial = async ({ apiKey, sheetId, investorCode }
     }
 
     return dates[0]; // Return the most recent date
-  } catch (err) {
+  } catch (_err) {
     // If HISTORIAL sheet doesn't exist or has issues, return current date
     return new Date().toISOString();
   }

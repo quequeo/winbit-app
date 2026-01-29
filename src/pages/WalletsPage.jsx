@@ -32,7 +32,9 @@ export const WalletsPage = () => {
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           {String(error)}
         </div>
-      ) : wallets.length === 0 ? null : (
+      ) : wallets.length === 0 ? (
+        null
+      ) : (
         <WalletList wallets={wallets} />
       )}
 
