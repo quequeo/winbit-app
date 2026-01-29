@@ -360,7 +360,7 @@ export const DashboardPage = () => {
 
     // keep at least 2 points, otherwise fallback to full series
     return filtered.length >= 2 ? filtered : fullSeries;
-  }, [fullSeries, rangeKey]);
+  }, [fullSeries, rangeKey, rangeOptions]);
 
   const rangeSubtitle = useMemo(() => {
     const opt = rangeOptions.find((r) => r.key === rangeKey);
