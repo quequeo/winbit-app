@@ -255,6 +255,9 @@ export const HistoryPage = () => {
     return 'bg-primary text-white';
   };
 
+  const statusPillBaseClass =
+    'inline-flex h-5 items-center justify-center rounded-full px-2 text-xs font-semibold leading-none whitespace-nowrap shrink-0';
+
   const movementKind = (movement) => {
     const m = normalize(movement);
     if (m === 'deposit' || m === 'deposito' || m === 'depósito') return 'deposit';
@@ -403,14 +406,14 @@ export const HistoryPage = () => {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0 w-full">
                       <div className="text-sm font-semibold text-gray-900 truncate">
                         {movementLabel(row)}
                       </div>
                       {movementCompletedIcon(row)}
                       {shouldShowStatusPill(row?.movement) && row?.status ? (
                         <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${statusPillClass(
+                          className={`${statusPillBaseClass} ml-auto ${statusPillClass(
                             row.status,
                           )}`}
                         >
@@ -498,12 +501,14 @@ export const HistoryPage = () => {
                         {formatDate(row.date)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span>{movementLabel(row)}</span>
-                          {movementCompletedIcon(row)}
+                        <div className="flex items-center gap-2 w-full">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="truncate">{movementLabel(row)}</span>
+                            {movementCompletedIcon(row)}
+                          </div>
                           {shouldShowStatusPill(row?.movement) && row?.status ? (
                             <span
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${statusPillClass(
+                              className={`${statusPillBaseClass} ml-auto ${statusPillClass(
                                 row.status,
                               )}`}
                             >
