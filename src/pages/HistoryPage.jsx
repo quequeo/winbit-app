@@ -7,7 +7,7 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
 import { formatPercentage } from '../utils/formatPercentage';
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const formatFeePercentage = (value) => {
   if (value === null || value === undefined) return '';
@@ -161,6 +161,12 @@ export const HistoryPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { data, loading, error, refetch } = useInvestorHistory(user?.email);
+
+  const MOBILE_PAGE_SIZE = 20;
+  const DESKTOP_PAGE_SIZE_OPTIONS = [10, 20, 50];
+  const [desktopPageSize, setDesktopPageSize] = useState(20);
+  const [mobilePage, setMobilePage] = useState(1);
+  const [desktopPage, setDesktopPage] = useState(1);
 
   const translateMovement = (movement) => {
     const m = normalize(movement);
@@ -367,6 +373,37 @@ export const HistoryPage = () => {
     });
   }, [rows]);
 
+  const mobileTotalPages = useMemo(() => {
+    const n = Math.ceil(sortedRows.length / MOBILE_PAGE_SIZE);
+    return n > 0 ? n : 1;
+  }, [sortedRows.length]);
+
+  const desktopTotalPages = useMemo(() => {
+    const n = Math.ceil(sortedRows.length / desktopPageSize);
+    return n > 0 ? n : 1;
+  }, [sortedRows.length, desktopPageSize]);
+
+  useEffect(() => {
+    setMobilePage((p) => Math.min(Math.max(1, p), mobileTotalPages));
+  }, [mobileTotalPages]);
+
+  useEffect(() => {
+    setDesktopPage((p) => Math.min(Math.max(1, p), desktopTotalPages));
+  }, [desktopTotalPages]);
+
+  const mobileVisibleRows = useMemo(() => {
+    const start = (mobilePage - 1) * MOBILE_PAGE_SIZE;
+    return sortedRows.slice(start, start + MOBILE_PAGE_SIZE);
+  }, [sortedRows, mobilePage]);
+
+  const desktopVisibleRows = useMemo(() => {
+    const start = (desktopPage - 1) * desktopPageSize;
+    return sortedRows.slice(start, start + desktopPageSize);
+  }, [sortedRows, desktopPage, desktopPageSize]);
+
+  const shouldPaginateMobile = sortedRows.length > MOBILE_PAGE_SIZE;
+  const shouldPaginateDesktop = sortedRows.length > desktopPageSize;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -396,7 +433,7 @@ export const HistoryPage = () => {
         <>
           {/* Mobile cards */}
           <div data-testid="history-mobile" className="md:hidden space-y-3">
-            {sortedRows.map((row, idx) => (
+            {mobileVisibleRows.map((row, idx) => (
               <div
                 key={`${row.code}-${row.date}-${idx}`}
                 className={`${mobileCardBgClass(row)} rounded-xl shadow-sm border border-gray-200 p-4`}
@@ -411,7 +448,7 @@ export const HistoryPage = () => {
                       {shouldShowStatusPill(row?.movement) && row?.status ? (
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${statusPillClass(
-                            row.status,
+                            row.status
                           )}`}
                         >
                           {translateStatus(row.status)}
@@ -449,6 +486,36 @@ export const HistoryPage = () => {
               </div>
             ))}
           </div>
+
+          {shouldPaginateMobile ? (
+            <div className="md:hidden flex items-center justify-between gap-3">
+              <div className="text-xs text-gray-600">
+                {t('common.pageOf', 'Página {{page}} de {{total}}', {
+                  page: mobilePage,
+                  total: mobileTotalPages,
+                })}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setMobilePage((p) => Math.max(1, p - 1))}
+                  disabled={mobilePage <= 1}
+                >
+                  {t('common.previous', 'Anterior')}
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setMobilePage((p) => Math.min(mobileTotalPages, p + 1))}
+                  disabled={mobilePage >= mobileTotalPages}
+                >
+                  {t('common.next', 'Siguiente')}
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           {/* Desktop table */}
           <div
@@ -492,7 +559,7 @@ export const HistoryPage = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {sortedRows.map((row, idx) => (
+                  {desktopVisibleRows.map((row, idx) => (
                     <tr key={`${row.code}-${row.date}-${idx}`} className={desktopRowClass(row)}>
                       <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
                         {formatDate(row.date)}
@@ -504,7 +571,7 @@ export const HistoryPage = () => {
                           {shouldShowStatusPill(row?.movement) && row?.status ? (
                             <span
                               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${statusPillClass(
-                                row.status,
+                                row.status
                               )}`}
                             >
                               {translateStatus(row.status)}
@@ -526,6 +593,54 @@ export const HistoryPage = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Desktop pagination */}
+          <div className="hidden md:flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-gray-600">
+                {t('common.pageOf', 'Página {{page}} de {{total}}', {
+                  page: desktopPage,
+                  total: desktopTotalPages,
+                })}
+              </div>
+
+              <label className="flex items-center gap-2 text-xs text-gray-600">
+                {t('common.rowsPerPage', 'Filas por página')}
+                <select
+                  className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700"
+                  value={desktopPageSize}
+                  onChange={(e) => setDesktopPageSize(Number(e.target.value))}
+                >
+                  {DESKTOP_PAGE_SIZE_OPTIONS.map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {shouldPaginateDesktop ? (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setDesktopPage((p) => Math.max(1, p - 1))}
+                  disabled={desktopPage <= 1}
+                >
+                  {t('common.previous', 'Anterior')}
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setDesktopPage((p) => Math.min(desktopTotalPages, p + 1))}
+                  disabled={desktopPage >= desktopTotalPages}
+                >
+                  {t('common.next', 'Siguiente')}
+                </button>
+              </div>
+            ) : null}
           </div>
         </>
       )}
