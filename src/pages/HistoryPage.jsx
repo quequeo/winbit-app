@@ -411,7 +411,7 @@ export const HistoryPage = () => {
                       {shouldShowStatusPill(row?.movement) && row?.status ? (
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${statusPillClass(
-                            row.status
+                            row.status,
                           )}`}
                         >
                           {translateStatus(row.status)}
@@ -504,7 +504,7 @@ export const HistoryPage = () => {
                           {shouldShowStatusPill(row?.movement) && row?.status ? (
                             <span
                               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${statusPillClass(
-                                row.status
+                                row.status,
                               )}`}
                             >
                               {translateStatus(row.status)}
