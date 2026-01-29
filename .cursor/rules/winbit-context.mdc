@@ -1,0 +1,28 @@
+---
+description: Winbit App context (repos, deploy, tests, cache gotchas)
+alwaysApply: true
+---
+
+# Winbit App (Portal inversores) — Contexto rápido
+
+## Repos y deploy
+
+- Este proyecto vive en **su repo propio**: `github.com/quequeo/winbit-app` (NO es monorepo con Rails).
+- **Producción**: Firebase Hosting (proyecto `winbit-6579c`).
+- Deploy:
+  - `npm ci`
+  - `npm run build`
+  - `firebase deploy`
+
+## Tests y coverage
+
+- Tests: `npm test`
+- Coverage: `npm run test:coverage` → `coverage/index.html`
+
+## Gotcha: PWA / cache “me quedé viendo lo viejo”
+
+- Si en prod se ven wallets/labels/UX viejos tras un deploy, suele ser **Service Worker + cache del HTML**.
+- Primero: hard refresh.
+- Si sigue: desregistrar Service Worker + borrar “site data” del dominio.
+- Mantener `Cache-Control: no-cache` para HTML (entrypoint) y cache largo solo para assets con hash.
+

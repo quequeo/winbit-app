@@ -20,6 +20,10 @@ Portal para inversores (React + Vite + Firebase Auth) conectado a la API de `win
 - **Email:** EmailJS
 - **Testing:** Vitest + React Testing Library
 
+## Cursor / AI context (para no “re-explicar”)
+
+- Reglas persistentes para agentes: `.cursor/rules/winbit-context.mdc`
+
 ## Fórmulas / finanzas
 La explicación de balances y retornos vive en:
 - `../FORMULAS.md`
