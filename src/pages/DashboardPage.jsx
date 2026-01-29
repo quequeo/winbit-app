@@ -80,7 +80,6 @@ const PortfolioLineChart = ({ series, title }) => {
     });
   }, [series, minV, range]);
 
-
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const svgX = ((e.clientX - rect.left) / rect.width) * width;
@@ -104,7 +103,7 @@ const PortfolioLineChart = ({ series, title }) => {
         }
       }
     });
-    
+
     // If no point found by distance, find the closest by X (date) only
     if (!closestPoint && points.length > 0) {
       closestPoint = points.reduce((closest, point) => {
@@ -264,7 +263,9 @@ const PortfolioLineChart = ({ series, title }) => {
 
       <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
         <span>{series[0]?.date ? formatDate(series[0].date) : ''}</span>
-        <span>{series[series.length - 1]?.date ? formatDate(series[series.length - 1].date) : ''}</span>
+        <span>
+          {series[series.length - 1]?.date ? formatDate(series[series.length - 1].date) : ''}
+        </span>
       </div>
     </div>
   );
@@ -316,10 +317,14 @@ export const DashboardPage = () => {
 
     // Get all points with newBalance, sorted by date
     const allPoints = rows
-      .filter((r) => r?.newBalance !== null && r?.newBalance !== undefined && r?.status === 'COMPLETED')
+      .filter(
+        (r) => r?.newBalance !== null && r?.newBalance !== undefined && r?.status === 'COMPLETED',
+      )
       .map((r) => {
         const date = toIsoDate(r?.date);
-        return date ? { date, total: Number(r.newBalance) || 0, timestamp: parseIsoDateUtcMs(date) } : null;
+        return date
+          ? { date, total: Number(r.newBalance) || 0, timestamp: parseIsoDateUtcMs(date) }
+          : null;
       })
       .filter(Boolean)
       .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
@@ -337,7 +342,9 @@ export const DashboardPage = () => {
       }
     });
 
-    const points = Array.from(dateMap.values()).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    const points = Array.from(dateMap.values()).sort((a, b) =>
+      a.date < b.date ? -1 : a.date > b.date ? 1 : 0,
+    );
 
     if (points.length < 2) return [];
 
