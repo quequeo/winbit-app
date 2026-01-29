@@ -76,7 +76,7 @@ describe('DashboardPage', () => {
 
     render(<DashboardPage />);
     expect(screen.getByText('Hola, Juan')).toBeInTheDocument();
-    expect(screen.getByText('Valor del portafolio (USD)')).toBeInTheDocument();
+    expect(screen.getByText('Valor actual del portafolio (USD)')).toBeInTheDocument();
     expect(screen.getByText('Total invertido (USD)')).toBeInTheDocument();
     expect(screen.getByText('$100,00')).toBeInTheDocument();
     // Range buttons are grouped under the chart aria-label.

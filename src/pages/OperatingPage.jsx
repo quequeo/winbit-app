@@ -25,7 +25,9 @@ const dailyPercent = (row) => {
 const movementText = (row, t) => {
   const pct = dailyPercent(row);
   const base = t('operating.movement.operatingResult');
-  return Number.isFinite(pct) ? `${base} ${formatPercentage(pct)}` : base;
+  return Number.isFinite(pct)
+    ? `${base} ${formatPercentage(pct)}`
+    : base;
 };
 
 const rowBgClass = (row) => {
@@ -155,17 +157,13 @@ export const OperatingPage = () => {
 
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
-                    <div className="text-[11px] font-medium text-gray-500">
-                      {t('operating.table.previousBalance')}
-                    </div>
+                    <div className="text-[11px] font-medium text-gray-500">{t('operating.table.previousBalance')}</div>
                     <div className="mt-1 text-sm font-semibold text-gray-900">
                       {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
                     </div>
                   </div>
                   <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
-                    <div className="text-[11px] font-medium text-gray-500">
-                      {t('operating.table.newBalance')}
-                    </div>
+                    <div className="text-[11px] font-medium text-gray-500">{t('operating.table.newBalance')}</div>
                     <div className="mt-1 text-sm font-semibold text-gray-900">
                       {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                     </div>
@@ -266,10 +264,7 @@ export const OperatingPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label
-                      className="text-xs font-medium text-gray-600"
-                      htmlFor="operating-page-size-desktop"
-                    >
+                    <label className="text-xs font-medium text-gray-600" htmlFor="operating-page-size-desktop">
                       {t('common.rowsPerPage', 'Filas por página')}
                     </label>
                     <select
