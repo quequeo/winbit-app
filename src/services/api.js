@@ -57,7 +57,8 @@ export const getInvestorData = async (email) => {
     // Strategy return (main metric): TWR-based, independent of deposits/withdrawals.
     // Fallbacks keep the app usable even if backend hasn't been updated.
     const derivedReturnUsd = balance - totalInvested;
-    const hasDerivedReturn = Number.isFinite(derivedReturnUsd) && Math.abs(derivedReturnUsd) > 0.0001;
+    const hasDerivedReturn =
+      Number.isFinite(derivedReturnUsd) && Math.abs(derivedReturnUsd) > 0.0001;
 
     const strategyReturnYtdUsd = portfolio?.strategyReturnYtdUSD ?? 0;
     const strategyReturnYtdPct = portfolio?.strategyReturnYtdPercent ?? 0;
