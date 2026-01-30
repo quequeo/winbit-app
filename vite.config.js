@@ -11,6 +11,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Workaround: avoid terser/minify issues during Workbox SW generation on some Node/tooling combos.
+      // This keeps SW readable and prevents "unfinished hook action(s) (terser) renderChunk" build failures.
+      minify: false,
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
         name: 'Winbit',
