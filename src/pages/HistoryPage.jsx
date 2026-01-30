@@ -169,7 +169,17 @@ export const HistoryPage = () => {
   const [desktopPage, setDesktopPage] = useState(1);
 
   const translateMovement = (movement) => {
-    const m = normalize(movement);
+    const raw = String(movement ?? '').trim();
+    const rawUpper = raw.toUpperCase();
+    // Strip any weird/invisible characters (e.g. NBSP, zero-width) and keep only A-Z and underscores.
+    const canonicalUpper = rawUpper.replace(/[^A-Z_]/g, '');
+
+    // Hard guard: always translate this movement (including common typo with one "m").
+    if (canonicalUpper === 'REFERRAL_COMMISSION' || canonicalUpper === 'REFERRAL_COMISSION') {
+      return t('history.movement.referral_commission', 'Comisión por referido');
+    }
+
+    const m = normalize(raw);
     if (m === 'depósito' || m === 'deposito' || m === 'deposit' || m === 'deposito') {
       return t('history.movement.deposit');
     }
@@ -185,7 +195,27 @@ export const HistoryPage = () => {
     if (m === 'trading_fee' || m === 'comisión' || m === 'comision') {
       return t('history.movement.trading_fee', 'Comisión de Trading');
     }
-    return movement;
+    // Accept multiple formats:
+    // - REFERRAL_COMMISSION (backend enum)
+    // - referral_commission
+    // - referral commission / referral-commission
+    const refKey = m.replace(/[\s-]+/g, '_');
+    const looksLikeReferral =
+      canonicalUpper === 'REFERRAL_COMMISSION' ||
+      canonicalUpper === 'REFERRAL_COMISSION' || // common typo (one "m")
+      rawUpper === 'REFERRAL COMMISSION' ||
+      (rawUpper.includes('REFERRAL') && rawUpper.includes('COMMISSION'));
+
+    if (
+      looksLikeReferral ||
+      refKey === 'referral_commission' ||
+      refKey === 'referral_comission' ||
+      refKey === 'comision_referido' ||
+      refKey === 'comision_por_referido'
+    ) {
+      return t('history.movement.referral_commission', 'Comisión por referido');
+    }
+    return raw;
   };
 
   const movementLabel = (row) => {

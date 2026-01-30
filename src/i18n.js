@@ -198,6 +198,7 @@ const resources = {
           withdrawal: 'Retiro',
           trading_fee: 'Comisión de Trading',
           operating_result: 'Resultado Operativo',
+          referral_commission: 'Comisión por referido',
           toDate: 'a la fecha',
         },
         status: {
@@ -425,6 +426,7 @@ const resources = {
           withdrawal: 'Withdrawal',
           trading_fee: 'Trading Fee',
           operating_result: 'Operating Result',
+          referral_commission: 'Referral commission',
           toDate: 'to date',
         },
         status: {

@@ -104,6 +104,71 @@ describe('HistoryPage', () => {
     expect(screen.getAllByText(/Ene\/2024/i).length).toBeGreaterThan(0);
   });
 
+  it('translates referral commission events (REFERRAL_COMMISSION / REFERRAL_COMISSION)', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          code: '001',
+          date: '2026-01-30T07:59:00.000Z',
+          movement: 'REFERRAL_COMMISSION',
+          amount: 20,
+          previousBalance: 11190.85,
+          newBalance: 11210.85,
+          status: 'COMPLETED',
+        },
+        {
+          code: '001',
+          date: '2026-01-28T14:00:00.000Z',
+          movement: 'REFERRAL_COMISSION', // typo (one "m")
+          amount: 10,
+          previousBalance: 11180.85,
+          newBalance: 11190.85,
+          status: 'COMPLETED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<HistoryPage />);
+
+    const mobile = screen.getByTestId('history-mobile');
+    expect(within(mobile).getAllByText('Comisión por referido').length).toBe(2);
+  });
+
+  it('translates referral commission variants (spaces/hyphens)', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          code: '001',
+          date: '2026-01-30T07:59:00.000Z',
+          movement: 'Referral commission',
+          amount: 20,
+          previousBalance: 0,
+          newBalance: 20,
+          status: 'COMPLETED',
+        },
+        {
+          code: '001',
+          date: '2026-01-29T07:59:00.000Z',
+          movement: 'referral-commission',
+          amount: 5,
+          previousBalance: 20,
+          newBalance: 25,
+          status: 'COMPLETED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<HistoryPage />);
+    const mobile = screen.getByTestId('history-mobile');
+    expect(within(mobile).getAllByText('Comisión por referido').length).toBe(2);
+  });
+
   it('displays dash for null balances (pending requests)', () => {
     vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
       data: [
