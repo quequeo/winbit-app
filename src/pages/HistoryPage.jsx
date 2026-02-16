@@ -195,6 +195,9 @@ export const HistoryPage = () => {
     if (m === 'trading_fee' || m === 'comisión' || m === 'comision') {
       return t('history.movement.trading_fee', 'Comisión de Trading');
     }
+    if (m === 'trading_fee_adjustment') {
+      return t('history.movement.trading_fee_adjustment', 'Comisión de Trading - Ajuste');
+    }
     // Accept multiple formats:
     // - REFERRAL_COMMISSION (backend enum)
     // - referral_commission
@@ -240,11 +243,24 @@ export const HistoryPage = () => {
       return my ? `${base}${pct} - ${my}` : `${base}${pct}`;
     }
 
-    if (m === 'trading_fee' && row?.tradingFeePeriodLabel) {
+    if (m === 'trading_fee') {
       const feePct = formatFeePercentage(row?.tradingFeePercentage);
-      return feePct
-        ? `${base} ${feePct} - ${row.tradingFeePeriodLabel}`
-        : `${base} - ${row.tradingFeePeriodLabel}`;
+      if (row?.tradingFeePeriodLabel) {
+        return feePct
+          ? `${base} ${feePct} - ${row.tradingFeePeriodLabel}`
+          : `${base} - ${row.tradingFeePeriodLabel}`;
+      }
+      return feePct ? `${base} ${feePct}` : base;
+    }
+
+    if (m === 'trading_fee_adjustment') {
+      const feePct = formatFeePercentage(row?.tradingFeePercentage);
+      if (row?.tradingFeePeriodLabel) {
+        return feePct
+          ? `${base} ${feePct} - ${row.tradingFeePeriodLabel}`
+          : `${base} - ${row.tradingFeePeriodLabel}`;
+      }
+      return feePct ? `${base} ${feePct}` : base;
     }
 
     return base;
@@ -347,7 +363,7 @@ export const HistoryPage = () => {
   const desktopRowClass = (row) => {
     const m = normalize(row?.movement);
 
-    if (m === 'trading_fee') {
+    if (m === 'trading_fee' || m === 'trading_fee_adjustment') {
       return 'bg-blue-50 hover:bg-blue-100';
     }
 
@@ -365,7 +381,7 @@ export const HistoryPage = () => {
   const mobileCardBgClass = (row) => {
     const m = normalize(row?.movement);
 
-    if (m === 'trading_fee') return 'bg-blue-50';
+    if (m === 'trading_fee' || m === 'trading_fee_adjustment') return 'bg-blue-50';
 
     if (m === 'operating_result') {
       const pct = Number(row?.operatingResultPercent);
