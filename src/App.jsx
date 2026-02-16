@@ -9,6 +9,7 @@ import { WalletsPage } from './pages/WalletsPage';
 import { RequestsPage } from './pages/RequestsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { OperatingPage } from './pages/OperatingPage';
+import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 export const App = () => {
@@ -30,6 +31,7 @@ export const App = () => {
                       <Route path="/requests" element={<RequestsPage />} />
                       <Route path="/history" element={<HistoryPage />} />
                       <Route path="/operational" element={<OperatingPage />} />
+                      <Route path="/change-password" element={<ChangePasswordPage />} />
                       <Route path="/" element={<Navigate to="/dashboard" replace />} />
                       <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>

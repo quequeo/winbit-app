@@ -221,6 +221,64 @@ export const createInvestorRequest = async (requestData) => {
 };
 
 /**
+ * Login con email y contraseña
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<{data: object | null, error: string | null}>}
+ */
+export const loginWithEmailPassword = async (email, password) => {
+  try {
+    const url = `${API_BASE_URL}/api/public/auth/login`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return { data: null, error: errorData.error || `Error: ${response.status}` };
+    }
+
+    const result = await response.json();
+    return { data: result.investor, error: null };
+  } catch (error) {
+    return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Cambiar contraseña del inversor
+ * @param {string} email
+ * @param {string} currentPassword
+ * @param {string} newPassword
+ * @returns {Promise<{success: boolean, error: string | null}>}
+ */
+export const changeInvestorPassword = async (email, currentPassword, newPassword) => {
+  try {
+    const url = `${API_BASE_URL}/api/public/auth/change_password`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return { success: false, error: errorData.error || `Error: ${response.status}` };
+    }
+
+    return { success: true, error: null };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+/**
  * Valida si un inversor existe y está activo
  * @param {string} email - Email del inversor
  * @returns {Promise<{valid: boolean, investor: object | null, error: string | null}>}

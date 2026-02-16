@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../ui/Button';
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 export const Header = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -119,6 +120,27 @@ export const Header = () => {
                   EN
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={() => navigate('/change-password')}
+                className="hidden md:inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-600 hover:text-primary hover:border-primary transition-colors"
+                title={t('auth.changePassword.title')}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z"
+                  />
+                </svg>
+              </button>
               <Button
                 onClick={logout}
                 variant="outline"
@@ -154,6 +176,18 @@ export const Header = () => {
               </Link>
             ))}
           </nav>
+
+          <Link
+            to="/change-password"
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              location.pathname === '/change-password'
+                ? 'bg-primary/10 text-primary'
+                : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
+            }`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            {t('auth.changePassword.title')}
+          </Link>
 
           <div className="mt-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-1 rounded-lg border border-gray-200 p-1">

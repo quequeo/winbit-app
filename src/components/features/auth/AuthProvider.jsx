@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   signInWithPopup,
   signInWithRedirect,
@@ -7,9 +7,39 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../../../services/firebase';
-import { validateInvestor } from '../../../services/api';
+import { validateInvestor, loginWithEmailPassword as apiLoginEmail } from '../../../services/api';
 
 import { AuthContext } from './AuthContext';
+
+const SESSION_KEY = 'winbit_session';
+
+const getStoredSession = () => {
+  try {
+    const raw = globalThis?.localStorage?.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed?.email && parsed?.authMethod === 'email') return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+const storeSession = (data) => {
+  try {
+    globalThis?.localStorage?.setItem(SESSION_KEY, JSON.stringify(data));
+  } catch {
+    // ignore storage errors
+  }
+};
+
+const clearStoredSession = () => {
+  try {
+    globalThis?.localStorage?.removeItem(SESSION_KEY);
+  } catch {
+    // ignore storage errors
+  }
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -18,17 +48,20 @@ export const AuthProvider = ({ children }) => {
   const [isValidated, setIsValidated] = useState(false);
 
   useEffect(() => {
-    // Handle redirect result and validate investor
+    const storedSession = getStoredSession();
+
+    if (storedSession) {
+      setUser({ email: storedSession.email, displayName: storedSession.name, authMethod: 'email' });
+      setIsValidated(true);
+      setLoading(false);
+    }
+
     const handleRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
-
-        // Si hay un resultado de redirect (usuario acaba de loguearse)
         if (result?.user) {
           const validation = await validateInvestor(result.user.email);
-
           if (!validation.valid) {
-            // Hacer logout si el inversor no es válido
             await signOut(auth);
           }
         }
@@ -40,11 +73,13 @@ export const AuthProvider = ({ children }) => {
     handleRedirectResult();
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+      if (currentUser) {
+        setUser(currentUser);
+        clearStoredSession();
+      } else if (!getStoredSession()) {
+        setUser(null);
+      }
       setLoading(false);
-      // Si hay usuario, significa que Firebase mantiene la sesión (refresh de página)
-      // Lo marcamos como validado porque ya pasó la validación cuando se logueó
-      // Si no hay usuario, también está validado (estado no logueado)
       setIsValidated(true);
     });
 
@@ -52,18 +87,15 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loginWithGoogle = async () => {
-    // Limpiar error anterior y marcar como no validado mientras valida
     setValidationError(null);
     setIsValidated(false);
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
 
-      // Validar que el inversor existe en la base de datos
       const validation = await validateInvestor(result.user.email);
 
       if (!validation.valid) {
-        // Preparar mensaje de error
         let errorMessage = 'No estás autorizado para acceder a este portal.';
         if (validation.error === 'Investor not found in database') {
           errorMessage =
@@ -75,32 +107,22 @@ export const AuthProvider = ({ children }) => {
           errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
         }
 
-        // Guardar el error antes de hacer logout
         setValidationError(errorMessage);
-
-        // Marcar como validado (aunque falló) para que no se ejecuten los hooks
         setIsValidated(true);
-
-        // Hacer logout inmediatamente si el inversor no es válido
         await signOut(auth);
 
         return {
           user: null,
-          error: {
-            code: 'auth/unauthorized',
-            message: errorMessage,
-          },
+          error: { code: 'auth/unauthorized', message: errorMessage },
         };
       }
 
-      // Login exitoso - limpiar cualquier error y marcar como validado
       setValidationError(null);
       setIsValidated(true);
       return { user: result.user, error: null };
     } catch (error) {
       const code = error?.code;
 
-      // Common in production/PWA/in-app browsers: popups blocked → redirect flow works.
       if (
         code === 'auth/popup-blocked' ||
         code === 'auth/popup-closed-by-user' ||
@@ -120,23 +142,55 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const loginWithEmail = async (email, password) => {
+    setValidationError(null);
+    setIsValidated(false);
+
+    const result = await apiLoginEmail(email, password);
+
+    if (result.error) {
+      setValidationError(result.error);
+      setIsValidated(true);
+      return {
+        user: null,
+        error: { code: 'auth/invalid-credentials', message: result.error },
+      };
+    }
+
+    const investorUser = {
+      email: result.data.email,
+      displayName: result.data.name,
+      authMethod: 'email',
+    };
+
+    storeSession({ email: result.data.email, name: result.data.name, authMethod: 'email' });
+    setUser(investorUser);
+    setValidationError(null);
+    setIsValidated(true);
+
+    return { user: investorUser, error: null };
+  };
+
+  const logout = useCallback(async () => {
     try {
+      clearStoredSession();
+      setUser(null);
       await signOut(auth);
       return { error: null };
     } catch (error) {
       return { error: error.message };
     }
-  };
+  }, []);
 
   const value = {
     user,
     loading,
     loginWithGoogle,
+    loginWithEmail,
     logout,
     validationError,
     clearValidationError: () => setValidationError(null),
-    isValidated, // Indica si el usuario ha sido validado contra el backend
+    isValidated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -48,15 +48,34 @@ const resources = {
       },
       auth: {
         logout: 'Salir',
+        signIn: 'Ingresar',
         signInWithGoogle: 'Ingresar con Google',
         signingIn: 'Ingresando...',
         failedToSignIn: 'No se pudo iniciar sesión. Intentá de nuevo.',
         unauthorizedDomain: 'Este dominio no está autorizado para iniciar sesión.',
         operationNotAllowed: 'El inicio de sesión con Google está deshabilitado.',
+        emailPassword: 'Email y contraseña',
+        email: 'Email',
+        emailPlaceholder: 'tu@email.com',
+        password: 'Contraseña',
+        passwordPlaceholder: 'Tu contraseña',
         login: {
           subtitle: 'Gestión de Portafolio',
           disclaimer:
             'Al iniciar sesión, aceptás acceder a tu información de forma segura. Solo inversores registrados pueden acceder a la plataforma.',
+        },
+        changePassword: {
+          title: 'Cambiar contraseña',
+          subtitle: 'Actualizá tu contraseña de acceso a la plataforma.',
+          current: 'Contraseña actual',
+          new: 'Nueva contraseña',
+          confirm: 'Confirmar nueva contraseña',
+          submit: 'Cambiar contraseña',
+          success: 'Tu contraseña fue actualizada correctamente.',
+          mismatch: 'Las contraseñas no coinciden.',
+          tooShort: 'La contraseña debe tener al menos 6 caracteres.',
+          googleInfo:
+            'Iniciaste sesión con Google. Si querés usar contraseña, pedile al administrador que te configure una.',
         },
       },
       footer: {
@@ -281,15 +300,34 @@ const resources = {
       },
       auth: {
         logout: 'Logout',
+        signIn: 'Sign in',
         signInWithGoogle: 'Sign in with Google',
         signingIn: 'Signing in...',
         failedToSignIn: 'Failed to sign in. Please try again.',
         unauthorizedDomain: 'This domain is not authorized for sign-in.',
         operationNotAllowed: 'Google sign-in is disabled for this project.',
+        emailPassword: 'Email & password',
+        email: 'Email',
+        emailPlaceholder: 'your@email.com',
+        password: 'Password',
+        passwordPlaceholder: 'Your password',
         login: {
           subtitle: 'Portfolio Management',
           disclaimer:
             'By signing in, you agree to access your information securely. Only registered investors can access the platform.',
+        },
+        changePassword: {
+          title: 'Change password',
+          subtitle: 'Update your platform access password.',
+          current: 'Current password',
+          new: 'New password',
+          confirm: 'Confirm new password',
+          submit: 'Change password',
+          success: 'Your password has been updated successfully.',
+          mismatch: 'Passwords do not match.',
+          tooShort: 'Password must be at least 6 characters.',
+          googleInfo:
+            'You signed in with Google. If you want to use a password, ask the administrator to set one up for you.',
         },
       },
       footer: {
