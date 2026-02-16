@@ -31,6 +31,9 @@ Si algo no está claro o hay más de una opción válida, el agente DEBE pregunt
 
 ```text
 winbit-app/
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # GitHub Actions CI (lint, test, build)
 ├── src/
 │   ├── components/
 │   │   ├── ui/                # Button, Card, EmptyState, ErrorMessage, Input, Modal, Select, Spinner, Toast
@@ -216,15 +219,46 @@ npm run build && firebase deploy
 - Headers: `Cross-Origin-Opener-Policy: same-origin-allow-popups` (requerido para Google Sign-In popup).
 - Producción: https://winbit-6579c.web.app
 
-## 12) Protocolo Git
+### CI (GitHub Actions)
 
-### Commits
+Jobs:
+
+1. `lint` — ESLint + Prettier check.
+2. `test` — Vitest (single run).
+3. `build` — Production build (depende de lint y test).
+
+Se ejecuta en push a `main` y en pull requests.
+
+## 12) Protocolo Git y PRs
+
+### Reglas de branches
+
+- Un branch por cambio puntual y atómico.
+- Nombres de branch: `feature/<descripcion-corta>` o `fix/<descripcion-corta>`.
+- Base siempre: `main`.
+
+### Reglas de commits
 
 - Mensaje conciso (1-2 líneas).
 - NUNCA mencionar Cursor, Claude, AI, LLM, copilot ni herramientas de IA.
 - PROHIBIDO cualquier trailer `Co-authored-by` que mencione IA.
+- Usar `git -c commit.cleanup=verbatim` para evitar trailers automáticos.
 
-### Pre-push
+### Flujo de trabajo (PR obligatorio)
+
+1. `git checkout main && git pull origin main`
+2. `git checkout -b feature/<nombre>`
+3. Implementar cambio + tests
+4. Verificar: `npm run lint && npm run format:check && npm run test:ci`
+5. `git add` (solo archivos relevantes, nunca secretos)
+6. `git commit` (mensaje conciso)
+7. `git push -u origin feature/<nombre>`
+8. `gh pr create` (título descriptivo, body con summary y test plan)
+9. Esperar que CI pase (lint, test, build)
+10. `gh pr merge --squash --delete-branch`
+11. Volver a paso 1 para siguiente cambio
+
+### Pre-push (hook local)
 
 - `npm run lint` (sin errores)
 - `npm run format:check` (sin errores)
@@ -233,12 +267,12 @@ npm run build && firebase deploy
 
 ### Permisos operativos
 
-El agente tiene autorización para: `git add`, `commit`, `push`.
+El agente tiene autorización para: `git add`, `commit`, `push`, `gh pr create`, `gh pr merge`.
 
 Condiciones:
 
 - Cambios atómicos y trazables.
-- Quality gates en verde.
+- Quality gates en verde (local + CI).
 - Sin secretos versionados.
 - No comandos destructivos salvo solicitud explícita.
 
