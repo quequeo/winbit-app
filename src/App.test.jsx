@@ -36,23 +36,23 @@ vi.mock('./pages/RequestsPage', () => ({
 }));
 
 describe('App', () => {
-  it('renders login route', () => {
+  it('renders login route', async () => {
     render(
       <MemoryRouter initialEntries={['/login']}>
         <App />
       </MemoryRouter>,
     );
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(await screen.findByText('Login')).toBeInTheDocument();
   });
 
-  it('renders protected layout for dashboard route', () => {
+  it('renders protected layout for dashboard route', async () => {
     render(
       <MemoryRouter initialEntries={['/dashboard']}>
         <App />
       </MemoryRouter>,
     );
     expect(screen.getByText('Header')).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Footer')).toBeInTheDocument();
   });
 });
