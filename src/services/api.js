@@ -182,10 +182,25 @@ export const getWallets = async () => {
 };
 
 /**
- * Obtiene los métodos de pago disponibles desde el backend
- * @param {string | null} requestType - 'DEPOSIT' o 'WITHDRAWAL' (opcional)
+ * Obtiene las opciones de depósito activas desde el backend
  * @returns {Promise<{data: array | null, error: string | null}>}
  */
+export const getDepositOptions = async () => {
+  try {
+    const url = `${API_BASE_URL}/api/public/deposit_options`;
+    const response = await silentFetch(url);
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return { data: result.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.message };
+  }
+};
+
 /**
  * Crea una solicitud de depósito o retiro
  * @param {object} requestData - Datos de la solicitud
