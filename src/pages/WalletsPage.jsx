@@ -1,14 +1,14 @@
-import { WalletList } from '../components/features/wallets/WalletList';
+import { DepositOptionsList } from '../components/features/deposits/DepositOptionsList';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
-import { useWallets } from '../hooks/useWallets';
+import { useDepositOptions } from '../hooks/useDepositOptions';
 import { DepositForm } from '../components/features/requests/DepositForm';
 import { Spinner } from '../components/ui/Spinner';
 
 export const WalletsPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { wallets, loading, error } = useWallets();
+  const { depositOptions, loading, error } = useDepositOptions();
 
   return (
     <div className="space-y-6">
@@ -32,11 +32,11 @@ export const WalletsPage = () => {
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           {String(error)}
         </div>
-      ) : wallets.length === 0 ? null : (
-        <WalletList wallets={wallets} />
+      ) : (
+        <DepositOptionsList options={depositOptions} />
       )}
 
-      <DepositForm userName={user?.displayName || 'Investor'} userEmail={user?.email} />
+      <DepositForm userEmail={user?.email} depositOptions={depositOptions} />
     </div>
   );
 };

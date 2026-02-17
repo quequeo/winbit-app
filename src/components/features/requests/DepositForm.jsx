@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
@@ -9,24 +9,56 @@ import { useTranslation } from 'react-i18next';
 
 const CASH_METHODS = ['CASH_ARS', 'CASH_USD'];
 
-export const DepositForm = ({ userEmail }) => {
+const FALLBACK_METHODS = [
+  { value: 'CASH_ARS', labelKey: 'requests.method.cash_ars' },
+  { value: 'CASH_USD', labelKey: 'requests.method.cash_usd' },
+  { value: 'TRANSFER_ARS', labelKey: 'requests.method.transfer_ars' },
+  { value: 'SWIFT', labelKey: 'requests.method.swift' },
+  { value: 'CRYPTO', labelKey: 'requests.method.crypto' },
+];
+
+const CATEGORY_TO_METHOD = {
+  CASH_ARS: 'CASH_ARS',
+  CASH_USD: 'CASH_USD',
+  BANK_ARS: 'TRANSFER_ARS',
+  LEMON: 'LEMON',
+  CRYPTO: 'CRYPTO',
+  SWIFT: 'SWIFT',
+};
+
+export const DepositForm = ({ userEmail, depositOptions = [] }) => {
   const { t } = useTranslation();
+
+  const methodOptions = useMemo(() => {
+    if (!depositOptions || depositOptions.length === 0) {
+      return FALLBACK_METHODS.map((m) => ({ value: m.value, label: t(m.labelKey) }));
+    }
+
+    const seen = new Set();
+    const methods = [];
+    for (const opt of depositOptions) {
+      const method = CATEGORY_TO_METHOD[opt.category] || opt.category;
+      if (!seen.has(method)) {
+        seen.add(method);
+        methods.push({
+          value: method,
+          label: t(`deposits.categories.${opt.category}`, opt.category),
+        });
+      }
+    }
+    return methods;
+  }, [depositOptions, t]);
+
+  const defaultMethod = methodOptions[0]?.value || 'CASH_ARS';
+
   const [formData, setFormData] = useState({
     amount: '',
-    method: 'CASH_ARS',
+    method: defaultMethod,
   });
   const [attachment, setAttachment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
-
-  const methodOptions = [
-    { value: 'CASH_ARS', label: t('requests.method.cash_ars') },
-    { value: 'CASH_USD', label: t('requests.method.cash_usd') },
-    { value: 'TRANSFER_ARS', label: t('requests.method.transfer_ars') },
-    { value: 'SWIFT', label: t('requests.method.swift') },
-    { value: 'CRYPTO', label: t('requests.method.crypto') },
-  ];
 
   const isCash = CASH_METHODS.includes(formData.method);
   const attachmentRequired = !isCash;
