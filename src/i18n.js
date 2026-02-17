@@ -143,13 +143,16 @@ const resources = {
             placeholder: 'Ingresá el hash o ID',
           },
           attachment: {
-            label: 'Comprobante (opcional)',
+            label: 'Comprobante',
             description: 'Adjuntá una captura del comprobante de pago (JPG, PNG o WEBP, máx 5MB)',
             upload: 'Subir comprobante',
+            tooLarge: 'El archivo es demasiado grande. Máximo 5 MB.',
           },
           validation: {
             invalidAmount: 'Ingresá un monto válido',
             selectNetwork: 'Seleccioná una red',
+            attachmentRequired:
+              'El comprobante es obligatorio para depósitos que no sean en efectivo.',
           },
           submit: 'Enviar solicitud',
           submitting: 'Enviando...',
@@ -393,13 +396,15 @@ const resources = {
             placeholder: 'Enter hash or ID',
           },
           attachment: {
-            label: 'Receipt (optional)',
+            label: 'Receipt',
             description: 'Attach a screenshot of the payment receipt (JPG, PNG or WEBP, max 5MB)',
             upload: 'Upload receipt',
+            tooLarge: 'File is too large. Maximum 5 MB.',
           },
           validation: {
             invalidAmount: 'Enter a valid amount',
             selectNetwork: 'Select a network',
+            attachmentRequired: 'Receipt is required for non-cash deposits.',
           },
           submit: 'Send request',
           submitting: 'Sending...',

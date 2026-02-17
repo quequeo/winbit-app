@@ -7,12 +7,15 @@ import { Modal } from '../../ui/Modal';
 import { createInvestorRequest } from '../../../services/api';
 import { useTranslation } from 'react-i18next';
 
+const CASH_METHODS = ['CASH_ARS', 'CASH_USD'];
+
 export const DepositForm = ({ userEmail }) => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     amount: '',
     method: 'CASH_ARS',
   });
+  const [attachment, setAttachment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
@@ -25,12 +28,34 @@ export const DepositForm = ({ userEmail }) => {
     { value: 'CRYPTO', label: t('requests.method.crypto') },
   ];
 
+  const isCash = CASH_METHODS.includes(formData.method);
+  const attachmentRequired = !isCash;
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    if (file && file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: t('deposits.requestForm.attachment.tooLarge') });
+      setAttachment(null);
+      return;
+    }
+    setAttachment(file);
+    setMessage(null);
+  };
+
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,20 +65,31 @@ export const DepositForm = ({ userEmail }) => {
       return;
     }
 
+    if (attachmentRequired && !attachment) {
+      setMessage({ type: 'error', text: t('deposits.requestForm.validation.attachmentRequired') });
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
 
-    const method = formData.method;
+    let attachmentUrl = null;
+    if (attachment) {
+      try {
+        attachmentUrl = await toBase64(attachment);
+      } catch {
+        attachmentUrl = null;
+      }
+    }
 
-    // Enviar solicitud al backend de Rails
     const apiResult = await createInvestorRequest({
       email: userEmail,
       type: 'DEPOSIT',
       amount: parseFloat(formData.amount),
-      method: method,
+      method: formData.method,
       network: null,
       transactionHash: null,
-      attachmentUrl: null,
+      attachmentUrl,
     });
 
     setLoading(false);
@@ -65,6 +101,7 @@ export const DepositForm = ({ userEmail }) => {
         message: t('requests.registered.crypto'),
       });
       setFormData((s) => ({ ...s, amount: '' }));
+      setAttachment(null);
     } else {
       setMessage({
         type: 'error',
@@ -118,6 +155,27 @@ export const DepositForm = ({ userEmail }) => {
                 </option>
               ))}
             </Select>
+          </div>
+
+          <div>
+            <label htmlFor="attachment" className="mb-2 block text-sm font-medium text-gray-700">
+              {t('deposits.requestForm.attachment.label')} {attachmentRequired ? '*' : ''}
+            </label>
+            <p className="mb-2 text-xs text-gray-500">
+              {t('deposits.requestForm.attachment.description')}
+            </p>
+            <input
+              id="attachment"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+            />
+            {attachment && (
+              <p className="mt-1 text-xs text-green-600">
+                {attachment.name} ({(attachment.size / 1024).toFixed(0)} KB)
+              </p>
+            )}
           </div>
 
           <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
