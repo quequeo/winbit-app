@@ -236,7 +236,7 @@ describe('api service', () => {
       expect(result.data).toBeDefined();
       expect(result.error).toBeNull();
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/public/requests'),
+        expect.stringContaining('/api/public/v1/requests'),
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
