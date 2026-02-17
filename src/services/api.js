@@ -12,6 +12,7 @@ const getApiUrl = () => {
 };
 
 const API_BASE_URL = getApiUrl();
+const PUBLIC_API_PREFIX = '/api/public/v1';
 
 /**
  * Fetch wrapper que silencia errores 404 en la consola
@@ -34,7 +35,7 @@ export const getInvestorData = async (email) => {
     }
 
     const encodedEmail = encodeURIComponent(email);
-    const url = `${API_BASE_URL}/api/public/investor/${encodedEmail}`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/investor/${encodedEmail}`;
 
     const response = await fetch(url);
 
@@ -125,7 +126,7 @@ export const getInvestorHistory = async (email) => {
     }
 
     const encodedEmail = encodeURIComponent(email);
-    const url = `${API_BASE_URL}/api/public/investor/${encodedEmail}/history`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/investor/${encodedEmail}/history`;
 
     const response = await silentFetch(url);
 
@@ -167,7 +168,7 @@ export const getInvestorHistory = async (email) => {
  */
 export const getWallets = async () => {
   try {
-    const url = `${API_BASE_URL}/api/public/wallets`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/wallets`;
     const response = await silentFetch(url);
 
     if (!response.ok) {
@@ -187,7 +188,7 @@ export const getWallets = async () => {
  */
 export const getDepositOptions = async () => {
   try {
-    const url = `${API_BASE_URL}/api/public/deposit_options`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/deposit_options`;
     const response = await silentFetch(url);
 
     if (!response.ok) {
@@ -213,7 +214,7 @@ export const getDepositOptions = async () => {
  */
 export const createInvestorRequest = async (requestData) => {
   try {
-    const url = `${API_BASE_URL}/api/public/requests`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/requests`;
 
     const response = await silentFetch(url, {
       method: 'POST',
@@ -243,7 +244,7 @@ export const createInvestorRequest = async (requestData) => {
  */
 export const loginWithEmailPassword = async (email, password) => {
   try {
-    const url = `${API_BASE_URL}/api/public/auth/login`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/auth/login`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -271,7 +272,7 @@ export const loginWithEmailPassword = async (email, password) => {
  */
 export const changeInvestorPassword = async (email, currentPassword, newPassword) => {
   try {
-    const url = `${API_BASE_URL}/api/public/auth/change_password`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/auth/change_password`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -305,7 +306,7 @@ export const validateInvestor = async (email) => {
     }
 
     const encodedEmail = encodeURIComponent(email);
-    const url = `${API_BASE_URL}/api/public/investor/${encodedEmail}`;
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/investor/${encodedEmail}`;
 
     const response = await silentFetch(url);
 
