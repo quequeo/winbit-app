@@ -249,6 +249,7 @@ const resources = {
           operating_result: 'Resultado Operativo',
           referral_commission: 'Comisión por referido',
           withdrawalAmount: 'Retiro: {{amount}}',
+          withdrawalAmountShort: 'Retiro {{amount}}',
           toDate: 'a la fecha',
         },
         status: {
@@ -526,6 +527,7 @@ const resources = {
           operating_result: 'Operating Result',
           referral_commission: 'Referral commission',
           withdrawalAmount: 'Withdrawal: {{amount}}',
+          withdrawalAmountShort: 'Withdrawal {{amount}}',
           toDate: 'to date',
         },
         status: {
