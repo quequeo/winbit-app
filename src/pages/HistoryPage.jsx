@@ -244,6 +244,16 @@ export const HistoryPage = () => {
     }
 
     if (m === 'trading_fee') {
+      if (row?.tradingFeeSource === 'WITHDRAWAL') {
+        const withdrawalAmount = Number(row?.tradingFeeWithdrawalAmount);
+        const detail = Number.isFinite(withdrawalAmount)
+          ? ` - ${t('history.movement.withdrawalAmount', 'Retiro: {{amount}}', {
+              amount: formatCurrency(withdrawalAmount),
+            })}`
+          : '';
+        return `${t('history.movement.trading_fee_withdrawal', 'Trading Fee por retiro')}${detail}`;
+      }
+
       const feePct = formatFeePercentage(row?.tradingFeePercentage);
       if (row?.tradingFeePeriodLabel) {
         return feePct

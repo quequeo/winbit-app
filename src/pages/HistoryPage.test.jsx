@@ -257,4 +257,30 @@ describe('HistoryPage', () => {
 
     vi.useRealTimers();
   });
+
+  it('renders Trading Fee por retiro with withdrawal amount detail', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          code: '001',
+          date: '2026-02-01T19:00:00.000Z',
+          movement: 'TRADING_FEE',
+          amount: -45,
+          previousBalance: 5000,
+          newBalance: 4955,
+          status: 'COMPLETED',
+          tradingFeeSource: 'WITHDRAWAL',
+          tradingFeeWithdrawalAmount: 15000,
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<HistoryPage />);
+
+    expect(screen.getAllByText(/Trading Fee por retiro/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Retiro: \$15.000,00/i).length).toBeGreaterThan(0);
+  });
 });
