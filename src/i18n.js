@@ -244,9 +244,11 @@ const resources = {
           deposit: 'Depósito',
           withdrawal: 'Retiro',
           trading_fee: 'Comisión de Trading',
+          trading_fee_withdrawal: 'Trading Fee por retiro',
           trading_fee_adjustment: 'Comisión de Trading - Ajuste',
           operating_result: 'Resultado Operativo',
           referral_commission: 'Comisión por referido',
+          withdrawalAmount: 'Retiro: {{amount}}',
           toDate: 'a la fecha',
         },
         status: {
@@ -519,9 +521,11 @@ const resources = {
           deposit: 'Deposit',
           withdrawal: 'Withdrawal',
           trading_fee: 'Trading Fee',
+          trading_fee_withdrawal: 'Trading Fee on withdrawal',
           trading_fee_adjustment: 'Trading Fee - Adjustment',
           operating_result: 'Operating Result',
           referral_commission: 'Referral commission',
+          withdrawalAmount: 'Withdrawal: {{amount}}',
           toDate: 'to date',
         },
         status: {
