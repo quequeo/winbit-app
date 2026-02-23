@@ -258,7 +258,7 @@ describe('HistoryPage', () => {
     vi.useRealTimers();
   });
 
-  it('renders Trading Fee por retiro with withdrawal amount detail', () => {
+  it('renders trading fee by withdrawal with percentage and withdrawal amount', () => {
     vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
       data: [
         {
@@ -270,6 +270,7 @@ describe('HistoryPage', () => {
           newBalance: 4955,
           status: 'COMPLETED',
           tradingFeeSource: 'WITHDRAWAL',
+          tradingFeePercentage: 30,
           tradingFeeWithdrawalAmount: 15000,
         },
       ],
@@ -280,7 +281,6 @@ describe('HistoryPage', () => {
 
     render(<HistoryPage />);
 
-    expect(screen.getAllByText(/Trading Fee por retiro/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Retiro: \$15.000,00/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Comisión.*30%.*Retiro.*15\.000/i).length).toBeGreaterThan(0);
   });
 });
