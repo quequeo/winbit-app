@@ -14,9 +14,9 @@ export const uploadImage = async (file, folder = 'deposits') => {
     }
 
     // Validar tipo de archivo
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
-      return { url: null, error: 'Formato inválido. Solo JPG, PNG o WEBP.' };
+      return { url: null, error: 'Formato inválido. Solo JPG, PNG, WEBP o PDF.' };
     }
 
     // Validar tamaño (máximo 5MB)
