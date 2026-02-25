@@ -215,6 +215,31 @@ export const getDepositOptions = async () => {
  * @param {string} requestData.notes - Notas adicionales
  * @returns {Promise<{data: object | null, error: string | null}>}
  */
+/**
+ * Calcula la comisión estimada de trading para un retiro (preview, sin crear nada)
+ * @param {string} email - Email del inversor
+ * @param {number} amount - Monto a retirar
+ * @returns {Promise<{data: object | null, error: string | null}>}
+ */
+export const getWithdrawalFeePreview = async (email, amount) => {
+  try {
+    const encodedEmail = encodeURIComponent(email);
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/investor/${encodedEmail}/withdrawal_fee_preview?amount=${amount}`;
+
+    const response = await silentFetch(url);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `API Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return { data: result.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.message };
+  }
+};
+
 export const createInvestorRequest = async (requestData) => {
   try {
     const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/requests`;
