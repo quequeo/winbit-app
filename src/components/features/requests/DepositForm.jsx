@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
@@ -57,6 +57,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
     method: defaultMethod,
   });
   const [attachment, setAttachment] = useState(null);
+  const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
@@ -129,6 +130,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
       });
       setFormData((s) => ({ ...s, amount: '' }));
       setAttachment(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } else {
       setMessage({
         type: 'error',
@@ -194,6 +196,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
             <input
               id="attachment"
               type="file"
+              ref={fileInputRef}
               accept="image/jpeg,image/png,image/webp,application/pdf"
               onChange={handleFileChange}
               className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
