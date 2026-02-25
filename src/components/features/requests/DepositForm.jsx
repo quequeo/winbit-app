@@ -1,9 +1,11 @@
 import { useState, useMemo, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { Modal } from '../../ui/Modal';
+import { Spinner } from '../../ui/Spinner';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +31,7 @@ const CATEGORY_TO_METHOD = {
 
 export const DepositForm = ({ userEmail, depositOptions = [] }) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const methodOptions = useMemo(() => {
     if (!depositOptions || depositOptions.length === 0) {
@@ -59,6 +62,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
   const [attachment, setAttachment] = useState(null);
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState(null);
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
 
@@ -86,6 +90,10 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!userEmail) {
+      setMessage({ type: 'error', text: t('deposits.requestForm.validation.emailRequired') });
+      return;
+    }
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
       setMessage({ type: 'error', text: t('deposits.requestForm.validation.invalidAmount') });
       return;
@@ -101,15 +109,19 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
 
     let attachmentUrl = null;
     if (attachment) {
+      setLoadingPhase('uploading');
       const { url, error: uploadError } = await uploadImage(attachment, 'deposits');
+      setLoadingPhase(null);
       if (uploadError) {
         setLoading(false);
+        setLoadingPhase(null);
         setMessage({ type: 'error', text: uploadError });
         return;
       }
       attachmentUrl = url;
     }
 
+    setLoadingPhase('submitting');
     const apiResult = await createInvestorRequest({
       email: userEmail,
       type: 'DEPOSIT',
@@ -121,8 +133,10 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
     });
 
     setLoading(false);
+    setLoadingPhase(null);
 
     if (apiResult.data) {
+      queryClient.invalidateQueries({ queryKey: ['investor'] });
       setModal({
         type: 'success',
         title: t('requests.registered.title'),
@@ -229,8 +243,17 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
             </div>
           )}
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? t('deposits.requestForm.submitting') : t('deposits.requestForm.submit')}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            {loading && <Spinner size="sm" />}
+            {loading
+              ? loadingPhase === 'uploading'
+                ? t('deposits.requestForm.uploading')
+                : t('deposits.requestForm.submitting')
+              : t('deposits.requestForm.submit')}
           </Button>
         </form>
       </Card>

@@ -148,10 +148,8 @@ const resources = {
         copy: 'Copiar',
         copied: '✓ ¡Copiado!',
         processingHoursTitle: '⏰ Horario de procesamiento:',
-        processingHoursLine1:
-          'Las solicitudes se reciben hasta las 16:00 y se ejecutan a las 18:00.',
-        processingHoursLine2:
-          'Las solicitudes ingresadas luego de las 16:00 se procesan a las 10:00 del día siguiente.',
+        processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan a las 18:00 h.',
+        processingHoursLine2: 'Solicitudes posteriores → 10:00 h del día hábil siguiente.',
         requestForm: {
           title: 'Registrar depósito',
           amount: {
@@ -174,12 +172,14 @@ const resources = {
             tooLarge: 'El archivo es demasiado grande. Máximo 5 MB.',
           },
           validation: {
+            emailRequired: 'Debes iniciar sesión para enviar una solicitud.',
             invalidAmount: 'Ingresá un monto válido',
             selectNetwork: 'Seleccioná una red',
             attachmentRequired:
               'El comprobante es obligatorio para depósitos que no sean en efectivo.',
           },
           submit: 'Enviar solicitud',
+          uploading: 'Subiendo comprobante...',
           submitting: 'Enviando...',
         },
       },
@@ -188,10 +188,10 @@ const resources = {
         formTitle: 'Solicitar retiro',
         subtitle: 'Solicitá un retiro parcial o total',
         processingHoursTitle: '⏰ Horario de procesamiento:',
-        processingHoursLine1:
-          'Las solicitudes se reciben hasta las 16:00 y se ejecutan a las 18:00.',
-        processingHoursLine2:
-          'Las solicitudes ingresadas luego de las 16:00 se procesan a las 10:00 del día siguiente.',
+        processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan a las 18:00 h.',
+        processingHoursLine2: 'Solicitudes posteriores → 10:00 h del día hábil siguiente.',
+        processingHoursLine3:
+          'El comprobante se enviará por correo electrónico una vez realizado el retiro.',
         form: {
           type: {
             label: 'Tipo de retiro',
@@ -432,8 +432,8 @@ const resources = {
         copy: 'Copy',
         copied: '✓ Copied!',
         processingHoursTitle: '⏰ Processing hours:',
-        processingHoursLine1: 'Requests are received until 16:00 and executed at 18:00.',
-        processingHoursLine2: 'Requests submitted after 16:00 are processed at 10:00 the next day.',
+        processingHoursLine1: 'Requests until 16:00 h → processed at 18:00 h.',
+        processingHoursLine2: 'Requests after that → 10:00 h the next business day.',
         requestForm: {
           title: 'Register deposit',
           amount: {
@@ -456,11 +456,13 @@ const resources = {
             tooLarge: 'File is too large. Maximum 5 MB.',
           },
           validation: {
+            emailRequired: 'You must be logged in to submit a request.',
             invalidAmount: 'Enter a valid amount',
             selectNetwork: 'Select a network',
             attachmentRequired: 'Receipt is required for non-cash deposits.',
           },
           submit: 'Send request',
+          uploading: 'Uploading attachment...',
           submitting: 'Sending...',
         },
       },
@@ -469,8 +471,9 @@ const resources = {
         formTitle: 'Request withdrawal',
         subtitle: 'Request a partial or full withdrawal',
         processingHoursTitle: '⏰ Processing hours:',
-        processingHoursLine1: 'Requests are received until 16:00 and executed at 18:00.',
-        processingHoursLine2: 'Requests submitted after 16:00 are processed at 10:00 the next day.',
+        processingHoursLine1: 'Requests until 16:00 h → processed at 18:00 h.',
+        processingHoursLine2: 'Requests after that → 10:00 h the next business day.',
+        processingHoursLine3: 'The receipt will be sent by email once the withdrawal is completed.',
         form: {
           type: {
             label: 'Withdrawal type',

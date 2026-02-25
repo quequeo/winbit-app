@@ -1,7 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WalletsPage } from './WalletsPage';
+
+const renderWithQuery = (ui) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+};
 
 vi.mock('../services/firebase', () => ({
   auth: {},
@@ -19,7 +25,10 @@ vi.mock('../services/api', () => ({
 }));
 
 vi.mock('../hooks/useAuth', () => ({
-  useAuth: () => ({ user: { email: 'test@example.com', displayName: 'Test' } }),
+  useAuth: () => ({
+    user: { email: 'test@example.com', displayName: 'Test' },
+    userEmail: 'test@example.com',
+  }),
 }));
 
 vi.mock('../hooks/useDepositOptions', () => ({
@@ -53,27 +62,27 @@ vi.mock('../hooks/useInvestorHistory', () => ({
 
 describe('WalletsPage', () => {
   it('renders heading and tabs', () => {
-    render(<WalletsPage />);
+    renderWithQuery(<WalletsPage />);
     expect(screen.getByText('Depósitos')).toBeInTheDocument();
     expect(screen.getByText('Depositar')).toBeInTheDocument();
     expect(screen.getByText('Historial de Depósitos')).toBeInTheDocument();
   });
 
   it('renders deposit option cards in default tab', () => {
-    render(<WalletsPage />);
+    renderWithQuery(<WalletsPage />);
     expect(screen.getByText('Banco Galicia')).toBeInTheDocument();
     expect(screen.getByText('USDT TRC20')).toBeInTheDocument();
     expect(screen.getByText(/Verificá siempre los datos/)).toBeInTheDocument();
   });
 
   it('renders grouped by category in default tab', () => {
-    render(<WalletsPage />);
+    renderWithQuery(<WalletsPage />);
     expect(screen.getAllByText('Transferencia bancaria ARS').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Cripto').length).toBeGreaterThan(0);
   });
 
   it('shows empty state in history tab when no deposits', async () => {
-    render(<WalletsPage />);
+    renderWithQuery(<WalletsPage />);
     await userEvent.click(screen.getByText('Historial de Depósitos'));
     expect(screen.getByText('No hay depósitos registrados aún.')).toBeInTheDocument();
   });

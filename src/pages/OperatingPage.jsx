@@ -44,8 +44,8 @@ const mobileBgClass = (row) => {
 
 export const OperatingPage = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { data, loading, error, refetch } = useInvestorHistory(user?.email);
+  const { userEmail } = useAuth();
+  const { data, loading, error, refetch } = useInvestorHistory(userEmail);
 
   const MOBILE_PAGE_SIZE = 20;
   const DESKTOP_PAGE_SIZE_OPTIONS = [10, 20, 50];

@@ -37,9 +37,9 @@ const statusConfig = (status) =>
 
 export const WalletsPage = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { userEmail } = useAuth();
   const { depositOptions, loading: optionsLoading, error } = useDepositOptions();
-  const { data: history, loading: historyLoading } = useInvestorHistory(user?.email);
+  const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
   const [tab, setTab] = useState('deposit');
 
   const deposits = useMemo(() => {
@@ -99,7 +99,7 @@ export const WalletsPage = () => {
             <DepositOptionsList options={depositOptions} />
           )}
 
-          <DepositForm userEmail={user?.email} depositOptions={depositOptions} />
+          <DepositForm userEmail={userEmail} depositOptions={depositOptions} />
         </>
       )}
 
