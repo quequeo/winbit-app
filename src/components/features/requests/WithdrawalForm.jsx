@@ -4,7 +4,8 @@ import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { Modal } from '../../ui/Modal';
-import { createInvestorRequest } from '../../../services/api';
+import { ConfirmModal } from '../../ui/ConfirmModal';
+import { createInvestorRequest, getWithdrawalFeePreview } from '../../../services/api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +16,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
+  const [confirmModal, setConfirmModal] = useState(null);
   const { t } = useTranslation();
 
   const methodOptions = [
@@ -25,25 +27,23 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
     { value: 'CRYPTO', label: t('requests.method.crypto') },
   ];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const withdrawalAmount = type === 'full' ? currentBalance : parseFloat(amount);
 
-    const withdrawalAmount = type === 'full' ? currentBalance : parseFloat(amount);
-
+  const validate = () => {
     if (type === 'partial' && (!amount || withdrawalAmount <= 0)) {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.invalidAmount') });
-      return;
+      return false;
     }
-
     if (withdrawalAmount > currentBalance) {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.exceedsBalance') });
-      return;
+      return false;
     }
+    return true;
+  };
 
+  const submitRequest = async () => {
     setLoading(true);
-    setMessage(null);
 
-    // Enviar solicitud al backend de Rails
     const apiResult = await createInvestorRequest({
       email: userEmail,
       type: 'WITHDRAWAL',
@@ -54,6 +54,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
     });
 
     setLoading(false);
+    setConfirmModal(null);
 
     if (apiResult.data) {
       setModal({
@@ -63,7 +64,6 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       });
       setAmount('');
       setType('partial');
-      // keep method selection
     } else {
       setMessage({
         type: 'error',
@@ -72,8 +72,66 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setLoading(true);
+    setMessage(null);
+
+    const preview = await getWithdrawalFeePreview(userEmail, withdrawalAmount);
+
+    setLoading(false);
+
+    if (preview.error) {
+      setMessage({ type: 'error', text: preview.error });
+      return;
+    }
+
+    setConfirmModal(preview.data);
+  };
+
   return (
     <>
+      <ConfirmModal
+        isOpen={confirmModal !== null}
+        title="Confirmar retiro"
+        onConfirm={submitRequest}
+        onCancel={() => setConfirmModal(null)}
+        loading={loading}
+      >
+        {confirmModal && (
+          <div className="w-full space-y-3 text-sm text-gray-700">
+            <div className="flex justify-between">
+              <span>Monto de retiro</span>
+              <span className="font-semibold">{formatCurrency(confirmModal.withdrawalAmount)}</span>
+            </div>
+            {confirmModal.hasFee ? (
+              <div className="flex justify-between text-blue-700">
+                <span>Comisión de trading ({confirmModal.feePercentage}%)</span>
+                <span className="font-semibold">{formatCurrency(confirmModal.feeAmount)}</span>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-xs">
+                No hay comisión de trading aplicable a este retiro.
+              </p>
+            )}
+            {confirmModal.hasFee && (
+              <div className="border-t border-gray-200 pt-3 flex justify-between font-semibold text-gray-900">
+                <span>Total debitado del portfolio</span>
+                <span>
+                  {formatCurrency(confirmModal.withdrawalAmount + confirmModal.feeAmount)}
+                </span>
+              </div>
+            )}
+            <p className="text-xs text-gray-400 pt-1">
+              * La comisión es una estimación. El monto final lo confirma el equipo de Winbit al
+              aprobar el retiro.
+            </p>
+          </div>
+        )}
+      </ConfirmModal>
+
       <Modal
         isOpen={modal !== null}
         onClose={() => setModal(null)}
@@ -81,6 +139,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
         message={modal?.message}
         type={modal?.type}
       />
+
       <Card title={t('withdrawals.formTitle')}>
         <form onSubmit={handleSubmit} className="space-y-6">
           <Select
