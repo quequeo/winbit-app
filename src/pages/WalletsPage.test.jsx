@@ -64,15 +64,15 @@ describe('WalletsPage', () => {
   it('renders heading and tabs', () => {
     renderWithQuery(<WalletsPage />);
     expect(screen.getByText('Depósitos')).toBeInTheDocument();
-    expect(screen.getByText('Depositar')).toBeInTheDocument();
-    expect(screen.getByText('Historial de Depósitos')).toBeInTheDocument();
+    expect(screen.getByText('Métodos Disponibles')).toBeInTheDocument();
+    expect(screen.getByText('Registrar Depósito')).toBeInTheDocument();
+    expect(screen.getByText('Historial')).toBeInTheDocument();
   });
 
   it('renders deposit option cards in default tab', () => {
     renderWithQuery(<WalletsPage />);
     expect(screen.getByText('Banco Galicia')).toBeInTheDocument();
     expect(screen.getByText('USDT TRC20')).toBeInTheDocument();
-    expect(screen.getByText(/Verificá siempre los datos/)).toBeInTheDocument();
   });
 
   it('renders grouped by category in default tab', () => {
@@ -83,7 +83,7 @@ describe('WalletsPage', () => {
 
   it('shows empty state in history tab when no deposits', async () => {
     renderWithQuery(<WalletsPage />);
-    await userEvent.click(screen.getByText('Historial de Depósitos'));
+    await userEvent.click(screen.getByText('Historial'));
     expect(screen.getByText('No hay depósitos registrados aún.')).toBeInTheDocument();
   });
 });
