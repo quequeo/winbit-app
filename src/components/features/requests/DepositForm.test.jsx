@@ -1,9 +1,15 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DepositForm } from './DepositForm';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { i18n } from '../../../i18n';
+
+const renderWithQuery = (ui) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+};
 
 vi.mock('../../../services/api', () => ({
   createInvestorRequest: vi.fn(),
@@ -39,7 +45,7 @@ describe('DepositForm', () => {
     await act(async () => {
       await i18n.changeLanguage('en');
     });
-    render(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
+    renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
 
     expect(screen.getByText('Register deposit')).toBeInTheDocument();
 
@@ -56,7 +62,7 @@ describe('DepositForm', () => {
     await act(async () => {
       await i18n.changeLanguage('es');
     });
-    const { container } = render(
+    const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />,
     );
     fireEvent.submit(container.querySelector('form'));
@@ -68,7 +74,7 @@ describe('DepositForm', () => {
       await i18n.changeLanguage('es');
     });
     createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
-    const { container } = render(
+    const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />,
     );
 
@@ -96,7 +102,7 @@ describe('DepositForm', () => {
 
   it('shows service error', async () => {
     createInvestorRequest.mockResolvedValueOnce({ data: null, error: 'Fail' });
-    const { container } = render(
+    const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />,
     );
 
@@ -120,7 +126,7 @@ describe('DepositForm', () => {
     const nonCashOptions = [
       { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
     ];
-    const { container } = render(
+    const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
     );
 
@@ -149,7 +155,7 @@ describe('DepositForm', () => {
     const nonCashOptions = [
       { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
     ];
-    const { container } = render(
+    const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
     );
 
@@ -166,7 +172,7 @@ describe('DepositForm', () => {
   });
 
   it('derives method options from deposit options', () => {
-    render(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
+    renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
 
     const selectButton = screen.getByLabelText(/Método/);
     expect(selectButton).toBeInTheDocument();
@@ -174,7 +180,7 @@ describe('DepositForm', () => {
   });
 
   it('falls back to hardcoded methods when no deposit options', () => {
-    render(<DepositForm userEmail="t@e.com" depositOptions={[]} />);
+    renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={[]} />);
 
     const selectButton = screen.getByLabelText(/Método/);
     expect(selectButton).toBeInTheDocument();

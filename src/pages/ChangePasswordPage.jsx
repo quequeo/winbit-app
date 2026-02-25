@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { useTranslation } from 'react-i18next';
 
 export const ChangePasswordPage = () => {
-  const { user } = useAuth();
+  const { user, userEmail } = useAuth();
   const { t } = useTranslation();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -31,7 +31,7 @@ export const ChangePasswordPage = () => {
 
     setSubmitting(true);
 
-    const result = await changeInvestorPassword(user?.email, currentPassword, newPassword);
+    const result = await changeInvestorPassword(userEmail, currentPassword, newPassword);
 
     if (result.error) {
       setError(result.error);

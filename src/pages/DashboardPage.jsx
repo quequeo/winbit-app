@@ -304,9 +304,9 @@ const rangeStartMs = (endMs, rangeKey, rangeOptions) => {
 };
 
 export const DashboardPage = () => {
-  const { user } = useAuth();
-  const { data, loading, error, unauthorized, refetch } = useInvestorData(user?.email);
-  const { data: historyData, loading: historyLoading } = useInvestorHistory(user?.email);
+  const { userEmail } = useAuth();
+  const { data, loading, error, unauthorized, refetch } = useInvestorData(userEmail);
+  const { data: historyData, loading: historyLoading } = useInvestorHistory(userEmail);
   const { t } = useTranslation();
 
   const [rangeKey, setRangeKey] = useState('3M');

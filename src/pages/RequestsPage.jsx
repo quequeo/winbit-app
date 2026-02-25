@@ -33,9 +33,9 @@ const statusConfig = (status) =>
   };
 
 export const RequestsPage = () => {
-  const { user } = useAuth();
-  const { data, loading } = useInvestorData(user?.email);
-  const { data: history, loading: historyLoading } = useInvestorHistory(user?.email);
+  const { user, userEmail } = useAuth();
+  const { data, loading } = useInvestorData(userEmail);
+  const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
   const { t } = useTranslation();
   const [tab, setTab] = useState('form');
 
@@ -86,7 +86,7 @@ export const RequestsPage = () => {
       {tab === 'form' && (
         <WithdrawalForm
           userName={data?.name || user?.displayName || 'Investor'}
-          userEmail={user?.email}
+          userEmail={userEmail}
           currentBalance={data?.balance || 0}
         />
       )}

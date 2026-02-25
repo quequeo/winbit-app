@@ -74,10 +74,17 @@ export const AuthProvider = ({ children }) => {
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        setUser(currentUser);
-        clearStoredSession();
+        const session = getStoredSession();
+        if (!session || session.authMethod !== 'email') {
+          setUser(currentUser);
+          clearStoredSession();
+        }
       } else if (!getStoredSession()) {
-        setUser(null);
+        setUser((prev) => {
+          // Preserve email/password user even if localStorage was cleared (e.g. another tab)
+          if (prev?.authMethod === 'email') return prev;
+          return null;
+        });
       }
       setLoading(false);
       setIsValidated(true);
@@ -182,8 +189,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // Para email/password: user tiene { email, displayName, authMethod }
+  // Para Google: user es Firebase User con .email o .providerData[0].email
+  const userEmail =
+    user?.email ?? user?.providerData?.[0]?.email ?? getStoredSession()?.email ?? null;
+
   const value = {
     user,
+    userEmail,
     loading,
     loginWithGoogle,
     loginWithEmail,

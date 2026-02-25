@@ -124,10 +124,6 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
                 </span>
               </div>
             )}
-            <p className="text-xs text-gray-400 pt-1">
-              * La comisión es una estimación. El monto final lo confirma el equipo de Winbit al
-              aprobar el retiro.
-            </p>
           </div>
         )}
       </ConfirmModal>
@@ -201,6 +197,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
             <p>• {t('withdrawals.processingHoursLine1')}</p>
             <p>• {t('withdrawals.processingHoursLine2')}</p>
+            <p>• {t('withdrawals.processingHoursLine3')}</p>
           </div>
 
           {message && (

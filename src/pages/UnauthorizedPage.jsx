@@ -5,7 +5,7 @@ import { Card } from '../components/ui/Card';
 
 export const UnauthorizedPage = () => {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, userEmail, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -41,7 +41,7 @@ export const UnauthorizedPage = () => {
 
           {/* User email */}
           <p className="text-sm text-gray-600 mb-4">
-            {t('unauthorized.currentAccount')}: <strong>{user?.email}</strong>
+            {t('unauthorized.currentAccount')}: <strong>{userEmail ?? user?.email}</strong>
           </p>
 
           {/* Message */}
