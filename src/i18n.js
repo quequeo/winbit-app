@@ -168,7 +168,8 @@ const resources = {
           },
           attachment: {
             label: 'Comprobante',
-            description: 'Adjuntá una captura del comprobante de pago (JPG, PNG o WEBP, máx 5MB)',
+            description:
+              'Adjuntá una captura del comprobante de pago (JPG, PNG, WEBP o PDF, máx 5MB)',
             upload: 'Subir comprobante',
             tooLarge: 'El archivo es demasiado grande. Máximo 5 MB.',
           },
@@ -449,7 +450,8 @@ const resources = {
           },
           attachment: {
             label: 'Receipt',
-            description: 'Attach a screenshot of the payment receipt (JPG, PNG or WEBP, max 5MB)',
+            description:
+              'Attach a screenshot of the payment receipt (JPG, PNG, WEBP or PDF, max 5MB)',
             upload: 'Upload receipt',
             tooLarge: 'File is too large. Maximum 5 MB.',
           },
