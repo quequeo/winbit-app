@@ -152,6 +152,7 @@ export const getInvestorHistory = async (email) => {
       previousBalance: item.previousBalance,
       newBalance: item.newBalance,
       status: item.status,
+      method: item.method ?? null,
       tradingFeePeriodLabel: item.tradingFeePeriodLabel ?? null,
       tradingFeePercentage: item.tradingFeePercentage ?? null,
       tradingFeeSource: item.tradingFeeSource ?? null,
