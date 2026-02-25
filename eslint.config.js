@@ -6,7 +6,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
   {
-    ignores: ['dist/**', 'coverage/**', '.firebase/**'],
+    ignores: ['dist/**', 'coverage/**', '.firebase/**', '**/*.timestamp-*.mjs'],
   },
   js.configs.recommended,
   {
