@@ -5,6 +5,7 @@ import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { Modal } from '../../ui/Modal';
 import { createInvestorRequest } from '../../../services/api';
+import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
 
 const CASH_METHODS = ['CASH_ARS', 'CASH_USD'];
@@ -81,14 +82,6 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
     setMessage(null);
   };
 
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -107,11 +100,13 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
 
     let attachmentUrl = null;
     if (attachment) {
-      try {
-        attachmentUrl = await toBase64(attachment);
-      } catch {
-        attachmentUrl = null;
+      const { url, error: uploadError } = await uploadImage(attachment, 'receipts');
+      if (uploadError) {
+        setLoading(false);
+        setMessage({ type: 'error', text: uploadError });
+        return;
       }
+      attachmentUrl = url;
     }
 
     const apiResult = await createInvestorRequest({
