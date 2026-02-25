@@ -81,6 +81,18 @@ const formatMonthYearSpace = (dateStr) => {
   return mm && yyyy ? `${mm} ${yyyy}` : '';
 };
 
+/** Formats YYYY-MM as "Ene 2026" (es) or "Jan 2026" (en). Returns label as-is if not YYYY-MM. */
+const formatPeriodLabel = (label, t) => {
+  if (!label || typeof label !== 'string') return label ?? '';
+  const m = label.match(/^(\d{4})-(\d{2})$/);
+  if (!m) return label;
+  const year = parseInt(m[1], 10);
+  const monthIndex = parseInt(m[2], 10) - 1; // 0..11
+  const monthKey = `history.monthsShort.${monthIndex}`;
+  const monthAbbrev = t(monthKey);
+  return monthAbbrev && !monthAbbrev.includes('.') ? `${monthAbbrev} ${year}` : label;
+};
+
 const aggregateOperatingResultsByMonth = (rows) => {
   const now = new Date();
   const currentMonthKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
@@ -258,9 +270,8 @@ export const HistoryPage = () => {
 
       const feePct = formatFeePercentage(row?.tradingFeePercentage);
       if (row?.tradingFeePeriodLabel) {
-        return feePct
-          ? `${base} ${feePct} - ${row.tradingFeePeriodLabel}`
-          : `${base} - ${row.tradingFeePeriodLabel}`;
+        const periodLabel = formatPeriodLabel(row.tradingFeePeriodLabel, t);
+        return feePct ? `${base} ${feePct} - ${periodLabel}` : `${base} - ${periodLabel}`;
       }
       return feePct ? `${base} ${feePct}` : base;
     }
@@ -268,9 +279,8 @@ export const HistoryPage = () => {
     if (m === 'trading_fee_adjustment') {
       const feePct = formatFeePercentage(row?.tradingFeePercentage);
       if (row?.tradingFeePeriodLabel) {
-        return feePct
-          ? `${base} ${feePct} - ${row.tradingFeePeriodLabel}`
-          : `${base} - ${row.tradingFeePeriodLabel}`;
+        const periodLabel = formatPeriodLabel(row.tradingFeePeriodLabel, t);
+        return feePct ? `${base} ${feePct} - ${periodLabel}` : `${base} - ${periodLabel}`;
       }
       return feePct ? `${base} ${feePct}` : base;
     }
@@ -315,6 +325,9 @@ export const HistoryPage = () => {
     const s = normalize(status);
     if (s === 'rechazado' || s === 'rejected') {
       return 'bg-red-100 text-red-800';
+    }
+    if (s === 'pendiente' || s === 'pending') {
+      return 'bg-amber-100 text-amber-800';
     }
     return 'bg-primary text-white';
   };
