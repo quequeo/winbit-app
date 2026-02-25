@@ -15,7 +15,12 @@ vi.mock('../components/features/requests/WithdrawalForm', () => ({
 
 describe('RequestsPage', () => {
   const mockAuth = { user: { email: 'test@example.com', displayName: 'Juan' } };
-  const mockData = { data: { name: 'Juan', balance: 1000 }, loading: false, error: null, refetch: vi.fn() };
+  const mockData = {
+    data: { name: 'Juan', balance: 1000 },
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  };
   const mockHistory = { data: [], loading: false, error: null, refetch: vi.fn() };
 
   it('shows spinner while investor data is loading', () => {
@@ -57,9 +62,30 @@ describe('RequestsPage', () => {
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue({
       data: [
-        { id: '1', movement: 'WITHDRAWAL', amount: 500, status: 'COMPLETED', date: '2025-01-15T18:00:00Z', method: 'USDC' },
-        { id: '2', movement: 'DEPOSIT', amount: 1000, status: 'COMPLETED', date: '2025-01-10T18:00:00Z', method: null },
-        { id: '3', movement: 'WITHDRAWAL', amount: 200, status: 'PENDING', date: '2025-02-01T18:00:00Z', method: 'CASH_ARS' },
+        {
+          id: '1',
+          movement: 'WITHDRAWAL',
+          amount: 500,
+          status: 'COMPLETED',
+          date: '2025-01-15T18:00:00Z',
+          method: 'USDC',
+        },
+        {
+          id: '2',
+          movement: 'DEPOSIT',
+          amount: 1000,
+          status: 'COMPLETED',
+          date: '2025-01-10T18:00:00Z',
+          method: null,
+        },
+        {
+          id: '3',
+          movement: 'WITHDRAWAL',
+          amount: 200,
+          status: 'PENDING',
+          date: '2025-02-01T18:00:00Z',
+          method: 'CASH_ARS',
+        },
       ],
       loading: false,
       error: null,
