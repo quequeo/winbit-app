@@ -34,7 +34,7 @@ export const DepositOptionsList = ({ options }) => {
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
             {t(`deposits.categories.${category}`)}
           </h3>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {grouped[category].map((opt) => (
               <DepositOptionCard key={opt.id} option={opt} />
             ))}

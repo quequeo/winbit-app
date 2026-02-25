@@ -40,7 +40,7 @@ export const WalletsPage = () => {
   const { userEmail } = useAuth();
   const { depositOptions, loading: optionsLoading, error } = useDepositOptions();
   const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
-  const [tab, setTab] = useState('deposit');
+  const [tab, setTab] = useState('methods');
 
   const deposits = useMemo(() => {
     if (!Array.isArray(history)) return [];
@@ -57,16 +57,17 @@ export const WalletsPage = () => {
       </div>
 
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex gap-6">
+        <nav className="-mb-px flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
           {[
-            { id: 'deposit', label: 'Depositar' },
-            { id: 'history', label: 'Historial de Depósitos' },
+            { id: 'methods', label: 'Métodos Disponibles' },
+            { id: 'deposit', label: 'Registrar Depósito' },
+            { id: 'history', label: 'Historial' },
           ].map(({ id, label }) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap px-1 ${
                 tab === id
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -78,29 +79,59 @@ export const WalletsPage = () => {
         </nav>
       </div>
 
+      {tab === 'methods' && (
+        <div className="space-y-6 py-2">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm">
+            <div className="mb-6 border-b border-gray-100 pb-4">
+              <h2 className="text-xl font-bold text-gray-900">Opciones de Depósito</h2>
+              <p className="text-sm text-gray-500 mt-2">
+                Realizá tu transferencia o depósito en alguna de las siguientes cuentas. Luego de
+                enviar el dinero, dirigite a la pestaña{' '}
+                <span className="font-semibold text-gray-700">
+                  {'"'}Registrar Depósito{'"'}
+                </span>{' '}
+                para informar tu pago.
+              </p>
+            </div>
+
+            {optionsLoading ? (
+              <div className="flex justify-center py-8">
+                <Spinner />
+              </div>
+            ) : error ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                {String(error)}
+              </div>
+            ) : (
+              <DepositOptionsList options={depositOptions} />
+            )}
+          </div>
+        </div>
+      )}
+
       {tab === 'deposit' && (
-        <>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
-              <span className="font-semibold">{t('deposits.warningTitle')}</span>{' '}
-              {t('deposits.warningText')}
-            </p>
+        <div className="space-y-6 py-2">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 shadow-sm">
+            <div className="flex gap-3">
+              <div className="shrink-0 mt-0.5 text-blue-600">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <p className="text-sm text-blue-800 leading-relaxed">
+                <span className="font-bold block mb-1">{t('deposits.warningTitle')}</span>
+                {t('deposits.warningText')}
+              </p>
+            </div>
           </div>
 
-          {optionsLoading ? (
-            <div className="flex justify-center py-8">
-              <Spinner />
-            </div>
-          ) : error ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-              {String(error)}
-            </div>
-          ) : (
-            <DepositOptionsList options={depositOptions} />
-          )}
-
           <DepositForm userEmail={userEmail} depositOptions={depositOptions} />
-        </>
+        </div>
       )}
 
       {tab === 'history' && (

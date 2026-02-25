@@ -35,13 +35,6 @@ const rowBgClass = (row) => {
   return 'hover:bg-gray-50';
 };
 
-const mobileBgClass = (row) => {
-  const amt = Number(row?.amount);
-  if (Number.isFinite(amt) && amt > 0) return 'bg-green-50';
-  if (Number.isFinite(amt) && amt < 0) return 'bg-red-50';
-  return 'bg-white';
-};
-
 export const OperatingPage = () => {
   const { t } = useTranslation();
   const { userEmail } = useAuth();
@@ -136,40 +129,53 @@ export const OperatingPage = () => {
             {mobileVisibleRows.map((row, idx) => (
               <div
                 key={`${row.code}-${row.date}-${idx}`}
-                className={`${mobileBgClass(row)} rounded-xl shadow-sm border border-gray-200 p-4`}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-gray-900 truncate">
                       {formatDate(row.date)}
                     </div>
-                    <div className="text-xs text-gray-500 mt-0.5">{movementText(row, t)}</div>
+                    <div className="text-xs text-gray-500 mt-1">{movementText(row, t)}</div>
                   </div>
 
                   <div className="shrink-0 text-right">
-                    <div className="text-base font-semibold text-gray-900">
+                    <div
+                      className={`text-base font-bold ${
+                        Number(row.amount) > 0
+                          ? 'text-green-600'
+                          : Number(row.amount) < 0
+                            ? 'text-red-500'
+                            : 'text-gray-900'
+                      }`}
+                    >
+                      {Number(row.amount) > 0 ? '+' : ''}
                       {formatCurrency(row.amount)}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
-                    <div className="text-[11px] font-medium text-gray-500">
-                      {t('operating.table.previousBalance')}
-                    </div>
-                    <div className="mt-1 text-sm font-semibold text-gray-900">
-                      {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
-                    <div className="text-[11px] font-medium text-gray-500">
-                      {t('operating.table.newBalance')}
-                    </div>
-                    <div className="mt-1 text-sm font-semibold text-gray-900">
-                      {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
-                    </div>
-                  </div>
+                <div className="mt-2 text-[13px] text-gray-500 flex items-center gap-2">
+                  <span>Balance:</span>
+                  <span className="font-medium text-gray-700">
+                    {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
+                  </span>
+                  <svg
+                    className="w-3 h-3 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    />
+                  </svg>
+                  <span className="font-medium text-gray-700">
+                    {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
+                  </span>
                 </div>
               </div>
             ))}

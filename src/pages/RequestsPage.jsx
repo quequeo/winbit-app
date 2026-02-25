@@ -62,7 +62,7 @@ export const RequestsPage = () => {
       </div>
 
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex gap-6">
+        <nav className="-mb-px flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
           {[
             { id: 'form', label: 'Nueva solicitud' },
             { id: 'history', label: 'Historial de Retiros' },
@@ -71,7 +71,7 @@ export const RequestsPage = () => {
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap px-1 ${
                 tab === id
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
