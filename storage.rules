@@ -22,13 +22,11 @@ service firebase.storage {
     
     // Reglas para la carpeta "deposits"
     match /deposits/{fileName} {
-      // Lectura solo para usuarios autenticados (admin o Google login)
       allow read: if isAuthenticated();
 
-      // Escritura sin requerir auth: inversores con login por email no tienen
-      // sesión Firebase Auth. Los nombres son únicos (timestamp + random) y
-      // se validan tipo y tamaño para evitar abuso.
-      allow write: if isValidSize() && isValidFileType();
+      // Inversores con email/password usan sesión anónima de Firebase Auth
+      // para satisfacer este check sin requerir Google Sign-In.
+      allow write: if isAuthenticated() && isValidSize() && isValidFileType();
     }
     
     // Denegar acceso a cualquier otra ruta no especificada
