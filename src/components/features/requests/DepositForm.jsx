@@ -100,7 +100,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
 
     let attachmentUrl = null;
     if (attachment) {
-      const { url, error: uploadError } = await uploadImage(attachment, 'receipts');
+      const { url, error: uploadError } = await uploadImage(attachment, 'deposits');
       if (uploadError) {
         setLoading(false);
         setMessage({ type: 'error', text: uploadError });

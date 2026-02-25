@@ -133,7 +133,7 @@ describe('DepositForm', () => {
     fireEvent.submit(container.querySelector('form'));
 
     await waitFor(() => {
-      expect(uploadImage).toHaveBeenCalledWith(file, 'receipts');
+      expect(uploadImage).toHaveBeenCalledWith(file, 'deposits');
       expect(createInvestorRequest).toHaveBeenCalledWith(
         expect.objectContaining({
           attachmentUrl:

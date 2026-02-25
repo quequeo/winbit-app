@@ -15,8 +15,9 @@ service firebase.storage {
     }
     
     // Función helper para verificar el tipo de archivo
-    function isValidImageType() {
-      return request.resource.contentType.matches('image/(jpeg|jpg|png|webp)');
+    function isValidFileType() {
+      return request.resource.contentType.matches('image/(jpeg|jpg|png|webp)')
+          || request.resource.contentType == 'application/pdf';
     }
     
     // Reglas para la carpeta "deposits"
@@ -28,7 +29,7 @@ service firebase.storage {
       // con validaciones de tipo y tamaño
       allow write: if isAuthenticated() 
                    && isValidSize() 
-                   && isValidImageType();
+                   && isValidFileType();
     }
     
     // Denegar acceso a cualquier otra ruta no especificada
