@@ -1,5 +1,6 @@
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../services/firebase';
+import { signInAnonymously } from 'firebase/auth';
+import { storage, auth } from '../services/firebase';
 
 /**
  * Sube una imagen a Firebase Storage y retorna la URL pública
@@ -23,6 +24,12 @@ export const uploadImage = async (file, folder = 'deposits') => {
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       return { url: null, error: 'Archivo muy grande. Máximo 5MB.' };
+    }
+
+    // Usuarios con login por email no tienen sesión Firebase Auth; la sesión
+    // anónima temporal permite que request.auth != null en Storage rules.
+    if (!auth.currentUser) {
+      await signInAnonymously(auth);
     }
 
     // Generar nombre único
