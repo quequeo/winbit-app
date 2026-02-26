@@ -13,8 +13,8 @@ Portal de inversores en React conectado a la API publica de `winbit-rails`.
 ## URLs
 
 - Local: `http://localhost:5173`
-- Produccion: `https://winbit-6579c.web.app`
-- API backend: `https://winbit-rails-55a941b2fe50.herokuapp.com`
+- Produccion: `https://app.winbit.com.ar`
+- API backend: `https://admin.winbit.com.ar`
 
 ## Setup local
 
