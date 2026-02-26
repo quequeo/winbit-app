@@ -73,7 +73,7 @@ winbit-app/
 
 - `.env` y `.env.production` no se versionan. Versionar solo `.env.production.example`.
 - Variables requeridas:
-  - `VITE_API_URL` — URL del backend (`http://localhost:3000` en dev, Heroku en prod).
+  - `VITE_API_URL` — URL del backend (`http://localhost:3000` en dev, `https://admin.winbit.com.ar` en prod).
   - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`.
   - `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID_WITHDRAWAL`, `VITE_EMAILJS_TEMPLATE_ID_DEPOSIT`, `VITE_EMAILJS_PUBLIC_KEY`.
 
@@ -217,7 +217,7 @@ npm run build && firebase deploy
 - `firebase.json`: hosting desde `dist/`, SPA rewrite a `/index.html`.
 - Predeploy: `npm run build` (automático con `firebase deploy`).
 - Headers: `Cross-Origin-Opener-Policy: same-origin-allow-popups` (requerido para Google Sign-In popup).
-- Producción: https://winbit-6579c.web.app
+- Producción: https://app.winbit.com.ar
 
 ### CI (GitHub Actions)
 
