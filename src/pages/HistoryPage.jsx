@@ -210,6 +210,9 @@ export const HistoryPage = () => {
     if (m === 'trading_fee_adjustment') {
       return t('history.movement.trading_fee_adjustment', 'Comisión de Trading - Ajuste');
     }
+    if (m === 'deposit_reversal' || m === 'deposit_reversa' || m === 'depósito_revertido') {
+      return t('history.movement.deposit_reversal', 'Depósito revertido');
+    }
     // Accept multiple formats:
     // - REFERRAL_COMMISSION (backend enum)
     // - referral_commission
@@ -295,7 +298,8 @@ export const HistoryPage = () => {
       m === 'deposito' ||
       m === 'depósito' ||
       m === 'retiro' ||
-      m === 'withdrawal'
+      m === 'withdrawal' ||
+      m === 'deposit_reversal'
     );
   };
 
@@ -335,8 +339,15 @@ export const HistoryPage = () => {
   const movementKind = (movement) => {
     const m = normalize(movement);
     if (m === 'deposit' || m === 'deposito' || m === 'depósito') return 'deposit';
-    if (m === 'retiro' || m === 'withdrawal') return 'withdrawal';
+    if (m === 'retiro' || m === 'withdrawal' || m === 'deposit_reversal') return 'withdrawal';
     return null;
+  };
+
+  // DEPOSIT_REVERSAL stores positive amount; display as negative (outflow)
+  const displayAmount = (row) => {
+    const m = normalize(row?.movement);
+    if (m === 'deposit_reversal') return -Math.abs(Number(row?.amount) || 0);
+    return Number(row?.amount) || 0;
   };
 
   const movementCompletedIcon = (row) => {
@@ -517,15 +528,15 @@ export const HistoryPage = () => {
                   <div className="shrink-0 text-right">
                     <div
                       className={`text-base font-bold ${
-                        Number(row.amount) > 0
+                        displayAmount(row) > 0
                           ? 'text-green-600'
-                          : Number(row.amount) < 0
+                          : displayAmount(row) < 0
                             ? 'text-red-500'
                             : 'text-gray-900'
                       }`}
                     >
-                      {Number(row.amount) > 0 ? '+' : ''}
-                      {formatCurrency(row.amount)}
+                      {displayAmount(row) > 0 ? '+' : ''}
+                      {formatCurrency(displayAmount(row))}
                     </div>
                   </div>
                 </div>
@@ -649,7 +660,7 @@ export const HistoryPage = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
-                        {formatCurrency(row.amount)}
+                        {formatCurrency(displayAmount(row))}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
                         {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
