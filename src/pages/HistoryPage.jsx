@@ -45,26 +45,6 @@ const parseDateSafe = (value) => {
   return d && !Number.isNaN(d.getTime()) ? d : null;
 };
 
-const monthKeyUtc = (dateStr) => {
-  const d = parseDateSafe(dateStr);
-  if (!d) return null;
-  const yyyy = d.getUTCFullYear();
-  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
-  return `${yyyy}-${mm}`;
-};
-
-const endOfMonthIsoUtc = (ym) => {
-  // ym: YYYY-MM
-  const m = String(ym || '').match(/^(\d{4})-(\d{2})$/);
-  if (!m) return null;
-  const yyyy = parseInt(m[1], 10);
-  const month = parseInt(m[2], 10); // 1..12
-  const end = new Date(Date.UTC(yyyy, month, 0));
-  const dd = String(end.getUTCDate()).padStart(2, '0');
-  const mm = String(month).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-};
-
 const formatMonthYearSlash = (dateStr) => {
   const d = parseDateSafe(dateStr);
   if (!d) return '';
@@ -94,79 +74,8 @@ const formatPeriodLabel = (label, t) => {
 };
 
 const aggregateOperatingResultsByMonth = (rows) => {
-  const now = new Date();
-  const currentMonthKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-  const opRows = [];
-  const otherRows = [];
-
-  rows.forEach((r) => {
-    const m = normalize(r?.movement);
-    if (m === 'operating_result') opRows.push(r);
-    else otherRows.push(r);
-  });
-
-  const groups = new Map();
-
-  opRows.forEach((r) => {
-    const key = monthKeyUtc(r?.date);
-    if (!key) {
-      otherRows.push(r);
-      return;
-    }
-
-    if (!groups.has(key)) {
-      groups.set(key, []);
-    }
-    groups.get(key).push(r);
-  });
-
-  const aggregated = Array.from(groups.entries()).map(([ym, rs]) => {
-    const sortedAsc = [...rs].sort((a, b) => {
-      const aT = a?.date ? new Date(a.date).getTime() : 0;
-      const bT = b?.date ? new Date(b.date).getTime() : 0;
-      return aT - bT;
-    });
-
-    const first = sortedAsc[0];
-    const last = sortedAsc[sortedAsc.length - 1];
-
-    const sumAmount = sortedAsc.reduce((acc, it) => acc + (Number(it?.amount) || 0), 0);
-
-    const compoundedPercent = (() => {
-      let factor = 1;
-      sortedAsc.forEach((it) => {
-        const prev = Number(it?.previousBalance);
-        const amt = Number(it?.amount);
-        if (!Number.isFinite(prev) || prev <= 0) return;
-        if (!Number.isFinite(amt)) return;
-        const pct = (amt / prev) * 100;
-        factor *= 1 + pct / 100;
-      });
-      return (factor - 1) * 100;
-    })();
-
-    const operatingResultPercent = Number.isFinite(compoundedPercent)
-      ? Math.round(compoundedPercent * 100) / 100
-      : null;
-
-    const isCurrentMonth = ym === currentMonthKey;
-    const date = isCurrentMonth ? last?.date : endOfMonthIsoUtc(ym) || last?.date;
-
-    return {
-      id: `operating_result_${ym}`,
-      code: first?.code ?? '',
-      date,
-      movement: 'OPERATING_RESULT',
-      amount: sumAmount,
-      previousBalance: first?.previousBalance ?? null,
-      newBalance: last?.newBalance ?? null,
-      status: last?.status ?? 'COMPLETED',
-      operatingResultPartial: isCurrentMonth,
-      operatingResultPercent,
-    };
-  });
-
-  return [...otherRows, ...aggregated];
+  const otherRows = rows.filter((r) => normalize(r?.movement) !== 'operating_result');
+  return [...otherRows];
 };
 
 export const HistoryPage = () => {
