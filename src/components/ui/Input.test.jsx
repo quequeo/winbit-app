@@ -56,4 +56,13 @@ describe('Input', () => {
     expect(input).toHaveAttribute('max', '100');
     expect(input).toHaveAttribute('step', '0.01');
   });
+
+  it('blurs number input on wheel to prevent accidental value change', () => {
+    render(<Input type="number" />);
+    const input = screen.getByRole('spinbutton');
+    input.focus();
+    expect(document.activeElement).toBe(input);
+    fireEvent.wheel(input, { deltaY: 1 });
+    expect(document.activeElement).not.toBe(input);
+  });
 });

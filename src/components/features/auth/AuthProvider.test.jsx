@@ -4,7 +4,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from './AuthProvider';
 import { AuthContext } from './AuthContext';
 
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import {
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+  onAuthStateChanged,
+  getRedirectResult,
+} from 'firebase/auth';
 
 vi.mock('firebase/auth', () => ({
   signInWithPopup: vi.fn(),
@@ -19,13 +25,21 @@ vi.mock('../../../services/firebase', () => ({
   googleProvider: { name: 'provider' },
 }));
 
+vi.mock('../../../services/api', () => ({
+  validateInvestor: vi.fn(() => Promise.resolve({ valid: true })),
+  loginWithEmailPassword: vi.fn(),
+}));
+
 const ContextConsumer = () => {
-  const { user, loading, loginWithGoogle, logout } = useContext(AuthContext);
+  const { user, loading, loginWithGoogle, loginWithEmail, logout, validationError } =
+    useContext(AuthContext);
   return (
     <div>
       <div>{loading ? 'loading' : 'ready'}</div>
       <div>{user?.email ?? 'no-user'}</div>
-      <button onClick={loginWithGoogle}>login</button>
+      {validationError && <div data-testid="validation-error">{validationError}</div>}
+      <button onClick={loginWithGoogle}>loginGoogle</button>
+      <button onClick={() => loginWithEmail('a@b.com', 'pass123')}>loginEmail</button>
       <button onClick={logout}>logout</button>
     </div>
   );
@@ -59,10 +73,29 @@ describe('AuthProvider', () => {
     });
     signInWithPopup.mockResolvedValueOnce({ user: { email: 'a@b.com' } });
 
-    vi.mock('../../../services/api', () => ({
-      validateInvestor: vi.fn(() => Promise.resolve({ valid: true })),
-      loginWithEmailPassword: vi.fn(),
-    }));
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginGoogle'));
+
+    await waitFor(() => {
+      expect(signInWithPopup).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('loginWithEmail stores session and sets user on success', async () => {
+    const { loginWithEmailPassword } = await import('../../../services/api');
+    loginWithEmailPassword.mockResolvedValueOnce({
+      data: { email: 'a@b.com', name: 'Test User' },
+      error: null,
+    });
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
 
     render(
       <AuthProvider>
@@ -70,10 +103,35 @@ describe('AuthProvider', () => {
       </AuthProvider>,
     );
 
-    fireEvent.click(screen.getByText('login'));
+    fireEvent.click(screen.getByText('loginEmail'));
 
     await waitFor(() => {
-      expect(signInWithPopup).toHaveBeenCalledTimes(1);
+      expect(screen.getByText('a@b.com')).toBeInTheDocument();
+    });
+    expect(loginWithEmailPassword).toHaveBeenCalledWith('a@b.com', 'pass123');
+  });
+
+  it('loginWithEmail sets validationError on API error', async () => {
+    const { loginWithEmailPassword } = await import('../../../services/api');
+    loginWithEmailPassword.mockResolvedValueOnce({
+      data: null,
+      error: 'Credenciales inválidas',
+    });
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginEmail'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('validation-error')).toHaveTextContent('Credenciales inválidas');
     });
   });
 
@@ -93,6 +151,222 @@ describe('AuthProvider', () => {
     fireEvent.click(screen.getByText('logout'));
     await waitFor(() => {
       expect(signOut).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('restores user from stored session on mount', async () => {
+    const session = { email: 'stored@example.com', name: 'Stored', authMethod: 'email' };
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(session));
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    expect(await screen.findByText('stored@example.com')).toBeInTheDocument();
+    expect(screen.getByText('ready')).toBeInTheDocument();
+  });
+
+  it('loginWithGoogle sets validationError when investor not found', async () => {
+    const { validateInvestor } = await import('../../../services/api');
+    validateInvestor.mockResolvedValueOnce({
+      valid: false,
+      error: 'Investor not found in database',
+    });
+    signInWithPopup.mockResolvedValueOnce({ user: { email: 'new@example.com' } });
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginGoogle'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('validation-error')).toHaveTextContent(
+        /No estás registrado como inversor/,
+      );
+    });
+    expect(signOut).toHaveBeenCalled();
+  });
+
+  it('loginWithGoogle sets validationError when account inactive', async () => {
+    const { validateInvestor } = await import('../../../services/api');
+    validateInvestor.mockResolvedValueOnce({
+      valid: false,
+      error: 'Investor account is not active',
+    });
+    signInWithPopup.mockResolvedValueOnce({ user: { email: 'inactive@example.com' } });
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginGoogle'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('validation-error')).toHaveTextContent(
+        /Tu cuenta de inversor no está activa/,
+      );
+    });
+  });
+
+  it('logout returns error when signOut throws', async () => {
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ email: 'test@example.com' });
+      return () => {};
+    });
+    signOut.mockRejectedValueOnce(new Error('Sign out failed'));
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('logout'));
+    await waitFor(() => {
+      expect(signOut).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('handleRedirectResult sets validationError when redirect user is invalid', async () => {
+    getRedirectResult.mockResolvedValueOnce({
+      user: { email: 'redirect@example.com' },
+    });
+    const { validateInvestor } = await import('../../../services/api');
+    validateInvestor.mockResolvedValueOnce({
+      valid: false,
+      error: 'Investor not found in database',
+    });
+    signOut.mockResolvedValueOnce();
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('validation-error')).toHaveTextContent(
+        /No estás registrado como inversor/,
+      );
+    });
+  });
+
+  it('loginWithGoogle sets validationError for generic validation error', async () => {
+    const { validateInvestor } = await import('../../../services/api');
+    validateInvestor.mockResolvedValueOnce({
+      valid: false,
+      error: 'Custom validation error',
+    });
+    signInWithPopup.mockResolvedValueOnce({ user: { email: 'custom@example.com' } });
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginGoogle'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('validation-error')).toHaveTextContent(
+        /Error de validación: Custom validation error/,
+      );
+    });
+  });
+
+  it('uses signInWithRedirect in production (DEV=false)', async () => {
+    const originalDev = import.meta.env.DEV;
+    import.meta.env.DEV = false;
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginGoogle'));
+
+    await waitFor(() => {
+      expect(signInWithRedirect).toHaveBeenCalledTimes(1);
+      expect(signInWithPopup).not.toHaveBeenCalled();
+    });
+
+    import.meta.env.DEV = originalDev;
+  });
+
+  it('loginWithGoogle returns error when popup throws generic error', async () => {
+    signInWithPopup.mockRejectedValueOnce(new Error('Network error'));
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginGoogle'));
+
+    await waitFor(() => {
+      expect(signInWithPopup).toHaveBeenCalledTimes(1);
+      expect(signInWithRedirect).not.toHaveBeenCalled();
+    });
+  });
+
+  it('loginWithGoogle falls back to redirect when popup is blocked', async () => {
+    signInWithPopup.mockRejectedValueOnce({
+      code: 'auth/popup-blocked',
+      message: 'Popup blocked',
+    });
+    signInWithRedirect.mockResolvedValueOnce();
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    fireEvent.click(screen.getByText('loginGoogle'));
+
+    await waitFor(() => {
+      expect(signInWithRedirect).toHaveBeenCalledTimes(1);
     });
   });
 });

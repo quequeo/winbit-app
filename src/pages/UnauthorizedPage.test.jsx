@@ -1,17 +1,23 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UnauthorizedPage } from './UnauthorizedPage';
 
-// Mock useAuth
 const mockLogout = vi.fn();
 vi.mock('../hooks/useAuth', () => ({
-  useAuth: () => ({
-    user: { email: 'test@example.com' },
-    logout: mockLogout,
-  }),
+  useAuth: vi.fn(),
 }));
 
+import * as useAuthModule from '../hooks/useAuth';
+
 describe('UnauthorizedPage', () => {
+  beforeEach(() => {
+    useAuthModule.useAuth.mockReturnValue({
+      user: { email: 'test@example.com' },
+      userEmail: 'test@example.com',
+      logout: mockLogout,
+    });
+  });
+
   it('renders unauthorized message', () => {
     render(<UnauthorizedPage />);
     expect(screen.getByText('Acceso no autorizado')).toBeInTheDocument();
@@ -36,5 +42,22 @@ describe('UnauthorizedPage', () => {
     render(<UnauthorizedPage />);
     expect(screen.getByText(/Cuenta actual/)).toBeInTheDocument();
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
+
+  it('handles logout error gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const failingLogout = vi.fn().mockRejectedValue(new Error('Logout failed'));
+    useAuthModule.useAuth.mockReturnValue({
+      user: { email: 'test@example.com' },
+      userEmail: 'test@example.com',
+      logout: failingLogout,
+    });
+
+    render(<UnauthorizedPage />);
+    fireEvent.click(screen.getByText('Cerrar sesión'));
+    await waitFor(() => {
+      expect(failingLogout).toHaveBeenCalled();
+    });
+    consoleSpy.mockRestore();
   });
 });

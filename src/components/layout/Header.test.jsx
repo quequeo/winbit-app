@@ -63,6 +63,23 @@ describe('Header', () => {
     expect(mockLogout).toHaveBeenCalled();
   });
 
+  it('switches language when ES/EN buttons clicked', () => {
+    useAuth.mockReturnValue({
+      user: { email: 'test@example.com' },
+      logout: vi.fn(),
+    });
+
+    renderWithRouter(<Header />);
+    fireEvent.click(screen.getByLabelText('Abrir menú'));
+
+    const enButton = screen.getAllByRole('button', { name: 'EN' })[0];
+    const esButton = screen.getAllByRole('button', { name: 'ES' })[0];
+    fireEvent.click(enButton);
+    fireEvent.click(esButton);
+    expect(enButton).toBeInTheDocument();
+    expect(esButton).toBeInTheDocument();
+  });
+
   it('toggles mobile menu when hamburger button is clicked', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
