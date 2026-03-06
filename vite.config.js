@@ -81,7 +81,20 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'src/test/', '*.config.js', '.eslintrc.cjs', 'dist/'],
+      thresholds: {
+        lines: 97,
+        statements: 97,
+      },
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '*.config.js',
+        '.eslintrc.cjs',
+        '.prettierrc.cjs',
+        'dist/',
+        'src/main.jsx', // Entry point; tested via App integration
+        'src/services/firebase.js', // Firebase SDK init; tested via integration
+      ],
     },
   },
 });

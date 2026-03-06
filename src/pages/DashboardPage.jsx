@@ -10,6 +10,7 @@ import { UnauthorizedPage } from './UnauthorizedPage';
 import { formatName } from '../utils/formatName';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
+import { rangeStartMs } from '../utils/rangeStartMs';
 
 const toIsoDate = (value) => {
   const d = value ? new Date(value) : null;
@@ -279,29 +280,6 @@ const getRangeOptions = (t) => [
   { key: '1Y', label: t('dashboard.ranges.1Y'), kind: 'years', value: 1 },
   { key: 'ALL', label: t('dashboard.ranges.ALL'), kind: 'all' },
 ];
-
-const rangeStartMs = (endMs, rangeKey, rangeOptions) => {
-  const opt = rangeOptions.find((r) => r.key === rangeKey);
-  if (!opt || !Number.isFinite(endMs)) return null;
-  if (opt.kind === 'all') return null;
-
-  if (opt.kind === 'days') {
-    return endMs - opt.value * 24 * 60 * 60 * 1000;
-  }
-
-  const d = new Date(endMs);
-  if (opt.kind === 'months') {
-    d.setUTCMonth(d.getUTCMonth() - opt.value);
-    return d.getTime();
-  }
-
-  if (opt.kind === 'years') {
-    d.setUTCFullYear(d.getUTCFullYear() - opt.value);
-    return d.getTime();
-  }
-
-  return null;
-};
 
 export const DashboardPage = () => {
   const { userEmail } = useAuth();

@@ -159,6 +159,38 @@ describe('LoginPage', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows unauthorized investor message and returns early', async () => {
+    const loginWithGoogle = vi.fn().mockResolvedValue({
+      user: null,
+      error: { code: 'auth/unauthorized', message: 'No estás registrado como inversor' },
+    });
+    useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
+
+    renderAt('/login');
+    switchToGoogleTab();
+    fireEvent.click(screen.getByText('Ingresar con Google'));
+
+    expect(await screen.findByText('No estás registrado como inversor')).toBeInTheDocument();
+  });
+
+  it('shows operation not allowed error', async () => {
+    const loginWithGoogle = vi.fn().mockResolvedValue({
+      user: null,
+      error: { code: 'auth/operation-not-allowed' },
+    });
+    useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
+
+    renderAt('/login');
+    switchToGoogleTab();
+    fireEvent.click(screen.getByText('Ingresar con Google'));
+
+    expect(
+      await screen.findByText(
+        /El inicio de sesión con Google está deshabilitado.*auth\/operation-not-allowed/,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('shows unauthorized investor message', async () => {
     useAuth.mockReturnValue({
       ...defaultMock,

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { WalletCard } from './WalletCard';
 
 describe('WalletCard', () => {
@@ -41,5 +41,22 @@ describe('WalletCard', () => {
     await waitFor(() => {
       expect(screen.getByText('✓ ¡Copiado!')).toBeInTheDocument();
     });
+  });
+
+  it('handles clipboard error gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const originalWriteText = navigator.clipboard.writeText;
+    navigator.clipboard.writeText = vi.fn().mockRejectedValue(new Error('Clipboard denied'));
+
+    render(<WalletCard {...defaultProps} />);
+    fireEvent.click(screen.getByText('Copiar'));
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalled();
+    });
+    expect(screen.getByText('Copiar')).toBeInTheDocument();
+
+    navigator.clipboard.writeText = originalWriteText;
+    consoleSpy.mockRestore();
   });
 });

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -56,8 +56,16 @@ vi.mock('../hooks/useDepositOptions', () => ({
   }),
 }));
 
+const { mockUseInvestorHistory } = vi.hoisted(() => ({
+  mockUseInvestorHistory: vi.fn(() => ({
+    data: [],
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  })),
+}));
 vi.mock('../hooks/useInvestorHistory', () => ({
-  useInvestorHistory: () => ({ data: [], loading: false, error: null, refetch: vi.fn() }),
+  useInvestorHistory: (...args) => mockUseInvestorHistory(...args),
 }));
 
 describe('WalletsPage', () => {
@@ -83,7 +91,49 @@ describe('WalletsPage', () => {
 
   it('shows empty state in history tab when no deposits', async () => {
     renderWithQuery(<WalletsPage />);
-    await userEvent.click(screen.getByText('Historial'));
+    await act(async () => {
+      await userEvent.click(screen.getByText('Historial'));
+    });
     expect(screen.getByText('No hay depósitos registrados aún.')).toBeInTheDocument();
+  });
+
+  it('shows deposit form when Registrar Depósito tab is selected', async () => {
+    renderWithQuery(<WalletsPage />);
+    await act(async () => {
+      await userEvent.click(screen.getByText('Registrar Depósito'));
+    });
+    expect(screen.getByText(/Registrar depósito/)).toBeInTheDocument();
+  });
+
+  it('shows deposit rows in history when deposits exist', async () => {
+    mockUseInvestorHistory.mockReturnValue({
+      data: [
+        {
+          id: 'ph-1',
+          date: '2024-01-15T12:00:00.000Z',
+          movement: 'DEPOSIT',
+          amount: 1000,
+          previousBalance: 0,
+          newBalance: 1000,
+          status: 'COMPLETED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderWithQuery(<WalletsPage />);
+    await act(async () => {
+      await userEvent.click(screen.getByText('Historial'));
+    });
+    expect(screen.getAllByText('$1.000,00').length).toBeGreaterThan(0);
+
+    mockUseInvestorHistory.mockReturnValue({
+      data: [],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
   });
 });

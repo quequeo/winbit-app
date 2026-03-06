@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HistoryPage } from './HistoryPage';
 import { within } from '@testing-library/react';
@@ -253,6 +253,132 @@ describe('HistoryPage', () => {
     expect(screen.queryByText(/Resultado Operativo/i)).not.toBeInTheDocument();
 
     vi.useRealTimers();
+  });
+
+  it('shows spinner when loading', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: null,
+      loading: true,
+      error: null,
+      refetch: vi.fn(),
+    });
+    render(<HistoryPage />);
+    expect(screen.queryByText('Historial')).not.toBeInTheDocument();
+  });
+
+  it('shows error message and retry when error', () => {
+    const refetch = vi.fn();
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: null,
+      loading: false,
+      error: 'Network error',
+      refetch,
+    });
+    render(<HistoryPage />);
+    expect(screen.getByText('Ocurrió un error')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Reintentar'));
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows email mapping error when configured', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: null,
+      loading: false,
+      error: 'Investor email mapping not configured',
+      refetch: vi.fn(),
+    });
+    render(<HistoryPage />);
+    expect(screen.getByText(/Falta configurar el mapeo de tu usuario/i)).toBeInTheDocument();
+  });
+
+  it('shows Sheets credentials error when configured', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: null,
+      loading: false,
+      error: 'Google Sheets credentials not configured',
+      refetch: vi.fn(),
+    });
+    render(<HistoryPage />);
+    expect(screen.getByText('Google Sheets no está configurado.')).toBeInTheDocument();
+  });
+
+  it('shows empty state when no history rows', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+    render(<HistoryPage />);
+    expect(screen.getByText('Sin movimientos todavía')).toBeInTheDocument();
+  });
+
+  it('shows pagination when more than page size rows', () => {
+    const manyRows = Array.from({ length: 25 }, (_, i) => ({
+      code: '001',
+      date: `2024-${String(i + 1).padStart(2, '0')}-15T00:00:00.000Z`,
+      movement: 'DEPOSIT',
+      amount: 100,
+      previousBalance: 1000,
+      newBalance: 1100,
+      status: 'COMPLETED',
+    }));
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: manyRows,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+    render(<HistoryPage />);
+    expect(screen.getAllByText('Página 1 de 2').length).toBeGreaterThanOrEqual(1);
+    const nextBtns = screen.getAllByText('Siguiente');
+    fireEvent.click(nextBtns[0]);
+    expect(screen.getAllByText('Página 2 de 2').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('allows changing desktop page size', () => {
+    const manyRows = Array.from({ length: 60 }, (_, i) => ({
+      code: '001',
+      date: `2024-${String(Math.floor(i / 30) + 1).padStart(2, '0')}-15T00:00:00.000Z`,
+      movement: 'DEPOSIT',
+      amount: 100,
+      previousBalance: 1000,
+      newBalance: 1100,
+      status: 'COMPLETED',
+    }));
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: manyRows,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+    render(<HistoryPage />);
+    const pageSizeSelects = screen.getAllByDisplayValue('20');
+    fireEvent.change(pageSizeSelects[0], { target: { value: '50' } });
+    expect(screen.getByDisplayValue('50')).toBeInTheDocument();
+  });
+
+  it('renders trading fee adjustment movement', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          code: '001',
+          date: '2026-02-15T19:00:00.000Z',
+          movement: 'TRADING_FEE_ADJUSTMENT',
+          amount: 10,
+          previousBalance: 4955,
+          newBalance: 4965,
+          status: 'COMPLETED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<HistoryPage />);
+
+    expect(screen.getAllByText(/Comisión de Trading - Ajuste/i).length).toBeGreaterThan(0);
   });
 
   it('renders trading fee by withdrawal with percentage and withdrawal amount', () => {

@@ -50,4 +50,37 @@ describe('Select', () => {
     render(<Select options={options} value="1" onChange={() => {}} />);
     expect(screen.getByRole('button')).toHaveTextContent('Option 1');
   });
+
+  it('uses children options when options prop is not provided', () => {
+    render(
+      <Select>
+        <option value="a">Option A</option>
+        <option value="b">Option B</option>
+      </Select>,
+    );
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByRole('option', { name: 'Option A' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Option B' })).toBeInTheDocument();
+  });
+
+  it('closes dropdown on Escape key', () => {
+    render(<Select options={options} />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('closes dropdown on click outside', () => {
+    render(
+      <div>
+        <Select options={options} />
+        <button type="button">Outside</button>
+      </div>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /select option/i }));
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Outside' }));
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
 });

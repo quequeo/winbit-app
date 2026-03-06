@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { RequestsPage } from './RequestsPage';
@@ -48,12 +48,25 @@ describe('RequestsPage', () => {
     expect(screen.getByText('WithdrawalForm')).toBeInTheDocument();
   });
 
+  it('shows loading spinner when history tab is loading', async () => {
+    useAuth.mockReturnValue(mockAuth);
+    useInvestorData.mockReturnValue(mockData);
+    useInvestorHistory.mockReturnValue({ ...mockHistory, loading: true });
+    const { container } = render(<RequestsPage />);
+    await act(async () => {
+      await userEvent.click(screen.getByText('Historial de Retiros'));
+    });
+    expect(container.querySelector('.animate-spin')).toBeInTheDocument();
+  });
+
   it('shows empty state when no withdrawals in history', async () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue(mockHistory);
     render(<RequestsPage />);
-    await userEvent.click(screen.getByText('Historial de Retiros'));
+    await act(async () => {
+      await userEvent.click(screen.getByText('Historial de Retiros'));
+    });
     expect(screen.getByText('No hay retiros registrados aún.')).toBeInTheDocument();
   });
 
@@ -91,9 +104,35 @@ describe('RequestsPage', () => {
       error: null,
     });
     render(<RequestsPage />);
-    await userEvent.click(screen.getByText('Historial de Retiros'));
+    await act(async () => {
+      await userEvent.click(screen.getByText('Historial de Retiros'));
+    });
     expect(screen.getAllByText('Completado').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Pendiente').length).toBeGreaterThan(0);
     expect(screen.queryByText('Depósito')).not.toBeInTheDocument();
+  });
+
+  it('shows fallback label for unknown status', async () => {
+    useAuth.mockReturnValue(mockAuth);
+    useInvestorData.mockReturnValue(mockData);
+    useInvestorHistory.mockReturnValue({
+      data: [
+        {
+          id: '1',
+          movement: 'WITHDRAWAL',
+          amount: 100,
+          status: 'UNKNOWN_STATUS',
+          date: '2025-01-15T18:00:00Z',
+          method: 'USDC',
+        },
+      ],
+      loading: false,
+      error: null,
+    });
+    render(<RequestsPage />);
+    await act(async () => {
+      await userEvent.click(screen.getByText('Historial de Retiros'));
+    });
+    expect(screen.getAllByText('UNKNOWN_STATUS').length).toBeGreaterThan(0);
   });
 });

@@ -39,4 +39,8 @@ describe('formatName', () => {
     expect(formatName("o'connor")).toBe("O'Connor");
     expect(formatName('jean-paul')).toBe('Jean-Paul');
   });
+
+  it('handles word with hyphen and multi-char parts', () => {
+    expect(formatName('anne-marie')).toBe('Anne-Marie');
+  });
 });

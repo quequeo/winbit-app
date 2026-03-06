@@ -149,6 +149,43 @@ describe('DepositForm', () => {
     });
   });
 
+  it('shows error when file exceeds 5MB', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
+    const nonCashOptions = [
+      { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
+    ];
+    const { container } = renderWithQuery(
+      <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
+    );
+
+    const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.jpg', {
+      type: 'image/jpeg',
+    });
+    const fileInput = container.querySelector('input[type="file"]');
+    fireEvent.change(fileInput, { target: { files: [largeFile] } });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/demasiado grande|5 MB/i);
+  });
+
+  it('validates attachment required for non-cash methods', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
+    const nonCashOptions = [
+      { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
+    ];
+    const { container } = renderWithQuery(
+      <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '500' } });
+    fireEvent.submit(container.querySelector('form'));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/comprobante es obligatorio/i);
+  });
+
   it('shows error when attachment upload fails', async () => {
     uploadImage.mockResolvedValueOnce({ url: null, error: 'Error al subir imagen' });
 
