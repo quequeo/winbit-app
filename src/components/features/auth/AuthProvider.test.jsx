@@ -52,12 +52,17 @@ describe('AuthProvider', () => {
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
   });
 
-  it('loginWithGoogle calls signInWithPopup and returns user', async () => {
+  it('loginWithGoogle calls signInWithPopup in dev (import.meta.env.DEV=true)', async () => {
     onAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(null);
       return () => {};
     });
     signInWithPopup.mockResolvedValueOnce({ user: { email: 'a@b.com' } });
+
+    vi.mock('../../../services/api', () => ({
+      validateInvestor: vi.fn(() => Promise.resolve({ valid: true })),
+      loginWithEmailPassword: vi.fn(),
+    }));
 
     render(
       <AuthProvider>

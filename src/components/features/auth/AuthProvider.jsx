@@ -62,6 +62,17 @@ export const AuthProvider = ({ children }) => {
         if (result?.user) {
           const validation = await validateInvestor(result.user.email);
           if (!validation.valid) {
+            let errorMessage = 'No estás autorizado para acceder a este portal.';
+            if (validation.error === 'Investor not found in database') {
+              errorMessage =
+                'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
+            } else if (validation.error === 'Investor account is not active') {
+              errorMessage =
+                'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
+            } else if (validation.error) {
+              errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
+            }
+            setValidationError(errorMessage);
             await signOut(auth);
           }
         }
@@ -97,48 +108,48 @@ export const AuthProvider = ({ children }) => {
     setValidationError(null);
     setIsValidated(false);
 
+    // In development use popup (redirect sends back to firebaseapp.com, not localhost).
+    // In production use redirect: more reliable on Safari, mobile, and when
+    // third-party cookies are blocked.
+    const isDev = import.meta.env.DEV;
+
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-
-      const validation = await validateInvestor(result.user.email);
-
-      if (!validation.valid) {
-        let errorMessage = 'No estás autorizado para acceder a este portal.';
-        if (validation.error === 'Investor not found in database') {
-          errorMessage =
-            'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
-        } else if (validation.error === 'Investor account is not active') {
-          errorMessage =
-            'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
-        } else {
-          errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
+      if (isDev) {
+        const result = await signInWithPopup(auth, googleProvider);
+        const validation = await validateInvestor(result.user.email);
+        if (!validation.valid) {
+          let errorMessage = 'No estás autorizado para acceder a este portal.';
+          if (validation.error === 'Investor not found in database') {
+            errorMessage =
+              'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
+          } else if (validation.error === 'Investor account is not active') {
+            errorMessage =
+              'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
+          } else if (validation.error) {
+            errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
+          }
+          setValidationError(errorMessage);
+          setIsValidated(true);
+          await signOut(auth);
+          return { user: null, error: { code: 'auth/unauthorized', message: errorMessage } };
         }
-
-        setValidationError(errorMessage);
         setIsValidated(true);
-        await signOut(auth);
-
-        return {
-          user: null,
-          error: { code: 'auth/unauthorized', message: errorMessage },
-        };
+        return { user: result.user, error: null };
+      } else {
+        await signInWithRedirect(auth, googleProvider);
+        return { user: null, error: null };
       }
-
-      setValidationError(null);
-      setIsValidated(true);
-      return { user: result.user, error: null };
     } catch (error) {
       const code = error?.code;
-
       if (
-        code === 'auth/popup-blocked' ||
-        code === 'auth/popup-closed-by-user' ||
-        code === 'auth/cancelled-popup-request'
+        isDev &&
+        (code === 'auth/popup-blocked' ||
+          code === 'auth/popup-closed-by-user' ||
+          code === 'auth/cancelled-popup-request')
       ) {
         await signInWithRedirect(auth, googleProvider);
         return { user: null, error: null };
       }
-
       return {
         user: null,
         error: {
