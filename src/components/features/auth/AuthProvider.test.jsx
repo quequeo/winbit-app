@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from './AuthProvider';
 import { AuthContext } from './AuthContext';
 
-import { signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
 vi.mock('firebase/auth', () => ({
   signInWithPopup: vi.fn(),
