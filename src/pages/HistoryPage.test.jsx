@@ -195,7 +195,7 @@ describe('HistoryPage', () => {
     expect(dashes.length).toBeGreaterThanOrEqual(2); // At least 2 for prev and new balance
   });
 
-  it('aggregates operating results by month on /history', () => {
+  it('hides operating results from history table', () => {
     vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
       data: [
         {
@@ -224,12 +224,10 @@ describe('HistoryPage', () => {
 
     render(<HistoryPage />);
 
-    // Should show a single aggregated row for Dec 2025
-    const mobile = screen.getByTestId('history-mobile');
-    expect(within(mobile).getAllByText(/Resultado Operativo.*Dic 2025/i).length).toBe(1);
+    expect(screen.queryByText(/Resultado Operativo/i)).not.toBeInTheDocument();
   });
 
-  it("shows current-month operating results as 'a la fecha' (no end-of-month fake date)", () => {
+  it('hides current-month operating results from history table', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-23T12:00:00.000Z'));
 
@@ -252,8 +250,7 @@ describe('HistoryPage', () => {
 
     render(<HistoryPage />);
 
-    expect(screen.getAllByText(/Resultado Operativo.*a la fecha/i).length).toBeGreaterThan(0);
-    expect(screen.queryByText(/Resultado Operativo - Ene 2026/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Resultado Operativo/i)).not.toBeInTheDocument();
 
     vi.useRealTimers();
   });
