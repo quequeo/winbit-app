@@ -73,7 +73,7 @@ describe('WalletsPage', () => {
     renderWithQuery(<WalletsPage />);
     expect(screen.getByText('Depósitos')).toBeInTheDocument();
     expect(screen.getByText('Métodos Disponibles')).toBeInTheDocument();
-    expect(screen.getByText('Registrar Depósito')).toBeInTheDocument();
+    expect(screen.getByText('Informar Depósito')).toBeInTheDocument();
     expect(screen.getByText('Historial')).toBeInTheDocument();
   });
 
@@ -97,12 +97,12 @@ describe('WalletsPage', () => {
     expect(screen.getByText('No hay depósitos registrados aún.')).toBeInTheDocument();
   });
 
-  it('shows deposit form when Registrar Depósito tab is selected', async () => {
+  it('shows deposit form when Informar Depósito tab is selected', async () => {
     renderWithQuery(<WalletsPage />);
     await act(async () => {
-      await userEvent.click(screen.getByText('Registrar Depósito'));
+      await userEvent.click(screen.getByText('Informar Depósito'));
     });
-    expect(screen.getByText(/Registrar depósito/)).toBeInTheDocument();
+    expect(screen.getByText(/Informar depósito/)).toBeInTheDocument();
   });
 
   it('shows deposit rows in history when deposits exist', async () => {

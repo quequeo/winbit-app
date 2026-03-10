@@ -47,7 +47,7 @@ describe('DepositForm', () => {
     });
     renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
 
-    expect(screen.getByText('Register deposit')).toBeInTheDocument();
+    expect(screen.getByText('Report deposit')).toBeInTheDocument();
 
     const amountInput = screen.getByLabelText(/Amount/);
     expect(amountInput).toHaveAttribute('placeholder', '1000');

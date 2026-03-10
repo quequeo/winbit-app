@@ -35,7 +35,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loading: true });
 
     renderAt('/login');
-    expect(screen.queryByText('Ingresar con Google')).not.toBeInTheDocument();
+    expect(screen.queryByText('Continuar con Google')).not.toBeInTheDocument();
   });
 
   it('redirects to dashboard when already logged in', () => {
@@ -89,7 +89,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Ingresar con Google'));
+    fireEvent.click(screen.getByText('Continuar con Google'));
 
     await waitFor(() => {
       expect(loginWithGoogle).toHaveBeenCalledTimes(1);
@@ -105,7 +105,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Ingresar con Google'));
+    fireEvent.click(screen.getByText('Continuar con Google'));
 
     expect(await screen.findByText(/Este dominio no está autorizado/)).toBeInTheDocument();
     expect(screen.getByText(/\(auth\/unauthorized-domain\)/)).toBeInTheDocument();
@@ -120,7 +120,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Ingresar con Google'));
+    fireEvent.click(screen.getByText('Continuar con Google'));
 
     expect(
       await screen.findByText(/No se pudo iniciar sesión.*auth\/popup-closed-by-user/),
@@ -136,7 +136,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Ingresar con Google'));
+    fireEvent.click(screen.getByText('Continuar con Google'));
 
     expect(
       await screen.findByText(/No se pudo iniciar sesión.*auth\/cancelled-popup-request/),
@@ -152,7 +152,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Ingresar con Google'));
+    fireEvent.click(screen.getByText('Continuar con Google'));
 
     expect(
       await screen.findByText(/No se pudo iniciar sesión.*auth\/unknown-error/),
@@ -168,7 +168,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Ingresar con Google'));
+    fireEvent.click(screen.getByText('Continuar con Google'));
 
     expect(await screen.findByText('No estás registrado como inversor')).toBeInTheDocument();
   });
@@ -182,7 +182,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Ingresar con Google'));
+    fireEvent.click(screen.getByText('Continuar con Google'));
 
     expect(
       await screen.findByText(
