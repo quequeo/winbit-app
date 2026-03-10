@@ -60,7 +60,7 @@ export const WalletsPage = () => {
         <nav className="-mb-px flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
           {[
             { id: 'methods', label: 'Métodos Disponibles' },
-            { id: 'deposit', label: 'Registrar Depósito' },
+            { id: 'deposit', label: 'Informar Depósito' },
             { id: 'history', label: 'Historial' },
           ].map(({ id, label }) => (
             <button
@@ -88,7 +88,7 @@ export const WalletsPage = () => {
                 Realizá tu transferencia o depósito en alguna de las siguientes cuentas. Luego de
                 enviar el dinero, dirigite a la pestaña{' '}
                 <span className="font-semibold text-gray-700">
-                  {'"'}Registrar Depósito{'"'}
+                  {'"'}Informar Depósito{'"'}
                 </span>{' '}
                 para informar tu pago.
               </p>

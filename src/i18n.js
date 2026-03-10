@@ -49,7 +49,7 @@ const resources = {
       auth: {
         logout: 'Salir',
         signIn: 'Ingresar',
-        signInWithGoogle: 'Ingresar con Google',
+        signInWithGoogle: 'Continuar con Google',
         signingIn: 'Ingresando...',
         failedToSignIn: 'No se pudo iniciar sesión. Intentá de nuevo.',
         unauthorizedDomain: 'Este dominio no está autorizado para iniciar sesión.',
@@ -151,7 +151,7 @@ const resources = {
         processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan a las 18:00 h.',
         processingHoursLine2: 'Solicitudes posteriores → 10:00 h del día hábil siguiente.',
         requestForm: {
-          title: 'Registrar depósito',
+          title: 'Informar depósito',
           amount: {
             label: 'Monto',
             placeholder: 'Ingresá el monto en USD',
@@ -347,7 +347,7 @@ const resources = {
       auth: {
         logout: 'Logout',
         signIn: 'Sign in',
-        signInWithGoogle: 'Sign in with Google',
+        signInWithGoogle: 'Continue with Google',
         signingIn: 'Signing in...',
         failedToSignIn: 'Failed to sign in. Please try again.',
         unauthorizedDomain: 'This domain is not authorized for sign-in.',
@@ -449,7 +449,7 @@ const resources = {
         processingHoursLine1: 'Requests until 16:00 h → processed at 18:00 h.',
         processingHoursLine2: 'Requests after that → 10:00 h the next business day.',
         requestForm: {
-          title: 'Register deposit',
+          title: 'Report deposit',
           amount: {
             label: 'Amount',
             placeholder: 'Enter amount in USD',
