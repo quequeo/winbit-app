@@ -50,7 +50,6 @@ export const WalletsPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('deposits.title')}</h1>
-        <p className="text-text-muted mt-1">{t('deposits.subtitle')}</p>
       </div>
 
       <div className="border-b border-border-dark">

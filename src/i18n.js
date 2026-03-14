@@ -205,7 +205,7 @@ const resources = {
           },
           amount: {
             label: 'Monto',
-            placeholder: 'Ingresá el monto en USD',
+            placeholder: '1,000.00',
           },
           validation: {
             invalidAmount: 'Ingresá un monto válido',
@@ -237,6 +237,9 @@ const resources = {
           cash: 'Tu solicitud fue registrada correctamente. Las operaciones en efectivo se coordinan de forma personalizada. Un integrante de nuestro equipo se pondrá en contacto para coordinar el ingreso o retiro de los fondos.',
           international:
             'Tu solicitud fue registrada correctamente. Las operaciones mediante transferencia internacional se coordinan de forma personalizada. Nuestro equipo se pondrá en contacto por correo electrónico para continuar con el proceso.',
+          withdrawalTitle: 'Retiro solicitado',
+          withdrawal:
+            'La solicitud de retiro fue registrada correctamente.\n\nEl retiro será procesado en el próximo cierre operativo.\nUna vez completado, recibirás el comprobante correspondiente por correo electrónico.',
         },
       },
       history: {
@@ -505,7 +508,7 @@ const resources = {
           },
           amount: {
             label: 'Amount',
-            placeholder: 'Enter amount in USD',
+            placeholder: '1,000.00',
           },
           validation: {
             invalidAmount: 'Enter a valid amount',
@@ -537,6 +540,9 @@ const resources = {
           cash: 'Your request was registered successfully. Cash operations are coordinated personally. A member of our team will contact you to coordinate the deposit or withdrawal.',
           international:
             'Your request was registered successfully. International transfers are coordinated personally. Our team will contact you by email to continue the process.',
+          withdrawalTitle: 'Withdrawal requested',
+          withdrawal:
+            'The withdrawal request was registered successfully.\n\nThe withdrawal will be processed at the next operational close.\nOnce completed, you will receive the receipt by email.',
         },
       },
       history: {
