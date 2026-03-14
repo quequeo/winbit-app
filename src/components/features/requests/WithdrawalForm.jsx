@@ -57,8 +57,8 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
     if (apiResult.data) {
       setModal({
         type: 'success',
-        title: t('requests.registered.title'),
-        message: t('requests.registered.crypto'),
+        title: t('requests.registered.withdrawalTitle'),
+        message: t('requests.registered.withdrawal'),
       });
       setAmount('');
       setType('partial');
@@ -177,19 +177,21 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             </div>
           </div>
 
-          <Input
-            label={t('withdrawals.form.amount.label')}
-            type="number"
-            id="amount"
-            name="amount"
-            value={type === 'full' ? formatCurrency(currentBalance) : amount}
-            onChange={(e) => setAmount(e.target.value)}
-            disabled={type === 'full' || loading}
-            required={type === 'partial'}
-            min="0.01"
-            step="0.01"
-            placeholder={t('withdrawals.form.amount.placeholder')}
-          />
+          {type === 'partial' && (
+            <Input
+              label={t('withdrawals.form.amount.label')}
+              type="number"
+              id="amount"
+              name="amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={loading}
+              required
+              min="0.01"
+              step="0.01"
+              placeholder={t('withdrawals.form.amount.placeholder')}
+            />
+          )}
 
           <div className="bg-accent/30 p-4 rounded-lg text-sm text-text-primary">
             <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>

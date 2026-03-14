@@ -44,7 +44,7 @@ describe('WithdrawalForm', () => {
     expect(screen.getByText('Withdrawal type')).toBeInTheDocument();
 
     const amountInput = screen.getByLabelText(/Amount/);
-    expect(amountInput).toHaveAttribute('placeholder', 'Enter amount in USD');
+    expect(amountInput).toHaveAttribute('placeholder', '1,000.00');
 
     expect(screen.getByRole('button', { name: 'Request withdrawal' })).toBeInTheDocument();
 
@@ -171,7 +171,7 @@ describe('WithdrawalForm', () => {
       });
     });
 
-    expect(await screen.findByText('Depósito informado')).toBeInTheDocument();
+    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
   });
 
@@ -184,8 +184,7 @@ describe('WithdrawalForm', () => {
     );
 
     fireEvent.click(screen.getByLabelText('Total'));
-    const amountInput = screen.getByLabelText(/Monto/);
-    expect(amountInput).toBeDisabled();
+    expect(screen.queryByLabelText(/Monto/)).not.toBeInTheDocument();
 
     fireEvent.submit(container.querySelector('form'));
 
@@ -199,7 +198,7 @@ describe('WithdrawalForm', () => {
       expect(createInvestorRequest).toHaveBeenCalled();
     });
 
-    expect(await screen.findByText('Depósito informado')).toBeInTheDocument();
+    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
   });
 
   it('shows error when createInvestorRequest fails (after confirm)', async () => {
