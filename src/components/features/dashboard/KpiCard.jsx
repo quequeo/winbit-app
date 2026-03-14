@@ -24,21 +24,21 @@ export const KpiCard = ({
       ? 'bg-gradient-to-r from-[#58b098] to-[#4a9d84] text-white shadow-lg'
       : resolvedTone === 'neutral'
         ? 'bg-gradient-to-r from-sky-50 to-sky-100 border border-sky-200 text-slate-900'
-        : 'bg-white';
+        : 'bg-dark-card';
 
   const titleClassName =
     resolvedTone === 'highlight'
       ? 'text-sm text-white/90'
       : resolvedTone === 'neutral'
         ? 'text-sm text-sky-700'
-        : 'text-sm text-gray-600';
+        : 'text-sm text-text-muted';
 
   const valueClassName =
     resolvedTone === 'highlight'
       ? 'text-3xl font-bold text-white'
       : resolvedTone === 'neutral'
         ? 'text-2xl font-semibold text-slate-900'
-        : 'text-2xl font-semibold text-gray-900';
+        : 'text-2xl font-semibold text-text-primary';
 
   return (
     <Card

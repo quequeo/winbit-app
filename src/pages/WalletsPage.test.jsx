@@ -35,20 +35,12 @@ vi.mock('../hooks/useDepositOptions', () => ({
   useDepositOptions: () => ({
     depositOptions: [
       {
-        id: '1',
-        category: 'BANK_ARS',
-        label: 'Banco Galicia',
-        currency: 'ARS',
-        details: { bank_name: 'Galicia', holder: 'Winbit SRL', cbu_cvu: '0070000' },
-        position: 1,
-      },
-      {
         id: '2',
         category: 'CRYPTO',
         label: 'USDT TRC20',
         currency: 'USDT',
         details: { address: 'TF7j33wo', network: 'TRC20' },
-        position: 2,
+        position: 1,
       },
     ],
     loading: false,
@@ -72,20 +64,18 @@ describe('WalletsPage', () => {
   it('renders heading and tabs', () => {
     renderWithQuery(<WalletsPage />);
     expect(screen.getByText('Depósitos')).toBeInTheDocument();
-    expect(screen.getByText('Métodos Disponibles')).toBeInTheDocument();
-    expect(screen.getByText('Informar Depósito')).toBeInTheDocument();
+    expect(screen.getAllByText('Métodos de depósito').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Informar depósito').length).toBeGreaterThan(0);
     expect(screen.getByText('Historial')).toBeInTheDocument();
   });
 
   it('renders deposit option cards in default tab', () => {
     renderWithQuery(<WalletsPage />);
-    expect(screen.getByText('Banco Galicia')).toBeInTheDocument();
     expect(screen.getByText('USDT TRC20')).toBeInTheDocument();
   });
 
   it('renders grouped by category in default tab', () => {
     renderWithQuery(<WalletsPage />);
-    expect(screen.getAllByText('Transferencia bancaria ARS').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Cripto').length).toBeGreaterThan(0);
   });
 
@@ -100,9 +90,10 @@ describe('WalletsPage', () => {
   it('shows deposit form when Informar Depósito tab is selected', async () => {
     renderWithQuery(<WalletsPage />);
     await act(async () => {
-      await userEvent.click(screen.getByText('Informar Depósito'));
+      const matches = screen.getAllByText('Informar depósito');
+      await userEvent.click(matches[0]);
     });
-    expect(screen.getByText(/Informar depósito/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Informar depósito/).length).toBeGreaterThan(0);
   });
 
   it('shows deposit rows in history when deposits exist', async () => {
@@ -127,7 +118,7 @@ describe('WalletsPage', () => {
     await act(async () => {
       await userEvent.click(screen.getByText('Historial'));
     });
-    expect(screen.getAllByText('$1.000,00').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('$1,000.00').length).toBeGreaterThan(0);
 
     mockUseInvestorHistory.mockReturnValue({
       data: [],

@@ -4,7 +4,44 @@
 
 @layer base {
   body {
-    @apply bg-white text-gray-900 font-sans;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    font-family:
+      'Montserrat',
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
+  }
+
+  input,
+  select,
+  textarea {
+    background: rgba(20, 20, 20, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.5rem;
+    padding: 0.625rem 1rem;
+    color: #e8e8e8;
+    font-family:
+      'Montserrat',
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+  }
+
+  input::placeholder,
+  select::placeholder,
+  textarea::placeholder {
+    color: #555555;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: rgba(101, 167, 165, 0.5);
+    box-shadow: 0 0 0 2px rgba(101, 167, 165, 0.15);
   }
 }
 

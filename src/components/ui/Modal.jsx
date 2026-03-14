@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
   useEffect(() => {
     if (isOpen) {
-      // Bloquear scroll del body cuando el modal está abierto
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -18,40 +17,35 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
 
   const bgColorClass =
     type === 'success'
-      ? 'bg-green-50 border-green-200'
+      ? 'bg-[rgba(76,175,80,0.15)] border-[rgba(76,175,80,0.3)]'
       : type === 'error'
-        ? 'bg-red-50 border-red-200'
-        : 'bg-blue-50 border-blue-200';
+        ? 'bg-[rgba(239,83,80,0.15)] border-[rgba(239,83,80,0.3)]'
+        : 'bg-[rgba(101,167,165,0.15)] border-[rgba(101,167,165,0.3)]';
 
   const iconColorClass =
-    type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-blue-600';
+    type === 'success' ? 'text-success' : type === 'error' ? 'text-error' : 'text-primary';
 
   const buttonColorClass =
     type === 'success'
-      ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+      ? 'bg-success hover:bg-success/80 focus:ring-success'
       : type === 'error'
-        ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-        : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+        ? 'bg-error hover:bg-error/80 focus:ring-error'
+        : 'bg-primary hover:bg-primary/80 focus:ring-primary';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black bg-opacity-60 transition-opacity"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/70 transition-opacity" onClick={onClose} />
 
-      {/* Modal - más cuadrado y centrado */}
       <div
-        className={`relative w-full max-w-sm rounded-2xl border-2 p-8 shadow-2xl ${bgColorClass}`}
+        className={`relative w-full max-w-sm rounded-2xl border-2 p-8 ${bgColorClass}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        {/* Close button (X) */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-3 right-3 text-text-dim hover:text-text-muted transition-colors"
           aria-label="Cerrar"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,9 +58,7 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
           </svg>
         </button>
 
-        {/* Contenido centrado verticalmente */}
         <div className="flex flex-col items-center text-center space-y-4">
-          {/* Icon */}
           <div className={`${iconColorClass}`}>
             {type === 'success' ? (
               <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,20 +90,18 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
             )}
           </div>
 
-          {/* Content */}
           <div className="space-y-2">
             {title && (
-              <h3 id="modal-title" className="text-xl font-bold text-gray-900">
+              <h3 id="modal-title" className="text-xl font-bold text-text-primary">
                 {title}
               </h3>
             )}
-            <p className="text-base text-gray-700 whitespace-pre-line">{message}</p>
+            <p className="text-base text-text-muted whitespace-pre-line">{message}</p>
           </div>
 
-          {/* Accept button - centrado y más grande */}
           <button
             onClick={onClose}
-            className={`w-full mt-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${buttonColorClass}`}
+            className={`w-full mt-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg ${buttonColorClass}`}
           >
             Aceptar
           </button>

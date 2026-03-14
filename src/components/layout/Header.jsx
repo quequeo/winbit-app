@@ -28,7 +28,7 @@ export const Header = () => {
   }, [location.pathname]);
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-dark-card border-b border-border-dark">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/dashboard" className="flex items-center gap-2">
@@ -44,7 +44,7 @@ export const Header = () => {
                   className={`font-medium transition-colors ${
                     location.pathname === item.path
                       ? 'text-primary'
-                      : 'text-gray-600 hover:text-primary'
+                      : 'text-text-muted hover:text-primary'
                   }`}
                 >
                   {item.label}
@@ -57,7 +57,7 @@ export const Header = () => {
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                className="md:hidden inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-700 hover:text-primary hover:border-primary transition-colors"
+                className="md:hidden inline-flex items-center justify-center rounded-lg border border-border-dark p-2 text-text-primary hover:text-primary hover:border-primary transition-colors"
                 aria-label={isMobileMenuOpen ? t('common.closeMenu') : t('common.openMenu')}
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-menu"
@@ -96,14 +96,14 @@ export const Header = () => {
                   </svg>
                 )}
               </button>
-              <div className="hidden md:flex items-center gap-1 rounded-lg border border-gray-200 p-1">
+              <div className="hidden md:flex items-center gap-1 rounded-lg border border-border-dark p-1">
                 <button
                   type="button"
                   onClick={() => handleLanguageChange('es')}
                   className={`px-2 py-1 text-xs font-medium rounded-md ${
                     i18n.language === 'es'
                       ? 'bg-primary text-white'
-                      : 'text-gray-600 hover:text-primary'
+                      : 'text-text-muted hover:text-primary'
                   }`}
                 >
                   ES
@@ -114,7 +114,7 @@ export const Header = () => {
                   className={`px-2 py-1 text-xs font-medium rounded-md ${
                     i18n.language === 'en'
                       ? 'bg-primary text-white'
-                      : 'text-gray-600 hover:text-primary'
+                      : 'text-text-muted hover:text-primary'
                   }`}
                 >
                   EN
@@ -123,7 +123,7 @@ export const Header = () => {
               <button
                 type="button"
                 onClick={() => navigate('/change-password')}
-                className="hidden md:inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-600 hover:text-primary hover:border-primary transition-colors"
+                className="hidden md:inline-flex items-center justify-center rounded-lg border border-border-dark p-2 text-text-muted hover:text-primary hover:border-primary transition-colors"
                 title={t('auth.changePassword.title')}
               >
                 <svg
@@ -156,7 +156,7 @@ export const Header = () => {
       {user && (
         <div
           id="mobile-menu"
-          className={`md:hidden border-t border-gray-200 px-4 py-3 ${
+          className={`md:hidden border-t border-border-dark px-4 py-3 ${
             isMobileMenuOpen ? 'block' : 'hidden'
           }`}
         >
@@ -168,7 +168,7 @@ export const Header = () => {
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   location.pathname === item.path
                     ? 'bg-primary/10 text-primary'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
+                    : 'text-text-primary hover:bg-accent-dim hover:text-primary'
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -182,7 +182,7 @@ export const Header = () => {
             className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               location.pathname === '/change-password'
                 ? 'bg-primary/10 text-primary'
-                : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
+                : 'text-text-primary hover:bg-accent-dim hover:text-primary'
             }`}
             onClick={() => setIsMobileMenuOpen(false)}
           >
@@ -190,14 +190,14 @@ export const Header = () => {
           </Link>
 
           <div className="mt-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1 rounded-lg border border-gray-200 p-1">
+            <div className="flex items-center gap-1 rounded-lg border border-border-dark p-1">
               <button
                 type="button"
                 onClick={() => handleLanguageChange('es')}
                 className={`px-2 py-1 text-xs font-medium rounded-md ${
                   i18n.language === 'es'
                     ? 'bg-primary text-white'
-                    : 'text-gray-600 hover:text-primary'
+                    : 'text-text-muted hover:text-primary'
                 }`}
               >
                 ES
@@ -208,7 +208,7 @@ export const Header = () => {
                 className={`px-2 py-1 text-xs font-medium rounded-md ${
                   i18n.language === 'en'
                     ? 'bg-primary text-white'
-                    : 'text-gray-600 hover:text-primary'
+                    : 'text-text-muted hover:text-primary'
                 }`}
               >
                 EN

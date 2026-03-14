@@ -34,7 +34,7 @@ describe('Input', () => {
   it('applies error styles when error prop is provided', () => {
     render(<Input error="Error" />);
     const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('border-red-500');
+    expect(input).toHaveClass('border-error');
   });
 
   it('disables input when disabled prop is true', () => {

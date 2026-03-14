@@ -5,14 +5,14 @@ const roundHalfUp = (value, decimals) => {
 
 export const formatPercentage = (value) => {
   if (value === null || value === undefined) {
-    return '0,00%';
+    return '0.00%';
   }
 
   const rounded = roundHalfUp(value, 2);
-  const formatted = new Intl.NumberFormat('es-AR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(rounded);
+  const fixed = rounded.toFixed(2);
+  const parts = fixed.split('.');
+  const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const formatted = `${integerPart}.${parts[1]}`;
 
   const sign = value >= 0 ? '+' : '-';
 

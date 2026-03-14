@@ -21,7 +21,7 @@ describe('DashboardPage', () => {
     useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
     render(<DashboardPage />);
-    expect(screen.queryByText(/Hola,/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Juan')).not.toBeInTheDocument();
   });
 
   it('shows error message and retry calls refetch', () => {
@@ -75,18 +75,18 @@ describe('DashboardPage', () => {
     useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
     render(<DashboardPage />);
-    expect(screen.getByText('Hola, Juan')).toBeInTheDocument();
-    expect(screen.getByText('Valor actual del portafolio (USD)')).toBeInTheDocument();
-    expect(screen.getByText('Total invertido (USD)')).toBeInTheDocument();
-    expect(screen.getByText('$100,00')).toBeInTheDocument();
+    expect(screen.getByText('Juan')).toBeInTheDocument();
+    expect(screen.getByText('Valor del portafolio (USD)')).toBeInTheDocument();
+    expect(screen.getByText('Capital invertido (USD)')).toBeInTheDocument();
+    expect(screen.getByText('$100.00')).toBeInTheDocument();
     // Range buttons are grouped under the chart aria-label.
     expect(screen.getByRole('group', { name: 'Evolución del portafolio' })).toBeInTheDocument();
-    expect(screen.getByText('7 días')).toBeInTheDocument();
-    expect(screen.getByText('1 mes')).toBeInTheDocument();
-    expect(screen.getByText('3 meses')).toBeInTheDocument();
-    expect(screen.getByText('6 meses')).toBeInTheDocument();
-    expect(screen.getByText('1 año')).toBeInTheDocument();
-    expect(screen.getByText('Todo')).toBeInTheDocument();
+    expect(screen.getByText('7D')).toBeInTheDocument();
+    expect(screen.getByText('1M')).toBeInTheDocument();
+    expect(screen.getByText('3M')).toBeInTheDocument();
+    expect(screen.getByText('6M')).toBeInTheDocument();
+    expect(screen.getByText('1A')).toBeInTheDocument();
+    expect(screen.getByText('Máx')).toBeInTheDocument();
   });
 
   it('shows chart and responds to mouse hover', () => {
@@ -224,7 +224,7 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    expect(screen.getByText('Sin datos históricos todavía.')).toBeInTheDocument();
+    expect(screen.getByText('Aún no hay datos históricos disponibles.')).toBeInTheDocument();
   });
 
   it('shows UnauthorizedPage when unauthorized', () => {
@@ -271,8 +271,8 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    fireEvent.click(screen.getByText('7 días'));
-    expect(screen.getByText('7 días')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('7D'));
+    expect(screen.getByText('7D')).toBeInTheDocument();
   });
 
   it('filters chart by 6 months and 1 year ranges', () => {
@@ -304,10 +304,10 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    fireEvent.click(screen.getByText('6 meses'));
-    expect(screen.getByText('6 meses')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('1 año'));
-    expect(screen.getByText('1 año')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('6M'));
+    expect(screen.getByText('6M')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('1A'));
+    expect(screen.getByText('1A')).toBeInTheDocument();
   });
 
   it('shows Todo range and chart when ALL selected', () => {
@@ -339,8 +339,8 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    fireEvent.click(screen.getByText('Todo'));
-    expect(screen.getByText('Todo')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Máx'));
+    expect(screen.getByText('Máx')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Evolución del portafolio' })).toBeInTheDocument();
   });
 
@@ -373,10 +373,10 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    fireEvent.click(screen.getByText('1 mes'));
-    expect(screen.getByText('1 mes')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('3 meses'));
-    expect(screen.getByText('3 meses')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('1M'));
+    expect(screen.getByText('1M')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('3M'));
+    expect(screen.getByText('3M')).toBeInTheDocument();
   });
 
   it('shows chart loading when history is loading', () => {

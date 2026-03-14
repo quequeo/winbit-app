@@ -49,8 +49,8 @@ describe('HistoryPage', () => {
 
     const mobile = screen.getByTestId('history-mobile');
     expect(within(mobile).getByText('Depósito')).toBeInTheDocument();
-    expect(within(mobile).getByText('+$10.000,00')).toBeInTheDocument();
-    expect(within(mobile).getByText('Completado')).toBeInTheDocument();
+    expect(within(mobile).getByText('+$10,000.00')).toBeInTheDocument();
+    expect(within(mobile).getByText('Acreditado')).toBeInTheDocument();
     expect(within(mobile).getByTestId('icon-deposit-completed')).toBeInTheDocument();
 
     // Sorted by most recent first
@@ -190,7 +190,7 @@ describe('HistoryPage', () => {
     render(<HistoryPage />);
 
     const mobile = screen.getByTestId('history-mobile');
-    // Should show "-" instead of "$0,00" for null balances
+    // Should show "-" instead of "$0.00" for null balances
     const dashes = within(mobile).getAllByText('-');
     expect(dashes.length).toBeGreaterThanOrEqual(2); // At least 2 for prev and new balance
   });
@@ -404,6 +404,6 @@ describe('HistoryPage', () => {
 
     render(<HistoryPage />);
 
-    expect(screen.getAllByText(/Comisión.*30%.*Retiro.*15\.000/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Comisión.*30%.*Retiro.*15,000/i).length).toBeGreaterThan(0);
   });
 });

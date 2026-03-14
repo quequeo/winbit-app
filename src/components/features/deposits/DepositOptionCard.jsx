@@ -34,8 +34,8 @@ export const DepositOptionCard = ({ option }) => {
     <Card className="hover:shadow-lg transition-shadow">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h4 className="font-semibold text-gray-900">{option.label}</h4>
-          <span className="text-xs font-medium text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
+          <h4 className="font-semibold text-text-primary">{option.label}</h4>
+          <span className="text-xs font-medium text-text-muted bg-dark-section rounded-full px-2 py-0.5">
             {option.currency}
           </span>
         </div>
@@ -44,8 +44,8 @@ export const DepositOptionCard = ({ option }) => {
           {detailEntries.map(([key, value]) => (
             <div key={key} className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-gray-500">{t(`deposits.detailLabels.${key}`, key)}</p>
-                <p className="text-sm text-gray-900 font-mono break-all">{value}</p>
+                <p className="text-xs text-text-muted">{t(`deposits.detailLabels.${key}`, key)}</p>
+                <p className="text-sm text-text-primary font-mono break-all">{value}</p>
               </div>
               {COPYABLE_KEYS.includes(key) && (
                 <Button

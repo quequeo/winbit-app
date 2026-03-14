@@ -25,7 +25,7 @@ const resources = {
         retry: 'Reintentar',
         loading: 'Cargando...',
         sending: 'Enviando...',
-        sendRequest: 'Enviar solicitud',
+        sendRequest: 'Solicitar retiro',
         openMenu: 'Abrir menú',
         closeMenu: 'Cerrar menú',
         previous: 'Anterior',
@@ -49,20 +49,20 @@ const resources = {
       auth: {
         logout: 'Salir',
         signIn: 'Ingresar',
-        signInWithGoogle: 'Continuar con Google',
+        signInWithGoogle: 'Acceder con Google',
         signingIn: 'Ingresando...',
         failedToSignIn: 'No se pudo iniciar sesión. Intentá de nuevo.',
         unauthorizedDomain: 'Este dominio no está autorizado para iniciar sesión.',
         operationNotAllowed: 'El inicio de sesión con Google está deshabilitado.',
         emailPassword: 'Email y contraseña',
-        email: 'Email',
+        email: 'Correo electrónico',
         emailPlaceholder: 'tu@email.com',
         password: 'Contraseña',
         passwordPlaceholder: 'Tu contraseña',
         login: {
-          subtitle: 'Gestión de Portafolio',
+          subtitle: 'Plataforma de inversores',
           disclaimer:
-            'Al iniciar sesión, aceptás acceder a tu información de forma segura. Solo inversores registrados pueden acceder a la plataforma.',
+            'Acceso restringido a inversores registrados. La información se encuentra protegida mediante protocolos de seguridad.',
         },
         changePassword: {
           title: 'Cambiar contraseña',
@@ -80,16 +80,17 @@ const resources = {
       },
       footer: {
         rights: 'Todos los derechos reservados.',
+        copyright: '© 2026 Winbit. Todos los derechos reservados.',
         portfolioUpdates:
           'Las actualizaciones del portafolio se realizan una vez por día, luego del cierre operativo.',
       },
       dashboard: {
-        welcomeBack: 'Hola, {{name}}',
-        subtitle: 'Resumen de tu portafolio',
+        welcomeBack: '{{name}}',
+        subtitle: 'Resumen del portafolio',
         noDataForAccount: 'No hay datos disponibles para tu cuenta',
         kpis: {
-          currentValue: 'Valor actual del portafolio (USD)',
-          totalInvested: 'Total invertido (USD)',
+          currentValue: 'Valor del portafolio (USD)',
+          totalInvested: 'Capital invertido (USD)',
           strategyReturnYtdUsd: `Resultado estrategia ${getCurrentYear()} (USD)`,
           strategyReturnYtdPct: `Resultado estrategia ${getCurrentYear()} (%)`,
           strategyReturnAllUsd: 'Resultado estrategia histórico (USD)',
@@ -100,7 +101,7 @@ const resources = {
         chart: {
           title: 'Evolución del portafolio',
           loading: 'Cargando evolución…',
-          noData: 'Sin datos históricos todavía.',
+          noData: 'Aún no hay datos históricos disponibles.',
           rangeAll: 'Todo desde el inicio',
           rangeLast: 'Últimos {{label}}',
         },
@@ -115,7 +116,8 @@ const resources = {
       },
       deposits: {
         title: 'Depósitos',
-        subtitle: 'Consultá las opciones disponibles para depositar fondos en tu portafolio',
+        subtitle:
+          'Realizá tu transferencia o depósito utilizando alguno de los siguientes métodos.',
         warningTitle: 'Importante:',
         warningText:
           'Verificá siempre los datos antes de enviar fondos. Enviar a una dirección o cuenta incorrecta puede resultar en pérdida de fondos.',
@@ -124,9 +126,7 @@ const resources = {
         noOptionsTitle: 'No hay opciones disponibles',
         noOptionsMessage: 'No hay opciones de depósito configuradas todavía.',
         categories: {
-          CASH_ARS: 'Efectivo ARS',
           CASH_USD: 'Efectivo USD',
-          BANK_ARS: 'Transferencia bancaria ARS',
           LEMON: 'Lemon Cash',
           CRYPTO: 'Cripto',
           SWIFT: 'Transferencia internacional',
@@ -150,6 +150,8 @@ const resources = {
         processingHoursTitle: '⏰ Horario de procesamiento:',
         processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan a las 18:00 h.',
         processingHoursLine2: 'Solicitudes posteriores → 10:00 h del día hábil siguiente.',
+        depositButton: '¿Ya realizaste tu depósito?',
+        depositButtonAction: 'Informar depósito',
         requestForm: {
           title: 'Informar depósito',
           amount: {
@@ -167,7 +169,7 @@ const resources = {
           attachment: {
             label: 'Comprobante',
             description:
-              'Adjuntá una captura del comprobante de pago (JPG, PNG, WEBP o PDF, máx 5MB)',
+              'Adjuntá el comprobante de la transferencia o depósito. (JPG, PNG, WEBP o PDF · máx. 5 MB)',
             upload: 'Subir comprobante',
             tooLarge: 'El archivo es demasiado grande. Máximo 5 MB.',
           },
@@ -175,10 +177,9 @@ const resources = {
             emailRequired: 'Debes iniciar sesión para enviar una solicitud.',
             invalidAmount: 'Ingresá un monto válido',
             selectNetwork: 'Seleccioná una red',
-            attachmentRequired:
-              'El comprobante es obligatorio para depósitos que no sean en efectivo.',
+            attachmentRequired: 'El comprobante es obligatorio excepto para depósitos en efectivo.',
           },
-          submit: 'Enviar solicitud',
+          submit: 'Registrar depósito',
           uploading: 'Subiendo comprobante...',
           submitting: 'Enviando...',
         },
@@ -186,12 +187,16 @@ const resources = {
       withdrawals: {
         title: 'Retiros',
         formTitle: 'Solicitar retiro',
-        subtitle: 'Solicitá un retiro parcial o total',
+        subtitle: '',
+        tabs: {
+          newRequest: 'Nueva solicitud',
+          history: 'Historial de retiros',
+        },
         processingHoursTitle: '⏰ Horario de procesamiento:',
-        processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan a las 18:00 h.',
-        processingHoursLine2: 'Solicitudes posteriores → 10:00 h del día hábil siguiente.',
+        processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan el mismo día.',
+        processingHoursLine2: 'Solicitudes posteriores → 10:00 h del siguiente día hábil.',
         processingHoursLine3:
-          'El comprobante se enviará por correo electrónico una vez realizado el retiro.',
+          'El comprobante se enviará por correo electrónico una vez completado el retiro.',
         form: {
           type: {
             label: 'Tipo de retiro',
@@ -215,9 +220,7 @@ const resources = {
         },
         method: {
           label: 'Método',
-          cash_ars: 'Efectivo ARS',
           cash_usd: 'Efectivo USD',
-          transfer_ars: 'Transferencia ARS',
           lemon: 'Lemon Cash',
           swift: 'Transferencia SWIFT',
           crypto: 'Cripto USDT/USDC',
@@ -228,9 +231,9 @@ const resources = {
           winbitLabel: 'Lemontag de Winbit',
         },
         registered: {
-          title: 'Solicitud registrada',
+          title: 'Depósito informado',
           crypto:
-            'Tu solicitud fue registrada correctamente. La operación será procesada en el próximo cierre operativo. Una vez ejecutada, recibirás el comprobante correspondiente por correo electrónico.',
+            'El depósito fue registrado correctamente.\n\nLa operación será procesada en el próximo cierre operativo.\nUna vez acreditado, recibirás el comprobante correspondiente por correo electrónico.',
           cash: 'Tu solicitud fue registrada correctamente. Las operaciones en efectivo se coordinan de forma personalizada. Un integrante de nuestro equipo se pondrá en contacto para coordinar el ingreso o retiro de los fondos.',
           international:
             'Tu solicitud fue registrada correctamente. Las operaciones mediante transferencia internacional se coordinan de forma personalizada. Nuestro equipo se pondrá en contacto por correo electrónico para continuar con el proceso.',
@@ -252,16 +255,16 @@ const resources = {
           'Dic',
         ],
         title: 'Historial',
-        subtitle: 'Movimientos y estados de tu cuenta',
+        subtitle: 'Historial de movimientos de tu cuenta',
         emptyTitle: 'Sin movimientos todavía',
         emptyDescription: 'Cuando haya movimientos, los vas a ver reflejados acá.',
         movement: {
           deposit: 'Depósito',
           withdrawal: 'Retiro',
-          trading_fee: 'Comisión de Trading',
+          trading_fee: 'Comisión de trading',
           trading_fee_withdrawal: 'Trading Fee por retiro',
-          trading_fee_adjustment: 'Comisión de Trading - Ajuste',
-          operating_result: 'Resultado Operativo',
+          trading_fee_adjustment: 'Comisión de trading - Ajuste',
+          operating_result: 'Resultado operativo',
           referral_commission: 'Comisión por referido',
           withdrawalAmount: 'Retiro: {{amount}}',
           withdrawalAmountShort: 'Retiro {{amount}}',
@@ -272,6 +275,7 @@ const resources = {
           pending: 'Pendiente',
           rejected: 'Rechazado',
           cancelled: 'Cancelado',
+          depositCompleted: 'Acreditado',
         },
         errors: {
           emailMappingNotConfigured:
@@ -288,11 +292,11 @@ const resources = {
       },
       operating: {
         title: 'Operativa',
-        subtitle: 'Detalle diario de los resultados operativos.',
+        subtitle: 'Resultados operativos diarios',
         emptyTitle: 'Sin operativas todavía',
         emptyDescription: 'Cuando haya resultados operativos, los vas a ver acá.',
         movement: {
-          operatingResult: 'Resultado Operativo',
+          operatingResult: 'Resultado operativo',
         },
         table: {
           date: 'Fecha',
@@ -323,7 +327,7 @@ const resources = {
         retry: 'Retry',
         loading: 'Loading...',
         sending: 'Sending...',
-        sendRequest: 'Send request',
+        sendRequest: 'Request withdrawal',
         openMenu: 'Open menu',
         closeMenu: 'Close menu',
         previous: 'Previous',
@@ -347,20 +351,20 @@ const resources = {
       auth: {
         logout: 'Logout',
         signIn: 'Sign in',
-        signInWithGoogle: 'Continue with Google',
+        signInWithGoogle: 'Sign in with Google',
         signingIn: 'Signing in...',
         failedToSignIn: 'Failed to sign in. Please try again.',
         unauthorizedDomain: 'This domain is not authorized for sign-in.',
         operationNotAllowed: 'Google sign-in is disabled for this project.',
         emailPassword: 'Email & password',
-        email: 'Email',
+        email: 'Email address',
         emailPlaceholder: 'your@email.com',
         password: 'Password',
         passwordPlaceholder: 'Your password',
         login: {
-          subtitle: 'Portfolio Management',
+          subtitle: 'Investor platform',
           disclaimer:
-            'By signing in, you agree to access your information securely. Only registered investors can access the platform.',
+            'Access restricted to registered investors. Your information is protected by security protocols.',
         },
         changePassword: {
           title: 'Change password',
@@ -378,16 +382,17 @@ const resources = {
       },
       footer: {
         rights: 'All rights reserved.',
+        copyright: '© 2026 Winbit. All rights reserved.',
         portfolioUpdates:
           'Portfolio updates are processed once per business day after the operational close.',
       },
       dashboard: {
-        welcomeBack: 'Welcome back, {{name}}',
-        subtitle: 'Here is your portfolio overview',
+        welcomeBack: '{{name}}',
+        subtitle: 'Portfolio overview',
         noDataForAccount: 'No data available for your account',
         kpis: {
-          currentValue: 'Current portfolio value (USD)',
-          totalInvested: 'Total invested (USD)',
+          currentValue: 'Portfolio value (USD)',
+          totalInvested: 'Invested capital (USD)',
           strategyReturnYtdUsd: `Strategy return ${getCurrentYear()} (USD)`,
           strategyReturnYtdPct: `Strategy return ${getCurrentYear()} (%)`,
           strategyReturnAllUsd: 'Strategy return since inception (USD)',
@@ -398,7 +403,7 @@ const resources = {
         chart: {
           title: 'Portfolio Evolution',
           loading: 'Loading evolution…',
-          noData: 'No historical data yet.',
+          noData: 'No historical data available yet.',
           rangeAll: 'All since inception',
           rangeLast: 'Last {{label}}',
         },
@@ -413,7 +418,7 @@ const resources = {
       },
       deposits: {
         title: 'Deposits',
-        subtitle: 'Check the available options to deposit funds to your portfolio',
+        subtitle: 'Make your transfer or deposit using one of the following methods.',
         warningTitle: 'Important:',
         warningText:
           'Always verify the details before sending funds. Sending to the wrong address or account may result in loss of funds.',
@@ -422,9 +427,7 @@ const resources = {
         noOptionsTitle: 'No options available',
         noOptionsMessage: 'No deposit options have been configured yet.',
         categories: {
-          CASH_ARS: 'Cash ARS',
           CASH_USD: 'Cash USD',
-          BANK_ARS: 'Bank transfer ARS',
           LEMON: 'Lemon Cash',
           CRYPTO: 'Crypto',
           SWIFT: 'International transfer',
@@ -448,6 +451,8 @@ const resources = {
         processingHoursTitle: '⏰ Processing hours:',
         processingHoursLine1: 'Requests until 16:00 h → processed at 18:00 h.',
         processingHoursLine2: 'Requests after that → 10:00 h the next business day.',
+        depositButton: 'Already made your deposit?',
+        depositButtonAction: 'Report deposit',
         requestForm: {
           title: 'Report deposit',
           amount: {
@@ -465,7 +470,7 @@ const resources = {
           attachment: {
             label: 'Receipt',
             description:
-              'Attach a screenshot of the payment receipt (JPG, PNG, WEBP or PDF, max 5MB)',
+              'Attach the transfer or deposit receipt. (JPG, PNG, WEBP or PDF · max. 5 MB)',
             upload: 'Upload receipt',
             tooLarge: 'File is too large. Maximum 5 MB.',
           },
@@ -473,9 +478,9 @@ const resources = {
             emailRequired: 'You must be logged in to submit a request.',
             invalidAmount: 'Enter a valid amount',
             selectNetwork: 'Select a network',
-            attachmentRequired: 'Receipt is required for non-cash deposits.',
+            attachmentRequired: 'Receipt is required except for cash deposits.',
           },
-          submit: 'Send request',
+          submit: 'Register deposit',
           uploading: 'Uploading attachment...',
           submitting: 'Sending...',
         },
@@ -483,9 +488,13 @@ const resources = {
       withdrawals: {
         title: 'Withdrawals',
         formTitle: 'Request withdrawal',
-        subtitle: 'Request a partial or full withdrawal',
+        subtitle: '',
+        tabs: {
+          newRequest: 'New request',
+          history: 'Withdrawal history',
+        },
         processingHoursTitle: '⏰ Processing hours:',
-        processingHoursLine1: 'Requests until 16:00 h → processed at 18:00 h.',
+        processingHoursLine1: 'Requests until 16:00 h → processed the same day.',
         processingHoursLine2: 'Requests after that → 10:00 h the next business day.',
         processingHoursLine3: 'The receipt will be sent by email once the withdrawal is completed.',
         form: {
@@ -511,9 +520,7 @@ const resources = {
         },
         method: {
           label: 'Method',
-          cash_ars: 'Cash ARS',
           cash_usd: 'Cash USD',
-          transfer_ars: 'Bank transfer ARS',
           lemon: 'Lemon Cash',
           swift: 'SWIFT transfer',
           crypto: 'Crypto USDT/USDC',
@@ -524,9 +531,9 @@ const resources = {
           winbitLabel: 'Winbit Lemontag',
         },
         registered: {
-          title: 'Request registered',
+          title: 'Deposit reported',
           crypto:
-            'Your request was registered successfully. The operation will be processed at the next operational close. Once executed, you will receive the receipt by email.',
+            'The deposit was registered successfully.\n\nThe operation will be processed at the next operational close.\nOnce credited, you will receive the receipt by email.',
           cash: 'Your request was registered successfully. Cash operations are coordinated personally. A member of our team will contact you to coordinate the deposit or withdrawal.',
           international:
             'Your request was registered successfully. International transfers are coordinated personally. Our team will contact you by email to continue the process.',
@@ -548,16 +555,16 @@ const resources = {
           'Dec',
         ],
         title: 'History',
-        subtitle: 'Account movements and status',
+        subtitle: 'Account movement history',
         emptyTitle: 'No movements yet',
         emptyDescription: 'When there are movements, you will see them here.',
         movement: {
           deposit: 'Deposit',
           withdrawal: 'Withdrawal',
-          trading_fee: 'Trading Fee',
+          trading_fee: 'Trading fee',
           trading_fee_withdrawal: 'Trading Fee on withdrawal',
           trading_fee_adjustment: 'Trading Fee - Adjustment',
-          operating_result: 'Operating Result',
+          operating_result: 'Operating result',
           referral_commission: 'Referral commission',
           withdrawalAmount: 'Withdrawal: {{amount}}',
           withdrawalAmountShort: 'Withdrawal {{amount}}',
@@ -568,6 +575,7 @@ const resources = {
           pending: 'Pending',
           rejected: 'Rejected',
           cancelled: 'Cancelled',
+          depositCompleted: 'Credited',
         },
         errors: {
           emailMappingNotConfigured:
@@ -584,11 +592,11 @@ const resources = {
       },
       operating: {
         title: 'Operating',
-        subtitle: 'Daily detail of operating results.',
+        subtitle: 'Daily operating results',
         emptyTitle: 'No operating results yet',
         emptyDescription: 'When there are operating results, you will see them here.',
         movement: {
-          operatingResult: 'Operating Result',
+          operatingResult: 'Operating result',
         },
         table: {
           date: 'Date',

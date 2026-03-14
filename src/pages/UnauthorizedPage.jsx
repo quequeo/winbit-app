@@ -20,9 +20,9 @@ export const UnauthorizedPage = () => {
       <div className="max-w-md w-full">
         <Card className="text-center p-8">
           {/* Icon */}
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[rgba(239,83,80,0.15)] mb-6">
             <svg
-              className="h-8 w-8 text-red-600"
+              className="h-8 w-8 text-error"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -37,22 +37,22 @@ export const UnauthorizedPage = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('unauthorized.title')}</h1>
+          <h1 className="text-2xl font-bold text-text-primary mb-4">{t('unauthorized.title')}</h1>
 
           {/* User email */}
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-text-muted mb-4">
             {t('unauthorized.currentAccount')}: <strong>{userEmail ?? user?.email}</strong>
           </p>
 
           {/* Message */}
-          <p className="text-gray-700 mb-6 leading-relaxed">{t('unauthorized.message')}</p>
+          <p className="text-text-primary mb-6 leading-relaxed">{t('unauthorized.message')}</p>
 
           {/* Contact info */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <p className="text-sm font-medium text-gray-900 mb-2">
+          <div className="bg-dark-section rounded-lg p-4 mb-6">
+            <p className="text-sm font-medium text-text-primary mb-2">
               {t('unauthorized.contactTitle')}
             </p>
-            <p className="text-sm text-gray-700">📧 winbit.cfds@gmail.com</p>
+            <p className="text-sm text-text-primary">📧 winbit.cfds@gmail.com</p>
           </div>
 
           {/* Logout button */}
@@ -61,7 +61,7 @@ export const UnauthorizedPage = () => {
           </Button>
 
           {/* Additional help */}
-          <p className="text-xs text-gray-500 mt-4">{t('unauthorized.helpText')}</p>
+          <p className="text-xs text-text-muted mt-4">{t('unauthorized.helpText')}</p>
         </Card>
       </div>
     </div>

@@ -80,9 +80,9 @@ export const Select = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor={id} className="block text-sm font-medium text-text-primary mb-2">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-error ml-1">*</span>}
         </label>
       )}
       <div ref={containerRef} className="relative">
@@ -96,17 +96,17 @@ export const Select = ({
           onClick={() => {
             if (!disabled) setOpen((v) => !v);
           }}
-          className={`w-full flex items-center justify-between gap-3 bg-white px-4 py-3 border rounded-lg shadow-sm text-left focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed ${
-            error ? 'border-red-500' : 'border-gray-300'
+          className={`w-full flex items-center justify-between gap-3 bg-dark-section px-4 py-3 border rounded-lg text-left focus:ring-2 focus:ring-primary focus:border-border-accent transition-colors duration-200 disabled:bg-dark-bg disabled:cursor-not-allowed disabled:text-text-dim ${
+            error ? 'border-error' : 'border-border-dark'
           }`}
         >
-          <span className={`truncate ${selected ? 'text-gray-900' : 'text-gray-500'}`}>
+          <span className={`truncate ${selected ? 'text-text-primary' : 'text-text-dim'}`}>
             {selected ? normalizeLabel(selected.label) : normalizeLabel(items?.[0]?.label)}
           </span>
           <svg
             viewBox="0 0 20 20"
             fill="currentColor"
-            className={`h-4 w-4 shrink-0 ${disabled ? 'text-gray-300' : 'text-gray-400'}`}
+            className={`h-4 w-4 shrink-0 ${disabled ? 'text-text-dim' : 'text-text-muted'}`}
             aria-hidden="true"
           >
             <path
@@ -121,7 +121,7 @@ export const Select = ({
           <div
             role="listbox"
             aria-labelledby={id}
-            className="absolute left-0 right-0 mt-2 max-h-64 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg z-50"
+            className="absolute left-0 right-0 mt-2 max-h-64 overflow-auto rounded-lg border border-border-dark bg-dark-card z-50"
           >
             {items.map((opt) => {
               const isSelected = String(opt?.value) === String(value);
@@ -132,8 +132,8 @@ export const Select = ({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => selectValue(opt?.value)}
-                  className={`w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 ${
-                    isSelected ? 'bg-primary/10 text-gray-900 font-semibold' : 'text-gray-700'
+                  className={`w-full px-4 py-2.5 text-sm text-left hover:bg-accent-dim ${
+                    isSelected ? 'bg-primary/10 text-text-primary font-semibold' : 'text-text-muted'
                   }`}
                 >
                   {normalizeLabel(opt?.label)}
@@ -143,7 +143,7 @@ export const Select = ({
           </div>
         ) : null}
       </div>
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-sm text-error">{error}</p>}
     </div>
   );
 };

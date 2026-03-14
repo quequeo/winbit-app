@@ -102,10 +102,10 @@ describe('OperatingPage', () => {
     expect(screen.getByText('Operativa')).toBeInTheDocument();
 
     // Shows operating_result amount
-    expect(screen.getAllByText(/\$10,00/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/\$10\.00/).length).toBeGreaterThan(0);
 
     // Shows movement column/value
-    expect(screen.getAllByText(/Resultado Operativo\s+\+10,00%/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Resultado operativo\s+\+10\.00%/i).length).toBeGreaterThan(0);
 
     // Should not show deposit movement (since we filter)
     expect(screen.queryByText('Depósito')).not.toBeInTheDocument();
@@ -157,6 +157,6 @@ describe('OperatingPage', () => {
       refetch: vi.fn(),
     });
     render(<OperatingPage />);
-    expect(screen.getAllByText('-$15,00').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('-$15.00').length).toBeGreaterThan(0);
   });
 });

@@ -4,12 +4,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#58b098',
+        primary: '#65a7a5',
         secondary: '#ffffff',
-        accent: '#e5ebc3',
+        accent: '#65a7a5',
+        'accent-dim': 'rgba(101, 167, 165, 0.15)',
+        'accent-glow': 'rgba(101, 167, 165, 0.3)',
+        dark: {
+          bg: '#0a0a0a',
+          card: 'rgba(20, 20, 20, 0.5)',
+          section: 'rgba(20, 20, 20, 0.55)',
+        },
+        'text-primary': '#e8e8e8',
+        'text-muted': '#888888',
+        'text-dim': '#555555',
+        'border-dark': 'rgba(255, 255, 255, 0.08)',
+        'border-accent': 'rgba(101, 167, 165, 0.3)',
+        success: '#4caf50',
+        warning: '#ff9800',
+        error: '#ef5350',
+        info: '#65a7a5',
       },
       fontFamily: {
-        sans: ['Montserrat', 'sans-serif'],
+        sans: ['Montserrat', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
     },
   },

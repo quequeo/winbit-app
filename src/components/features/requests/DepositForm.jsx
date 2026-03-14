@@ -10,20 +10,16 @@ import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
 
-const CASH_METHODS = ['CASH_ARS', 'CASH_USD'];
+const CASH_METHODS = ['CASH_USD'];
 
 const FALLBACK_METHODS = [
-  { value: 'CASH_ARS', labelKey: 'requests.method.cash_ars' },
   { value: 'CASH_USD', labelKey: 'requests.method.cash_usd' },
-  { value: 'TRANSFER_ARS', labelKey: 'requests.method.transfer_ars' },
   { value: 'SWIFT', labelKey: 'requests.method.swift' },
   { value: 'CRYPTO', labelKey: 'requests.method.crypto' },
 ];
 
 const CATEGORY_TO_METHOD = {
-  CASH_ARS: 'CASH_ARS',
   CASH_USD: 'CASH_USD',
-  BANK_ARS: 'TRANSFER_ARS',
   LEMON: 'LEMON',
   CRYPTO: 'CRYPTO',
   SWIFT: 'SWIFT',
@@ -53,7 +49,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
     return methods;
   }, [depositOptions, t]);
 
-  const defaultMethod = methodOptions[0]?.value || 'CASH_ARS';
+  const defaultMethod = methodOptions[0]?.value || 'CASH_USD';
 
   const [formData, setFormData] = useState({
     amount: '',
@@ -165,7 +161,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
       <Card title={t('deposits.requestForm.title')}>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="amount" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="amount" className="mb-2 block text-sm font-medium text-text-primary">
               {t('deposits.requestForm.amount.label')} *
             </label>
             <Input
@@ -176,13 +172,13 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
               min="0"
               value={formData.amount}
               onChange={handleChange}
-              placeholder="1000"
+              placeholder="1,000.00"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="method" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="method" className="mb-2 block text-sm font-medium text-text-primary">
               {t('requests.method.label')} *
             </label>
             <Select
@@ -201,10 +197,13 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
           </div>
 
           <div>
-            <label htmlFor="attachment" className="mb-2 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="attachment"
+              className="mb-2 block text-sm font-medium text-text-primary"
+            >
               {t('deposits.requestForm.attachment.label')} {attachmentRequired ? '*' : ''}
             </label>
-            <p className="mb-2 text-xs text-gray-500">
+            <p className="mb-2 text-xs text-text-muted">
               {t('deposits.requestForm.attachment.description')}
             </p>
             <input
@@ -213,16 +212,16 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
               ref={fileInputRef}
               accept="image/jpeg,image/png,image/webp,application/pdf"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+              className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
             />
             {attachment && (
-              <p className="mt-1 text-xs text-green-600">
+              <p className="mt-1 text-xs text-success">
                 {attachment.name} ({(attachment.size / 1024).toFixed(0)} KB)
               </p>
             )}
           </div>
 
-          <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
+          <div className="bg-accent/30 p-4 rounded-lg text-sm text-text-primary">
             <p className="font-medium mb-1">{t('deposits.processingHoursTitle')}</p>
             <p>• {t('deposits.processingHoursLine1')}</p>
             <p>• {t('deposits.processingHoursLine2')}</p>
@@ -233,10 +232,10 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
               role="alert"
               className={`rounded-lg p-4 ${
                 message.type === 'error'
-                  ? 'bg-red-50 text-red-800'
+                  ? 'bg-[rgba(239,83,80,0.15)] text-error'
                   : message.type === 'success'
-                    ? 'bg-green-50 text-green-800'
-                    : 'bg-blue-50 text-blue-800'
+                    ? 'bg-[rgba(76,175,80,0.15)] text-success'
+                    : 'bg-[rgba(101,167,165,0.15)] text-info'
               }`}
             >
               <p className="text-sm">{message.text}</p>
