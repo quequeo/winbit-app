@@ -27,6 +27,6 @@ describe('Card', () => {
   it('has default card styles', () => {
     const { container } = render(<Card>Content</Card>);
     const card = container.firstChild;
-    expect(card).toHaveClass('bg-white', 'rounded-lg', 'shadow-md');
+    expect(card).toHaveClass('bg-dark-card', 'rounded-lg', 'border-border-dark');
   });
 });

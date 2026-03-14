@@ -10,29 +10,26 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
 
 const METHOD_LABELS = {
-  CASH_ARS: 'Efectivo ARS',
   CASH_USD: 'Efectivo USD',
-  TRANSFER_ARS: 'Transferencia ARS',
   SWIFT: 'SWIFT',
   CRYPTO: 'Cripto',
   USDT: 'USDT',
   USDC: 'USDC',
   LEMON_CASH: 'Lemon Cash',
-  BANK_ARS: 'Banco ARS',
   BANK_USD: 'Banco USD',
 };
 
 const STATUS_CONFIG = {
-  COMPLETED: { label: 'Completado', cls: 'bg-green-100 text-green-800' },
-  PENDING: { label: 'Pendiente', cls: 'bg-yellow-100 text-yellow-800' },
-  REJECTED: { label: 'Rechazado', cls: 'bg-red-100 text-red-800' },
-  CANCELLED: { label: 'Cancelado', cls: 'bg-gray-100 text-gray-600' },
+  COMPLETED: { label: 'Acreditado', cls: 'bg-[rgba(76,175,80,0.15)] text-success' },
+  PENDING: { label: 'Pendiente', cls: 'bg-[rgba(255,152,0,0.15)] text-warning' },
+  REJECTED: { label: 'Rechazado', cls: 'bg-[rgba(239,83,80,0.15)] text-error' },
+  CANCELLED: { label: 'Cancelado', cls: 'bg-dark-section text-text-muted' },
 };
 
 const statusConfig = (status) =>
   STATUS_CONFIG[String(status ?? '').toUpperCase()] ?? {
     label: status ?? '—',
-    cls: 'bg-gray-100 text-gray-600',
+    cls: 'bg-dark-section text-text-muted',
   };
 
 export const WalletsPage = () => {
@@ -52,15 +49,15 @@ export const WalletsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('deposits.title')}</h1>
-        <p className="text-gray-600 mt-1">{t('deposits.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-text-primary">{t('deposits.title')}</h1>
+        <p className="text-text-muted mt-1">{t('deposits.subtitle')}</p>
       </div>
 
-      <div className="border-b border-gray-200">
+      <div className="border-b border-border-dark">
         <nav className="-mb-px flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
           {[
-            { id: 'methods', label: 'Métodos Disponibles' },
-            { id: 'deposit', label: 'Informar Depósito' },
+            { id: 'methods', label: 'Métodos de depósito' },
+            { id: 'deposit', label: 'Informar depósito' },
             { id: 'history', label: 'Historial' },
           ].map(({ id, label }) => (
             <button
@@ -70,7 +67,7 @@ export const WalletsPage = () => {
               className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap px-1 ${
                 tab === id
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-text-muted hover:text-text-primary'
               }`}
             >
               {label}
@@ -81,16 +78,25 @@ export const WalletsPage = () => {
 
       {tab === 'methods' && (
         <div className="space-y-6 py-2">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm">
-            <div className="mb-6 border-b border-gray-100 pb-4">
-              <h2 className="text-xl font-bold text-gray-900">Opciones de Depósito</h2>
-              <p className="text-sm text-gray-500 mt-2">
-                Realizá tu transferencia o depósito en alguna de las siguientes cuentas. Luego de
-                enviar el dinero, dirigite a la pestaña{' '}
-                <span className="font-semibold text-gray-700">
-                  {'"'}Informar Depósito{'"'}
+          <div className="bg-dark-card rounded-xl border border-border-dark p-4 sm:p-6">
+            <div className="mb-6 border-b border-border-dark pb-4">
+              <h2 className="text-xl font-bold text-text-primary">Métodos de depósito</h2>
+              <p className="text-sm text-text-muted mt-2">
+                Realizá tu transferencia o depósito utilizando alguno de los siguientes métodos.
+              </p>
+              <p className="text-sm text-text-muted mt-2">
+                Luego de enviar los fondos, dirigite a{' '}
+                <span className="font-semibold text-text-primary">
+                  {'"'}Informar depósito{'"'}
                 </span>{' '}
-                para informar tu pago.
+                para registrar la operación.
+              </p>
+              <p className="text-sm text-text-muted mt-2">
+                Si realizaste un depósito en efectivo, podés dirigirte directamente a{' '}
+                <span className="font-semibold text-text-primary">
+                  {'"'}Informar depósito{'"'}
+                </span>
+                .
               </p>
             </div>
 
@@ -99,21 +105,32 @@ export const WalletsPage = () => {
                 <Spinner />
               </div>
             ) : error ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+              <div className="rounded-lg border border-[rgba(239,83,80,0.3)] bg-[rgba(239,83,80,0.15)] p-4 text-sm text-error">
                 {String(error)}
               </div>
             ) : (
               <DepositOptionsList options={depositOptions} />
             )}
+
+            <div className="mt-6 pt-4 border-t border-border-dark text-center">
+              <p className="text-sm text-text-muted mb-3">{t('deposits.depositButton')}</p>
+              <button
+                type="button"
+                onClick={() => setTab('deposit')}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
+              >
+                {t('deposits.depositButtonAction')}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {tab === 'deposit' && (
         <div className="space-y-6 py-2">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 shadow-sm">
+          <div className="bg-[rgba(101,167,165,0.15)] border border-border-accent rounded-lg p-5">
             <div className="flex gap-3">
-              <div className="shrink-0 mt-0.5 text-blue-600">
+              <div className="shrink-0 mt-0.5 text-info">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
@@ -123,7 +140,7 @@ export const WalletsPage = () => {
                   />
                 </svg>
               </div>
-              <p className="text-sm text-blue-800 leading-relaxed">
+              <p className="text-sm text-info leading-relaxed">
                 <span className="font-bold block mb-1">{t('deposits.warningTitle')}</span>
                 {t('deposits.warningText')}
               </p>
@@ -141,7 +158,7 @@ export const WalletsPage = () => {
               <Spinner size="lg" />
             </div>
           ) : deposits.length === 0 ? (
-            <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+            <div className="rounded-xl border border-border-dark bg-dark-card p-8 text-center text-sm text-text-muted">
               No hay depósitos registrados aún.
             </div>
           ) : (
@@ -152,14 +169,14 @@ export const WalletsPage = () => {
                   return (
                     <div
                       key={r.id}
-                      className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                      className="rounded-xl border border-border-dark bg-dark-card p-4"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-text-primary">
                             {formatCurrency(Number(r.amount))}
                           </p>
-                          <p className="mt-0.5 text-xs text-gray-500">
+                          <p className="mt-0.5 text-xs text-text-muted">
                             {r.method ? (METHOD_LABELS[r.method] ?? r.method) : '—'}
                           </p>
                         </div>
@@ -169,36 +186,36 @@ export const WalletsPage = () => {
                           {sc.label}
                         </span>
                       </div>
-                      <p className="mt-2 text-xs text-gray-400">{formatDate(r.date)}</p>
+                      <p className="mt-2 text-xs text-text-dim">{formatDate(r.date)}</p>
                     </div>
                   );
                 })}
               </div>
 
-              <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
-                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                  <thead className="bg-gray-50">
+              <div className="hidden overflow-x-auto rounded-xl border border-border-dark bg-dark-card md:block">
+                <table className="min-w-full divide-y divide-border-dark text-sm">
+                  <thead className="bg-dark-section">
                     <tr>
                       {['Fecha', 'Monto', 'Método', 'Estado'].map((h) => (
                         <th
                           key={h}
-                          className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider text-gray-600 ${h === 'Monto' ? 'text-right' : 'text-left'}`}
+                          className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-muted ${h === 'Monto' ? 'text-right' : 'text-left'}`}
                         >
                           {h}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-border-dark">
                     {deposits.map((r) => {
                       const sc = statusConfig(r.status);
                       return (
-                        <tr key={r.id} className="hover:bg-gray-50">
-                          <td className="px-5 py-3 text-gray-700">{formatDate(r.date)}</td>
-                          <td className="px-5 py-3 text-right font-mono font-semibold text-gray-900">
+                        <tr key={r.id} className="hover:bg-accent-dim">
+                          <td className="px-5 py-3 text-text-primary">{formatDate(r.date)}</td>
+                          <td className="px-5 py-3 text-right font-mono font-semibold text-text-primary">
                             {formatCurrency(Number(r.amount))}
                           </td>
-                          <td className="px-5 py-3 text-gray-600">
+                          <td className="px-5 py-3 text-text-muted">
                             {r.method ? (METHOD_LABELS[r.method] ?? r.method) : '—'}
                           </td>
                           <td className="px-5 py-3">

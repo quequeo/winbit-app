@@ -30,9 +30,11 @@ const movementText = (row, t) => {
 
 const rowBgClass = (row) => {
   const amt = Number(row?.amount);
-  if (Number.isFinite(amt) && amt > 0) return 'bg-green-50 hover:bg-green-100';
-  if (Number.isFinite(amt) && amt < 0) return 'bg-red-50 hover:bg-red-100';
-  return 'hover:bg-gray-50';
+  if (Number.isFinite(amt) && amt > 0)
+    return 'bg-[rgba(76,175,80,0.15)] hover:bg-[rgba(76,175,80,0.25)]';
+  if (Number.isFinite(amt) && amt < 0)
+    return 'bg-[rgba(239,83,80,0.15)] hover:bg-[rgba(239,83,80,0.25)]';
+  return 'hover:bg-accent-dim';
 };
 
 export const OperatingPage = () => {
@@ -112,8 +114,8 @@ export const OperatingPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('operating.title')}</h1>
-        <p className="text-gray-600 mt-1">{t('operating.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-text-primary">{t('operating.title')}</h1>
+        <p className="text-text-muted mt-1">{t('operating.subtitle')}</p>
       </div>
 
       {rows.length === 0 ? (
@@ -129,24 +131,24 @@ export const OperatingPage = () => {
             {mobileVisibleRows.map((row, idx) => (
               <div
                 key={`${row.code}-${row.date}-${idx}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+                className="bg-dark-card rounded-xl border border-border-dark p-4"
               >
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-gray-900 truncate">
+                    <div className="text-sm font-semibold text-text-primary truncate">
                       {formatDate(row.date)}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">{movementText(row, t)}</div>
+                    <div className="text-xs text-text-muted mt-1">{movementText(row, t)}</div>
                   </div>
 
                   <div className="shrink-0 text-right">
                     <div
                       className={`text-base font-bold ${
                         Number(row.amount) > 0
-                          ? 'text-green-600'
+                          ? 'text-success'
                           : Number(row.amount) < 0
-                            ? 'text-red-500'
-                            : 'text-gray-900'
+                            ? 'text-error'
+                            : 'text-text-primary'
                       }`}
                     >
                       {Number(row.amount) > 0 ? '+' : ''}
@@ -155,13 +157,13 @@ export const OperatingPage = () => {
                   </div>
                 </div>
 
-                <div className="mt-2 text-[13px] text-gray-500 flex items-center gap-2">
+                <div className="mt-2 text-[13px] text-text-muted flex items-center gap-2">
                   <span>Balance:</span>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-text-primary">
                     {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
                   </span>
                   <svg
-                    className="w-3 h-3 text-gray-400"
+                    className="w-3 h-3 text-text-dim"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -173,7 +175,7 @@ export const OperatingPage = () => {
                       d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                   </svg>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-text-primary">
                     {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                   </span>
                 </div>
@@ -183,7 +185,7 @@ export const OperatingPage = () => {
 
           {shouldPaginateMobile ? (
             <div className="md:hidden flex items-center justify-between gap-3">
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-text-muted">
                 {t('common.pageOf', 'Página {{page}} de {{total}}', {
                   page: mobilePage,
                   total: mobileTotalPages,
@@ -193,7 +195,7 @@ export const OperatingPage = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.max(1, p - 1))}
                   disabled={mobilePage <= 1}
                 >
@@ -201,7 +203,7 @@ export const OperatingPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.min(mobileTotalPages, p + 1))}
                   disabled={mobilePage >= mobileTotalPages}
                 >
@@ -214,45 +216,45 @@ export const OperatingPage = () => {
           {/* Desktop table */}
           <div
             data-testid="operating-desktop"
-            className="hidden md:block overflow-hidden bg-white rounded-xl shadow-sm border border-gray-200"
+            className="hidden md:block overflow-hidden bg-dark-card rounded-xl border border-border-dark"
           >
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-border-dark">
+                <thead className="bg-dark-section">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                       {t('operating.table.date')}
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                       {t('operating.table.movement')}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
                       {t('operating.table.amount')}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
                       {t('operating.table.previousBalance')}
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
                       {t('operating.table.newBalance')}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-dark-card divide-y divide-border-dark">
                   {desktopVisibleRows.map((row, idx) => (
                     <tr key={`${row.code}-${row.date}-${idx}`} className={rowBgClass(row)}>
-                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
                         {formatDate(row.date)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
                         {movementText(row, t)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
                         {formatCurrency(row.amount)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
                         {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
                         {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                       </td>
                     </tr>
@@ -262,9 +264,9 @@ export const OperatingPage = () => {
             </div>
 
             {shouldPaginateDesktop ? (
-              <div className="flex items-center justify-between gap-4 px-4 py-3 border-t border-gray-200 bg-white">
+              <div className="flex items-center justify-between gap-4 px-4 py-3 border-t border-border-dark bg-dark-card">
                 <div className="flex items-center gap-3">
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-text-muted">
                     {t('common.pageOf', 'Página {{page}} de {{total}}', {
                       page: desktopPage,
                       total: desktopTotalPages,
@@ -273,14 +275,14 @@ export const OperatingPage = () => {
 
                   <div className="flex items-center gap-2">
                     <label
-                      className="text-xs font-medium text-gray-600"
+                      className="text-xs font-medium text-text-muted"
                       htmlFor="operating-page-size-desktop"
                     >
                       {t('common.rowsPerPage', 'Filas por página')}
                     </label>
                     <select
                       id="operating-page-size-desktop"
-                      className="text-xs rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-gray-700"
+                      className="text-xs rounded-lg border border-border-dark bg-dark-card px-2 py-1.5 text-text-primary"
                       value={desktopPageSize}
                       onChange={(e) => {
                         const next = Number(e.target.value);
@@ -302,7 +304,7 @@ export const OperatingPage = () => {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => setDesktopPage((p) => Math.max(1, p - 1))}
                     disabled={desktopPage <= 1}
                   >
@@ -310,7 +312,7 @@ export const OperatingPage = () => {
                   </button>
                   <button
                     type="button"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => setDesktopPage((p) => Math.min(desktopTotalPages, p + 1))}
                     disabled={desktopPage >= desktopTotalPages}
                   >

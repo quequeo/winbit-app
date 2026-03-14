@@ -6,10 +6,10 @@ describe('DepositOptionsList', () => {
   const mockOptions = [
     {
       id: '1',
-      category: 'BANK_ARS',
-      label: 'Banco Galicia',
-      currency: 'ARS',
-      details: { bank_name: 'Galicia', holder: 'Winbit SRL', cbu_cvu: '0070000' },
+      category: 'CASH_USD',
+      label: 'Efectivo USD',
+      currency: 'USD',
+      details: { instructions: 'Oficina central' },
       position: 1,
     },
     {
@@ -33,15 +33,14 @@ describe('DepositOptionsList', () => {
   it('renders options grouped by category', () => {
     render(<DepositOptionsList options={mockOptions} />);
 
-    expect(screen.getByText('Transferencia bancaria ARS')).toBeInTheDocument();
     expect(screen.getAllByText('Lemon Cash').length).toBeGreaterThan(0);
-    expect(screen.getByText('Cripto')).toBeInTheDocument();
+    expect(screen.getByText('USDT TRC20')).toBeInTheDocument();
   });
 
   it('renders all option labels', () => {
     render(<DepositOptionsList options={mockOptions} />);
 
-    expect(screen.getByText('Banco Galicia')).toBeInTheDocument();
+    expect(screen.getAllByText('Efectivo USD').length).toBeGreaterThan(0);
     expect(screen.getByText('USDT TRC20')).toBeInTheDocument();
   });
 

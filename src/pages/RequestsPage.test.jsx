@@ -37,7 +37,7 @@ describe('RequestsPage', () => {
     useInvestorHistory.mockReturnValue(mockHistory);
     render(<RequestsPage />);
     expect(screen.getByText('Nueva solicitud')).toBeInTheDocument();
-    expect(screen.getByText('Historial de Retiros')).toBeInTheDocument();
+    expect(screen.getByText('Historial de retiros')).toBeInTheDocument();
   });
 
   it('shows withdrawal form by default', () => {
@@ -54,7 +54,7 @@ describe('RequestsPage', () => {
     useInvestorHistory.mockReturnValue({ ...mockHistory, loading: true });
     const { container } = render(<RequestsPage />);
     await act(async () => {
-      await userEvent.click(screen.getByText('Historial de Retiros'));
+      await userEvent.click(screen.getByText('Historial de retiros'));
     });
     expect(container.querySelector('.animate-spin')).toBeInTheDocument();
   });
@@ -65,7 +65,7 @@ describe('RequestsPage', () => {
     useInvestorHistory.mockReturnValue(mockHistory);
     render(<RequestsPage />);
     await act(async () => {
-      await userEvent.click(screen.getByText('Historial de Retiros'));
+      await userEvent.click(screen.getByText('Historial de retiros'));
     });
     expect(screen.getByText('No hay retiros registrados aún.')).toBeInTheDocument();
   });
@@ -97,7 +97,7 @@ describe('RequestsPage', () => {
           amount: 200,
           status: 'PENDING',
           date: '2025-02-01T18:00:00Z',
-          method: 'CASH_ARS',
+          method: 'CASH_USD',
         },
       ],
       loading: false,
@@ -105,7 +105,7 @@ describe('RequestsPage', () => {
     });
     render(<RequestsPage />);
     await act(async () => {
-      await userEvent.click(screen.getByText('Historial de Retiros'));
+      await userEvent.click(screen.getByText('Historial de retiros'));
     });
     expect(screen.getAllByText('Completado').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Pendiente').length).toBeGreaterThan(0);
@@ -131,7 +131,7 @@ describe('RequestsPage', () => {
     });
     render(<RequestsPage />);
     await act(async () => {
-      await userEvent.click(screen.getByText('Historial de Retiros'));
+      await userEvent.click(screen.getByText('Historial de retiros'));
     });
     expect(screen.getAllByText('UNKNOWN_STATUS').length).toBeGreaterThan(0);
   });

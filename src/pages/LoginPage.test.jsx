@@ -27,7 +27,13 @@ const renderAt = (path) => {
 };
 
 const switchToGoogleTab = () => {
-  fireEvent.click(screen.getByText('Google'));
+  const matches = screen.getAllByText('Acceder con Google');
+  fireEvent.click(matches[0]);
+};
+
+const clickGoogleLoginButton = () => {
+  const matches = screen.getAllByText('Acceder con Google');
+  fireEvent.click(matches[matches.length - 1]);
 };
 
 describe('LoginPage', () => {
@@ -35,7 +41,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loading: true });
 
     renderAt('/login');
-    expect(screen.queryByText('Continuar con Google')).not.toBeInTheDocument();
+    expect(screen.queryByText('Acceder con Google')).not.toBeInTheDocument();
   });
 
   it('redirects to dashboard when already logged in', () => {
@@ -49,7 +55,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue(defaultMock);
 
     renderAt('/login');
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Correo electrónico')).toBeInTheDocument();
     expect(screen.getByLabelText(/Contraseña/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ingresar' })).toBeInTheDocument();
   });
@@ -59,7 +65,9 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithEmail });
 
     renderAt('/login');
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), {
+      target: { value: 'test@example.com' },
+    });
     fireEvent.change(screen.getByLabelText(/Contraseña/), { target: { value: 'secret123' } });
     fireEvent.click(screen.getByRole('button', { name: 'Ingresar' }));
 
@@ -76,7 +84,9 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithEmail });
 
     renderAt('/login');
-    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('Correo electrónico'), {
+      target: { value: 'test@example.com' },
+    });
     fireEvent.change(screen.getByLabelText(/Contraseña/), { target: { value: 'wrong' } });
     fireEvent.click(screen.getByRole('button', { name: 'Ingresar' }));
 
@@ -89,7 +99,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Continuar con Google'));
+    clickGoogleLoginButton();
 
     await waitFor(() => {
       expect(loginWithGoogle).toHaveBeenCalledTimes(1);
@@ -105,7 +115,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Continuar con Google'));
+    clickGoogleLoginButton();
 
     expect(await screen.findByText(/Este dominio no está autorizado/)).toBeInTheDocument();
     expect(screen.getByText(/\(auth\/unauthorized-domain\)/)).toBeInTheDocument();
@@ -120,7 +130,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Continuar con Google'));
+    clickGoogleLoginButton();
 
     expect(
       await screen.findByText(/No se pudo iniciar sesión.*auth\/popup-closed-by-user/),
@@ -136,7 +146,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Continuar con Google'));
+    clickGoogleLoginButton();
 
     expect(
       await screen.findByText(/No se pudo iniciar sesión.*auth\/cancelled-popup-request/),
@@ -152,7 +162,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Continuar con Google'));
+    clickGoogleLoginButton();
 
     expect(
       await screen.findByText(/No se pudo iniciar sesión.*auth\/unknown-error/),
@@ -168,7 +178,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Continuar con Google'));
+    clickGoogleLoginButton();
 
     expect(await screen.findByText('No estás registrado como inversor')).toBeInTheDocument();
   });
@@ -182,7 +192,7 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     switchToGoogleTab();
-    fireEvent.click(screen.getByText('Continuar con Google'));
+    clickGoogleLoginButton();
 
     expect(
       await screen.findByText(

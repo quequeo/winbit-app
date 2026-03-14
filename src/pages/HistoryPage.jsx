@@ -13,11 +13,8 @@ const formatFeePercentage = (value) => {
   if (value === null || value === undefined) return '';
   const n = Number(value);
   if (!Number.isFinite(n)) return '';
-  const formatted = new Intl.NumberFormat('es-AR', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(n);
-  return `${formatted}%`;
+  const fixed = n.toFixed(2).replace(/\.?0+$/, '');
+  return `${fixed}%`;
 };
 
 const monthNamesEs = [
@@ -173,11 +170,11 @@ export const HistoryPage = () => {
         const withdrawalAmount = Number(row?.tradingFeeWithdrawalAmount);
         const detail =
           Number.isFinite(withdrawalAmount) && withdrawalAmount > 0
-            ? ` - ${t('history.movement.withdrawalAmountShort', 'Retiro {{amount}}', {
+            ? ` – ${t('history.movement.withdrawalAmountShort', 'Retiro {{amount}}', {
                 amount: formatCurrency(withdrawalAmount),
               })}`
             : '';
-        return `${base}${feePct ? ` ${feePct}` : ''}${detail}`;
+        return `${base}${feePct ? ` (${feePct})` : ''}${detail}`;
       }
 
       const feePct = formatFeePercentage(row?.tradingFeePercentage);
@@ -212,9 +209,11 @@ export const HistoryPage = () => {
     );
   };
 
-  const translateStatus = (status) => {
+  const translateStatus = (status, movement) => {
     const s = normalize(status);
     if (s === 'completado' || s === 'completed') {
+      const kind = movementKind(movement);
+      if (kind === 'deposit') return t('history.status.depositCompleted');
       return t('history.status.completed');
     }
     if (s === 'pendiente' || s === 'pending') {
@@ -237,10 +236,10 @@ export const HistoryPage = () => {
   const statusPillClass = (status) => {
     const s = normalize(status);
     if (s === 'rechazado' || s === 'rejected') {
-      return 'bg-red-100 text-red-800';
+      return 'bg-[rgba(239,83,80,0.15)] text-error';
     }
     if (s === 'pendiente' || s === 'pending') {
-      return 'bg-amber-100 text-amber-800';
+      return 'bg-[rgba(255,152,0,0.15)] text-warning';
     }
     return 'bg-primary text-white';
   };
@@ -309,18 +308,18 @@ export const HistoryPage = () => {
     const m = normalize(row?.movement);
 
     if (m === 'trading_fee' || m === 'trading_fee_adjustment') {
-      return 'bg-blue-50 hover:bg-blue-100';
+      return 'bg-[rgba(101,167,165,0.15)] hover:bg-[rgba(101,167,165,0.25)]';
     }
 
     if (m === 'operating_result') {
       const pct = Number(row?.operatingResultPercent);
       const sign = Number.isFinite(pct) ? pct : Number(row?.amount);
-      if (sign > 0) return 'bg-green-50 hover:bg-green-100';
-      if (sign < 0) return 'bg-red-50 hover:bg-red-100';
-      return 'bg-gray-50 hover:bg-gray-100';
+      if (sign > 0) return 'bg-[rgba(76,175,80,0.15)] hover:bg-[rgba(76,175,80,0.25)]';
+      if (sign < 0) return 'bg-[rgba(239,83,80,0.15)] hover:bg-[rgba(239,83,80,0.25)]';
+      return 'bg-dark-section hover:bg-accent-dim';
     }
 
-    return 'hover:bg-gray-50';
+    return 'hover:bg-accent-dim';
   };
 
   const translatedError = (() => {
@@ -395,8 +394,8 @@ export const HistoryPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('history.title')}</h1>
-        <p className="text-gray-600 mt-1">{t('history.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-text-primary">{t('history.title')}</h1>
+        <p className="text-text-muted mt-1">{t('history.subtitle')}</p>
       </div>
 
       {rows.length === 0 ? (
@@ -412,12 +411,12 @@ export const HistoryPage = () => {
             {mobileVisibleRows.map((row, idx) => (
               <div
                 key={`${row.code}-${row.date}-${idx}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+                className="bg-dark-card rounded-xl border border-border-dark p-4"
               >
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="text-sm font-semibold text-gray-900 truncate">
+                      <div className="text-sm font-semibold text-text-primary truncate">
                         {movementLabel(row)}
                       </div>
                       {movementCompletedIcon(row)}
@@ -427,21 +426,21 @@ export const HistoryPage = () => {
                             row.status,
                           )}`}
                         >
-                          {translateStatus(row.status)}
+                          {translateStatus(row.status, row?.movement)}
                         </span>
                       ) : null}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">{formatDate(row.date)}</div>
+                    <div className="text-xs text-text-muted mt-1">{formatDate(row.date)}</div>
                   </div>
 
                   <div className="shrink-0 text-right">
                     <div
                       className={`text-base font-bold ${
                         displayAmount(row) > 0
-                          ? 'text-green-600'
+                          ? 'text-success'
                           : displayAmount(row) < 0
-                            ? 'text-red-500'
-                            : 'text-gray-900'
+                            ? 'text-error'
+                            : 'text-text-primary'
                       }`}
                     >
                       {displayAmount(row) > 0 ? '+' : ''}
@@ -450,13 +449,13 @@ export const HistoryPage = () => {
                   </div>
                 </div>
 
-                <div className="mt-2 text-[13px] text-gray-500 flex items-center gap-2">
+                <div className="mt-2 text-[13px] text-text-muted flex items-center gap-2">
                   <span>Balance:</span>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-text-primary">
                     {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
                   </span>
                   <svg
-                    className="w-3 h-3 text-gray-400"
+                    className="w-3 h-3 text-text-dim"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -468,7 +467,7 @@ export const HistoryPage = () => {
                       d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                   </svg>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-text-primary">
                     {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                   </span>
                 </div>
@@ -478,7 +477,7 @@ export const HistoryPage = () => {
 
           {shouldPaginateMobile ? (
             <div className="md:hidden flex items-center justify-between gap-3">
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-text-muted">
                 {t('common.pageOf', 'Página {{page}} de {{total}}', {
                   page: mobilePage,
                   total: mobileTotalPages,
@@ -488,7 +487,7 @@ export const HistoryPage = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.max(1, p - 1))}
                   disabled={mobilePage <= 1}
                 >
@@ -496,7 +495,7 @@ export const HistoryPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.min(mobileTotalPages, p + 1))}
                   disabled={mobilePage >= mobileTotalPages}
                 >
@@ -509,51 +508,51 @@ export const HistoryPage = () => {
           {/* Desktop table */}
           <div
             data-testid="history-desktop"
-            className="hidden md:block overflow-hidden bg-white rounded-xl shadow-sm border border-gray-200"
+            className="hidden md:block overflow-hidden bg-dark-card rounded-xl border border-border-dark"
           >
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-border-dark">
+                <thead className="bg-dark-section">
                   <tr>
                     <th
                       scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
                     >
                       {t('history.table.date')}
                     </th>
                     <th
                       scope="col"
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider"
                     >
                       {t('history.table.movement')}
                     </th>
                     <th
                       scope="col"
-                      className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider"
                     >
                       {t('history.table.amount')}
                     </th>
                     <th
                       scope="col"
-                      className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider"
                     >
                       {t('history.table.previousBalance')}
                     </th>
                     <th
                       scope="col"
-                      className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider"
                     >
                       {t('history.table.newBalance')}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-dark-card divide-y divide-border-dark">
                   {desktopVisibleRows.map((row, idx) => (
                     <tr key={`${row.code}-${row.date}-${idx}`} className={desktopRowClass(row)}>
-                      <td className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
                         {formatDate(row.date)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span>{movementLabel(row)}</span>
                           {movementCompletedIcon(row)}
@@ -563,18 +562,18 @@ export const HistoryPage = () => {
                                 row.status,
                               )}`}
                             >
-                              {translateStatus(row.status)}
+                              {translateStatus(row.status, row?.movement)}
                             </span>
                           ) : null}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
                         {formatCurrency(displayAmount(row))}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
                         {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right whitespace-nowrap">
+                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
                         {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                       </td>
                     </tr>
@@ -587,17 +586,17 @@ export const HistoryPage = () => {
           {/* Desktop pagination */}
           <div className="hidden md:flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-text-muted">
                 {t('common.pageOf', 'Página {{page}} de {{total}}', {
                   page: desktopPage,
                   total: desktopTotalPages,
                 })}
               </div>
 
-              <label className="flex items-center gap-2 text-xs text-gray-600">
+              <label className="flex items-center gap-2 text-xs text-text-muted">
                 {t('common.rowsPerPage', 'Filas por página')}
                 <select
-                  className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700"
+                  className="rounded-lg border border-border-dark bg-dark-card px-2 py-1 text-xs text-text-primary"
                   value={desktopPageSize}
                   onChange={(e) => setDesktopPageSize(Number(e.target.value))}
                 >
@@ -614,7 +613,7 @@ export const HistoryPage = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setDesktopPage((p) => Math.max(1, p - 1))}
                   disabled={desktopPage <= 1}
                 >
@@ -622,7 +621,7 @@ export const HistoryPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setDesktopPage((p) => Math.min(desktopTotalPages, p + 1))}
                   disabled={desktopPage >= desktopTotalPages}
                 >

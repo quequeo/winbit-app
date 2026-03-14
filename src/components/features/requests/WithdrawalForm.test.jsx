@@ -40,13 +40,13 @@ describe('WithdrawalForm', () => {
     });
     render(<WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />);
 
-    expect(screen.getByText('Request withdrawal')).toBeInTheDocument();
+    expect(screen.getAllByText('Request withdrawal').length).toBeGreaterThan(0);
     expect(screen.getByText('Withdrawal type')).toBeInTheDocument();
 
     const amountInput = screen.getByLabelText(/Amount/);
     expect(amountInput).toHaveAttribute('placeholder', 'Enter amount in USD');
 
-    expect(screen.getByRole('button', { name: 'Send request' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Request withdrawal' })).toBeInTheDocument();
 
     await act(async () => {
       await i18n.changeLanguage('es');
@@ -165,13 +165,13 @@ describe('WithdrawalForm', () => {
         email: 't@e.com',
         type: 'WITHDRAWAL',
         amount: 50,
-        method: 'CASH_ARS',
+        method: 'CASH_USD',
         network: null,
         lemontag: null,
       });
     });
 
-    expect(await screen.findByText('Solicitud registrada')).toBeInTheDocument();
+    expect(await screen.findByText('Depósito informado')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
   });
 
@@ -199,7 +199,7 @@ describe('WithdrawalForm', () => {
       expect(createInvestorRequest).toHaveBeenCalled();
     });
 
-    expect(await screen.findByText('Solicitud registrada')).toBeInTheDocument();
+    expect(await screen.findByText('Depósito informado')).toBeInTheDocument();
   });
 
   it('shows error when createInvestorRequest fails (after confirm)', async () => {

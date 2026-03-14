@@ -24,13 +24,13 @@ describe('Button', () => {
   it('applies secondary variant styles', () => {
     render(<Button variant="secondary">Secondary</Button>);
     const button = screen.getByText('Secondary');
-    expect(button).toHaveClass('bg-gray-200');
+    expect(button).toHaveClass('bg-dark-section');
   });
 
   it('applies danger variant styles', () => {
     render(<Button variant="danger">Danger</Button>);
     const button = screen.getByText('Danger');
-    expect(button).toHaveClass('bg-red-600');
+    expect(button).toHaveClass('bg-error');
   });
 
   it('applies outline variant styles', () => {

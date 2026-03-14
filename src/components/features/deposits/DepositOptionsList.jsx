@@ -2,7 +2,7 @@ import { DepositOptionCard } from './DepositOptionCard';
 import { EmptyState } from '../../ui/EmptyState';
 import { useTranslation } from 'react-i18next';
 
-const CATEGORY_ORDER = ['CASH_ARS', 'CASH_USD', 'BANK_ARS', 'LEMON', 'CRYPTO', 'SWIFT'];
+const CATEGORY_ORDER = ['CASH_USD', 'LEMON', 'CRYPTO', 'SWIFT'];
 
 export const DepositOptionsList = ({ options }) => {
   const { t } = useTranslation();
@@ -31,10 +31,10 @@ export const DepositOptionsList = ({ options }) => {
     <div className="space-y-6">
       {sortedCategories.map((category) => (
         <div key={category}>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          <h3 className="text-lg font-semibold text-text-primary mb-3">
             {t(`deposits.categories.${category}`)}
           </h3>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2">
             {grouped[category].map((opt) => (
               <DepositOptionCard key={opt.id} option={opt} />
             ))}

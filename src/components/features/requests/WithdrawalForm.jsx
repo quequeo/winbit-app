@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [type, setType] = useState('partial');
-  const [method, setMethod] = useState('CASH_ARS');
+  const [method, setMethod] = useState('CASH_USD');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
@@ -20,9 +20,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const { t } = useTranslation();
 
   const methodOptions = [
-    { value: 'CASH_ARS', label: t('requests.method.cash_ars') },
     { value: 'CASH_USD', label: t('requests.method.cash_usd') },
-    { value: 'TRANSFER_ARS', label: t('requests.method.transfer_ars') },
     { value: 'SWIFT', label: t('requests.method.swift') },
     { value: 'CRYPTO', label: t('requests.method.crypto') },
   ];
@@ -101,7 +99,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
         loading={loading}
       >
         {confirmModal && (
-          <div className="w-full space-y-3 text-sm text-gray-700">
+          <div className="w-full space-y-3 text-sm text-text-primary">
             <div className="flex justify-between">
               <span>Monto de retiro</span>
               <span className="font-semibold">{formatCurrency(confirmModal.withdrawalAmount)}</span>
@@ -112,12 +110,12 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
                 <span className="font-semibold">{formatCurrency(confirmModal.feeAmount)}</span>
               </div>
             ) : (
-              <p className="text-gray-500 text-xs">
+              <p className="text-text-muted text-xs">
                 No hay comisión de trading aplicable a este retiro.
               </p>
             )}
             {confirmModal.hasFee && (
-              <div className="border-t border-gray-200 pt-3 flex justify-between font-semibold text-gray-900">
+              <div className="border-t border-border-dark pt-3 flex justify-between font-semibold text-text-primary">
                 <span>Total debitado del portfolio</span>
                 <span>
                   {formatCurrency(confirmModal.withdrawalAmount + confirmModal.feeAmount)}
@@ -150,8 +148,8 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              {t('withdrawals.form.type.label')} <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-text-primary mb-3">
+              {t('withdrawals.form.type.label')} <span className="text-error">*</span>
             </label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -193,7 +191,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             placeholder={t('withdrawals.form.amount.placeholder')}
           />
 
-          <div className="bg-accent/30 p-4 rounded-lg text-sm text-gray-700">
+          <div className="bg-accent/30 p-4 rounded-lg text-sm text-text-primary">
             <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
             <p>• {t('withdrawals.processingHoursLine1')}</p>
             <p>• {t('withdrawals.processingHoursLine2')}</p>
@@ -204,7 +202,9 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             <div
               role="alert"
               className={`p-4 rounded-lg ${
-                message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                message.type === 'success'
+                  ? 'bg-[rgba(76,175,80,0.15)] text-success'
+                  : 'bg-[rgba(239,83,80,0.15)] text-error'
               }`}
             >
               {message.text}

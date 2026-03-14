@@ -26,20 +26,17 @@ export const ConfirmModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black bg-opacity-60 transition-opacity"
-        onClick={onCancel}
-      />
+      <div className="absolute inset-0 bg-black/70 transition-opacity" onClick={onCancel} />
 
       <div
-        className="relative w-full max-w-sm rounded-2xl border-2 border-yellow-200 bg-yellow-50 p-8 shadow-2xl"
+        className="relative w-full max-w-sm rounded-2xl border-2 border-[rgba(255,152,0,0.3)] bg-[rgba(255,152,0,0.15)] p-8"
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
       >
         <button
           onClick={onCancel}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-3 right-3 text-text-dim hover:text-text-muted transition-colors"
           aria-label="Cerrar"
           disabled={loading}
         >
@@ -54,7 +51,7 @@ export const ConfirmModal = ({
         </button>
 
         <div className="flex flex-col items-center text-center space-y-4">
-          <div className="text-yellow-500">
+          <div className="text-warning">
             <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -66,25 +63,25 @@ export const ConfirmModal = ({
           </div>
 
           {title && (
-            <h3 id="confirm-modal-title" className="text-xl font-bold text-gray-900">
+            <h3 id="confirm-modal-title" className="text-xl font-bold text-text-primary">
               {title}
             </h3>
           )}
 
-          <div className="w-full text-left">{children}</div>
+          <div className="w-full text-left text-text-muted">{children}</div>
 
           <div className="w-full flex flex-col gap-2 mt-2">
             <button
               onClick={onConfirm}
               disabled={loading}
-              className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-60"
+              className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg transition-colors hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary disabled:opacity-60"
             >
               {loading ? 'Enviando...' : confirmLabel}
             </button>
             <button
               onClick={onCancel}
               disabled={loading}
-              className="w-full px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 disabled:opacity-60"
+              className="w-full px-6 py-3 bg-dark-section border border-border-dark text-text-primary font-semibold rounded-lg transition-colors hover:bg-accent-dim focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary disabled:opacity-60"
             >
               {cancelLabel}
             </button>

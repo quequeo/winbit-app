@@ -20,13 +20,13 @@ vi.mock('../../../utils/uploadImage', () => ({
 }));
 
 const mockDepositOptions = [
-  { id: '1', category: 'CASH_ARS', label: 'Efectivo', currency: 'ARS', details: {} },
+  { id: '1', category: 'CASH_USD', label: 'Efectivo USD', currency: 'USD', details: {} },
   {
     id: '2',
-    category: 'BANK_ARS',
-    label: 'Galicia',
-    currency: 'ARS',
-    details: { bank_name: 'Galicia', holder: 'Winbit', cbu_cvu: '007' },
+    category: 'SWIFT',
+    label: 'Transferencia internacional',
+    currency: 'USD',
+    details: { bank_name: 'JP Morgan', holder: 'Winbit', swift: 'JPMC' },
   },
   {
     id: '3',
@@ -47,11 +47,11 @@ describe('DepositForm', () => {
     });
     renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
 
-    expect(screen.getByText('Report deposit')).toBeInTheDocument();
+    expect(screen.getByText('Register deposit')).toBeInTheDocument();
 
     const amountInput = screen.getByLabelText(/Amount/);
-    expect(amountInput).toHaveAttribute('placeholder', '1000');
-    expect(screen.getByRole('button', { name: 'Send request' })).toBeInTheDocument();
+    expect(amountInput).toHaveAttribute('placeholder', '1,000.00');
+    expect(screen.getByRole('button', { name: 'Register deposit' })).toBeInTheDocument();
 
     await act(async () => {
       await i18n.changeLanguage('es');
@@ -88,7 +88,7 @@ describe('DepositForm', () => {
           email: 't@e.com',
           type: 'DEPOSIT',
           amount: 10,
-          method: 'CASH_ARS',
+          method: 'CASH_USD',
           network: null,
           transactionHash: null,
           attachmentUrl: null,
@@ -96,7 +96,7 @@ describe('DepositForm', () => {
       );
     });
 
-    expect(await screen.findByText('Solicitud registrada')).toBeInTheDocument();
+    expect(await screen.findByText('Depósito informado')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
   });
 
@@ -122,9 +122,14 @@ describe('DepositForm', () => {
     });
     createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
 
-    // Start with a non-cash method as first option so the file input is shown from the start
     const nonCashOptions = [
-      { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
+      {
+        id: '2',
+        category: 'SWIFT',
+        label: 'Transferencia internacional',
+        currency: 'USD',
+        details: {},
+      },
     ];
     const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
@@ -154,7 +159,13 @@ describe('DepositForm', () => {
       await i18n.changeLanguage('es');
     });
     const nonCashOptions = [
-      { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
+      {
+        id: '2',
+        category: 'SWIFT',
+        label: 'Transferencia internacional',
+        currency: 'USD',
+        details: {},
+      },
     ];
     const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
@@ -174,7 +185,13 @@ describe('DepositForm', () => {
       await i18n.changeLanguage('es');
     });
     const nonCashOptions = [
-      { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
+      {
+        id: '2',
+        category: 'SWIFT',
+        label: 'Transferencia internacional',
+        currency: 'USD',
+        details: {},
+      },
     ];
     const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
@@ -190,7 +207,13 @@ describe('DepositForm', () => {
     uploadImage.mockResolvedValueOnce({ url: null, error: 'Error al subir imagen' });
 
     const nonCashOptions = [
-      { id: '2', category: 'BANK_ARS', label: 'Galicia', currency: 'ARS', details: {} },
+      {
+        id: '2',
+        category: 'SWIFT',
+        label: 'Transferencia internacional',
+        currency: 'USD',
+        details: {},
+      },
     ];
     const { container } = renderWithQuery(
       <DepositForm userEmail="t@e.com" depositOptions={nonCashOptions} />,
@@ -213,7 +236,7 @@ describe('DepositForm', () => {
 
     const selectButton = screen.getByLabelText(/Método/);
     expect(selectButton).toBeInTheDocument();
-    expect(selectButton.textContent).toContain('Efectivo ARS');
+    expect(selectButton.textContent).toContain('Efectivo USD');
   });
 
   it('falls back to hardcoded methods when no deposit options', () => {
@@ -221,6 +244,6 @@ describe('DepositForm', () => {
 
     const selectButton = screen.getByLabelText(/Método/);
     expect(selectButton).toBeInTheDocument();
-    expect(selectButton.textContent).toContain('Efectivo ARS');
+    expect(selectButton.textContent).toContain('Efectivo USD');
   });
 });
