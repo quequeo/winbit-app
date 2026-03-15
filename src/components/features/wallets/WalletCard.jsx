@@ -19,13 +19,15 @@ export const WalletCard = ({ network, address, icon }) => {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {icon && <span className="text-2xl">{icon}</span>}
           <div>
-            <h4 className="font-semibold text-gray-900">{network}</h4>
-            <p className="text-sm text-gray-600 font-mono mt-1">{truncateAddress(address, 8, 6)}</p>
+            <h4 className="font-semibold text-text-primary">{network}</h4>
+            <p className="text-sm text-text-muted font-mono mt-1">
+              {truncateAddress(address, 8, 6)}
+            </p>
           </div>
         </div>
 

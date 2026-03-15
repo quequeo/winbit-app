@@ -31,7 +31,7 @@ export const DepositOptionCard = ({ option }) => {
   const detailEntries = Object.entries(details).filter(([, v]) => v);
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="transition-colors hover:border-border-accent">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="font-semibold text-text-primary">{option.label}</h4>

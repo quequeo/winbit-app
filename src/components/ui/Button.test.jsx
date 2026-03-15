@@ -24,7 +24,7 @@ describe('Button', () => {
   it('applies secondary variant styles', () => {
     render(<Button variant="secondary">Secondary</Button>);
     const button = screen.getByText('Secondary');
-    expect(button).toHaveClass('bg-dark-section');
+    expect(button).toHaveClass('bg-accent-dim');
   });
 
   it('applies danger variant styles', () => {
@@ -36,7 +36,7 @@ describe('Button', () => {
   it('applies outline variant styles', () => {
     render(<Button variant="outline">Outline</Button>);
     const button = screen.getByText('Outline');
-    expect(button).toHaveClass('border-2');
+    expect(button).toHaveClass('bg-accent-dim');
   });
 
   it('disables button when disabled prop is true', () => {

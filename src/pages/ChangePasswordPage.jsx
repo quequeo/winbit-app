@@ -49,21 +49,23 @@ export const ChangePasswordPage = () => {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('auth.changePassword.title')}</h1>
-      <p className="text-sm text-gray-600 mb-6">{t('auth.changePassword.subtitle')}</p>
+      <h1 className="text-2xl font-bold text-text-primary mb-2">
+        {t('auth.changePassword.title')}
+      </h1>
+      <p className="text-sm text-text-muted mb-6">{t('auth.changePassword.subtitle')}</p>
 
       {!isEmailUser && (
-        <div className="p-4 bg-amber-50 text-amber-800 rounded-lg text-sm mb-6">
+        <div className="p-4 bg-[rgba(255,152,0,0.15)] text-warning rounded-lg text-sm mb-6">
           {t('auth.changePassword.googleInfo')}
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-dark-card rounded-lg border border-border-dark p-6 backdrop-blur-sm">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               htmlFor="current-password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-text-primary mb-1"
             >
               {t('auth.changePassword.current')}
             </label>
@@ -73,13 +75,16 @@ export const ChangePasswordPage = () => {
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              className="w-full rounded-lg border border-border-dark bg-dark-section px-4 py-3 text-sm text-text-primary placeholder:text-text-dim focus:border-border-accent focus:ring-2 focus:ring-accent-dim outline-none"
               autoComplete="current-password"
             />
           </div>
 
           <div>
-            <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="new-password"
+              className="block text-sm font-medium text-text-primary mb-1"
+            >
               {t('auth.changePassword.new')}
             </label>
             <input
@@ -88,7 +93,7 @@ export const ChangePasswordPage = () => {
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              className="w-full rounded-lg border border-border-dark bg-dark-section px-4 py-3 text-sm text-text-primary placeholder:text-text-dim focus:border-border-accent focus:ring-2 focus:ring-accent-dim outline-none"
               minLength={6}
               autoComplete="new-password"
             />
@@ -97,7 +102,7 @@ export const ChangePasswordPage = () => {
           <div>
             <label
               htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-text-primary mb-1"
             >
               {t('auth.changePassword.confirm')}
             </label>
@@ -107,16 +112,20 @@ export const ChangePasswordPage = () => {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              className="w-full rounded-lg border border-border-dark bg-dark-section px-4 py-3 text-sm text-text-primary placeholder:text-text-dim focus:border-border-accent focus:ring-2 focus:ring-accent-dim outline-none"
               minLength={6}
               autoComplete="new-password"
             />
           </div>
 
-          {error && <div className="p-3 bg-red-50 text-red-800 rounded-lg text-sm">{error}</div>}
+          {error && (
+            <div className="p-3 bg-[rgba(239,83,80,0.15)] text-error rounded-lg text-sm">
+              {error}
+            </div>
+          )}
 
           {success && (
-            <div className="p-3 bg-green-50 text-green-800 rounded-lg text-sm">
+            <div className="p-3 bg-[rgba(76,175,80,0.15)] text-success rounded-lg text-sm">
               {t('auth.changePassword.success')}
             </div>
           )}

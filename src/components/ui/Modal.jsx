@@ -38,7 +38,7 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
       <div className="absolute inset-0 bg-black/70 transition-opacity" onClick={onClose} />
 
       <div
-        className={`relative w-full max-w-sm rounded-2xl border-2 p-8 ${bgColorClass}`}
+        className={`relative w-full max-w-sm rounded-lg border-2 p-8 backdrop-blur-md ${bgColorClass}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"

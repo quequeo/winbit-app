@@ -29,7 +29,7 @@ export const ConfirmModal = ({
       <div className="absolute inset-0 bg-black/70 transition-opacity" onClick={onCancel} />
 
       <div
-        className="relative w-full max-w-sm rounded-2xl border-2 border-[rgba(255,152,0,0.3)] bg-[rgba(255,152,0,0.15)] p-8"
+        className="relative w-full max-w-sm rounded-lg border-2 border-[rgba(255,152,0,0.3)] bg-[rgba(255,152,0,0.15)] p-8 backdrop-blur-md"
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"

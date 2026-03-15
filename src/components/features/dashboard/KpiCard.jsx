@@ -21,28 +21,28 @@ export const KpiCard = ({
 
   const cardClassName =
     resolvedTone === 'highlight'
-      ? 'bg-gradient-to-r from-[#58b098] to-[#4a9d84] text-white shadow-lg'
+      ? 'bg-gradient-to-r from-primary to-[#4a9d8e] text-white'
       : resolvedTone === 'neutral'
-        ? 'bg-gradient-to-r from-sky-50 to-sky-100 border border-sky-200 text-slate-900'
+        ? 'bg-[rgba(101,167,165,0.06)] border border-border-accent'
         : 'bg-dark-card';
 
   const titleClassName =
     resolvedTone === 'highlight'
       ? 'text-sm text-white/90'
       : resolvedTone === 'neutral'
-        ? 'text-sm text-sky-700'
+        ? 'text-sm text-text-muted'
         : 'text-sm text-text-muted';
 
   const valueClassName =
     resolvedTone === 'highlight'
       ? 'text-3xl font-bold text-white'
       : resolvedTone === 'neutral'
-        ? 'text-2xl font-semibold text-slate-900'
+        ? 'text-2xl font-semibold text-text-primary'
         : 'text-2xl font-semibold text-text-primary';
 
   return (
     <Card
-      className={`${cardClassName} transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-lg`}
+      className={`${cardClassName} transition-transform duration-200 ease-out hover:-translate-y-0.5`}
     >
       <div className="space-y-2">
         <p className={titleClassName}>{title}</p>
