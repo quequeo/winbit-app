@@ -37,7 +37,7 @@ export const App = () => {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="min-h-screen flex flex-col bg-dark-bg">
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/login" element={<LoginPage />} />

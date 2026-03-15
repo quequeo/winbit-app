@@ -77,7 +77,7 @@ export const WalletsPage = () => {
 
       {tab === 'methods' && (
         <div className="space-y-6 py-2">
-          <div className="bg-dark-card rounded-xl border border-border-dark p-4 sm:p-6">
+          <div className="bg-dark-card rounded-lg border border-border-dark p-4 sm:p-6">
             <div className="mb-6 border-b border-border-dark pb-4">
               <h2 className="text-xl font-bold text-text-primary">Métodos de depósito</h2>
               <p className="text-sm text-text-muted mt-2">
@@ -157,7 +157,7 @@ export const WalletsPage = () => {
               <Spinner size="lg" />
             </div>
           ) : deposits.length === 0 ? (
-            <div className="rounded-xl border border-border-dark bg-dark-card p-8 text-center text-sm text-text-muted">
+            <div className="rounded-lg border border-border-dark bg-dark-card p-8 text-center text-sm text-text-muted">
               No hay depósitos registrados aún.
             </div>
           ) : (
@@ -168,7 +168,7 @@ export const WalletsPage = () => {
                   return (
                     <div
                       key={r.id}
-                      className="rounded-xl border border-border-dark bg-dark-card p-4"
+                      className="rounded-lg border border-border-dark bg-dark-card p-4"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -191,7 +191,7 @@ export const WalletsPage = () => {
                 })}
               </div>
 
-              <div className="hidden overflow-x-auto rounded-xl border border-border-dark bg-dark-card md:block">
+              <div className="hidden overflow-x-auto rounded-lg border border-border-dark bg-dark-card md:block">
                 <table className="min-w-full divide-y divide-border-dark text-sm">
                   <thead className="bg-dark-section">
                     <tr>

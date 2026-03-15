@@ -18,13 +18,13 @@ describe('Toast', () => {
     const { rerender, container } = render(
       <Toast message="Ok" type="success" onClose={() => {}} />,
     );
-    expect(container.querySelector('.bg-green-500')).toBeInTheDocument();
+    expect(container.querySelector('.bg-success')).toBeInTheDocument();
 
     rerender(<Toast message="Err" type="error" onClose={() => {}} />);
-    expect(container.querySelector('.bg-red-500')).toBeInTheDocument();
+    expect(container.querySelector('.bg-error')).toBeInTheDocument();
 
     rerender(<Toast message="Info" type="info" onClose={() => {}} />);
-    expect(container.querySelector('.bg-blue-500')).toBeInTheDocument();
+    expect(container.querySelector('.bg-primary')).toBeInTheDocument();
   });
 
   it('calls onClose when close button is clicked', () => {

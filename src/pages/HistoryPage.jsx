@@ -411,7 +411,7 @@ export const HistoryPage = () => {
             {mobileVisibleRows.map((row, idx) => (
               <div
                 key={`${row.code}-${row.date}-${idx}`}
-                className="bg-dark-card rounded-xl border border-border-dark p-4"
+                className="bg-dark-card rounded-lg border border-border-dark p-4"
               >
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
@@ -508,7 +508,7 @@ export const HistoryPage = () => {
           {/* Desktop table */}
           <div
             data-testid="history-desktop"
-            className="hidden md:block overflow-hidden bg-dark-card rounded-xl border border-border-dark"
+            className="hidden md:block overflow-hidden bg-dark-card rounded-lg border border-border-dark"
           >
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-border-dark">

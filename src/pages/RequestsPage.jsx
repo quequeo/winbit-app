@@ -96,7 +96,7 @@ export const RequestsPage = () => {
               <Spinner size="lg" />
             </div>
           ) : withdrawals.length === 0 ? (
-            <div className="rounded-xl border border-border-dark bg-dark-card p-8 text-center text-sm text-text-muted">
+            <div className="rounded-lg border border-border-dark bg-dark-card p-8 text-center text-sm text-text-muted">
               No hay retiros registrados aún.
             </div>
           ) : (
@@ -107,7 +107,7 @@ export const RequestsPage = () => {
                   return (
                     <div
                       key={r.id}
-                      className="rounded-xl border border-border-dark bg-dark-card p-4"
+                      className="rounded-lg border border-border-dark bg-dark-card p-4"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -130,7 +130,7 @@ export const RequestsPage = () => {
                 })}
               </div>
 
-              <div className="hidden overflow-x-auto rounded-xl border border-border-dark bg-dark-card md:block">
+              <div className="hidden overflow-x-auto rounded-lg border border-border-dark bg-dark-card md:block">
                 <table className="min-w-full divide-y divide-border-dark text-sm">
                   <thead className="bg-dark-section">
                     <tr>
