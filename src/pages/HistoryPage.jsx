@@ -58,13 +58,12 @@ const formatMonthYearSpace = (dateStr) => {
   return mm && yyyy ? `${mm} ${yyyy}` : '';
 };
 
-/** Formats YYYY-MM as "Ene 2026" (es) or "Jan 2026" (en). Returns label as-is if not YYYY-MM. */
 const formatPeriodLabel = (label, t) => {
   if (!label || typeof label !== 'string') return label ?? '';
   const m = label.match(/^(\d{4})-(\d{2})$/);
   if (!m) return label;
   const year = parseInt(m[1], 10);
-  const monthIndex = parseInt(m[2], 10) - 1; // 0..11
+  const monthIndex = parseInt(m[2], 10) - 1;
   const monthKey = `history.monthsShort.${monthIndex}`;
   const monthAbbrev = t(monthKey);
   return monthAbbrev && !monthAbbrev.includes('.') ? `${monthAbbrev} ${year}` : label;
@@ -89,10 +88,8 @@ export const HistoryPage = () => {
   const translateMovement = (movement) => {
     const raw = String(movement ?? '').trim();
     const rawUpper = raw.toUpperCase();
-    // Strip any weird/invisible characters (e.g. NBSP, zero-width) and keep only A-Z and underscores.
     const canonicalUpper = rawUpper.replace(/[^A-Z_]/g, '');
 
-    // Hard guard: always translate this movement (including common typo with one "m").
     if (canonicalUpper === 'REFERRAL_COMMISSION' || canonicalUpper === 'REFERRAL_COMISSION') {
       return t('history.movement.referral_commission', 'Comisión por referido');
     }
@@ -119,14 +116,10 @@ export const HistoryPage = () => {
     if (m === 'deposit_reversal' || m === 'deposit_reversa' || m === 'depósito_revertido') {
       return t('history.movement.deposit_reversal', 'Depósito revertido');
     }
-    // Accept multiple formats:
-    // - REFERRAL_COMMISSION (backend enum)
-    // - referral_commission
-    // - referral commission / referral-commission
     const refKey = m.replace(/[\s-]+/g, '_');
     const looksLikeReferral =
       canonicalUpper === 'REFERRAL_COMMISSION' ||
-      canonicalUpper === 'REFERRAL_COMISSION' || // common typo (one "m")
+      canonicalUpper === 'REFERRAL_COMISSION' ||
       rawUpper === 'REFERRAL COMMISSION' ||
       (rawUpper.includes('REFERRAL') && rawUpper.includes('COMMISSION'));
 
@@ -236,12 +229,12 @@ export const HistoryPage = () => {
   const statusPillClass = (status) => {
     const s = normalize(status);
     if (s === 'rechazado' || s === 'rejected') {
-      return 'bg-[rgba(239,83,80,0.15)] text-error';
+      return 'badge-rejected';
     }
     if (s === 'pendiente' || s === 'pending') {
-      return 'bg-[rgba(255,152,0,0.15)] text-warning';
+      return 'badge-pending';
     }
-    return 'bg-primary text-white';
+    return 'badge-completed';
   };
 
   const movementKind = (movement) => {
@@ -251,7 +244,6 @@ export const HistoryPage = () => {
     return null;
   };
 
-  // DEPOSIT_REVERSAL stores positive amount; display as negative (outflow)
   const displayAmount = (row) => {
     const m = normalize(row?.movement);
     if (m === 'deposit_reversal') return -Math.abs(Number(row?.amount) || 0);
@@ -308,18 +300,18 @@ export const HistoryPage = () => {
     const m = normalize(row?.movement);
 
     if (m === 'trading_fee' || m === 'trading_fee_adjustment') {
-      return 'bg-[rgba(101,167,165,0.15)] hover:bg-[rgba(101,167,165,0.25)]';
+      return 'row-fee';
     }
 
     if (m === 'operating_result') {
       const pct = Number(row?.operatingResultPercent);
       const sign = Number.isFinite(pct) ? pct : Number(row?.amount);
-      if (sign > 0) return 'bg-[rgba(76,175,80,0.15)] hover:bg-[rgba(76,175,80,0.25)]';
-      if (sign < 0) return 'bg-[rgba(239,83,80,0.15)] hover:bg-[rgba(239,83,80,0.25)]';
-      return 'bg-dark-section hover:bg-accent-dim';
+      if (sign > 0) return 'row-positive';
+      if (sign < 0) return 'row-negative';
+      return 'hover:bg-[rgba(101,167,165,0.08)]';
     }
 
-    return 'hover:bg-accent-dim';
+    return 'hover:bg-[rgba(101,167,165,0.08)]';
   };
 
   const translatedError = (() => {
@@ -395,7 +387,7 @@ export const HistoryPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('history.title')}</h1>
-        <p className="text-text-muted mt-1">{t('history.subtitle')}</p>
+        <p className="section-subtitle mt-1">{t('history.subtitle')}</p>
       </div>
 
       {rows.length === 0 ? (
@@ -409,10 +401,7 @@ export const HistoryPage = () => {
           {/* Mobile cards */}
           <div data-testid="history-mobile" className="md:hidden space-y-3">
             {mobileVisibleRows.map((row, idx) => (
-              <div
-                key={`${row.code}-${row.date}-${idx}`}
-                className="bg-dark-card rounded-lg border border-border-dark p-4"
-              >
+              <div key={`${row.code}-${row.date}-${idx}`} className="winbit-card--compact">
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 min-w-0">
@@ -487,7 +476,7 @@ export const HistoryPage = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.max(1, p - 1))}
                   disabled={mobilePage <= 1}
                 >
@@ -495,7 +484,7 @@ export const HistoryPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.min(mobileTotalPages, p + 1))}
                   disabled={mobilePage >= mobileTotalPages}
                 >
@@ -508,11 +497,11 @@ export const HistoryPage = () => {
           {/* Desktop table */}
           <div
             data-testid="history-desktop"
-            className="hidden md:block overflow-hidden bg-dark-card rounded-lg border border-border-dark"
+            className="hidden md:block overflow-hidden winbit-card !p-0"
           >
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-dark">
-                <thead className="bg-dark-section">
+              <table className="min-w-full divide-y divide-[rgba(255,255,255,0.08)]">
+                <thead className="bg-[rgba(20,20,20,0.55)]">
                   <tr>
                     <th
                       scope="col"
@@ -546,7 +535,7 @@ export const HistoryPage = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-dark-card divide-y divide-border-dark">
+                <tbody className="divide-y divide-[rgba(255,255,255,0.08)]">
                   {desktopVisibleRows.map((row, idx) => (
                     <tr key={`${row.code}-${row.date}-${idx}`} className={desktopRowClass(row)}>
                       <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
@@ -596,7 +585,7 @@ export const HistoryPage = () => {
               <label className="flex items-center gap-2 text-xs text-text-muted">
                 {t('common.rowsPerPage', 'Filas por página')}
                 <select
-                  className="rounded-lg border border-border-dark bg-dark-card px-2 py-1 text-xs text-text-primary"
+                  className="rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(15,18,18,0.8)] px-2 py-1 text-xs text-text-primary"
                   value={desktopPageSize}
                   onChange={(e) => setDesktopPageSize(Number(e.target.value))}
                 >
@@ -613,7 +602,7 @@ export const HistoryPage = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setDesktopPage((p) => Math.max(1, p - 1))}
                   disabled={desktopPage <= 1}
                 >
@@ -621,7 +610,7 @@ export const HistoryPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setDesktopPage((p) => Math.min(desktopTotalPages, p + 1))}
                   disabled={desktopPage >= desktopTotalPages}
                 >

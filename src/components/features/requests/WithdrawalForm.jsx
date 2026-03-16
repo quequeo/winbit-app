@@ -105,7 +105,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
               <span className="font-semibold">{formatCurrency(confirmModal.withdrawalAmount)}</span>
             </div>
             {confirmModal.hasFee ? (
-              <div className="flex justify-between text-blue-700">
+              <div className="flex justify-between text-primary">
                 <span>Comisión de trading ({confirmModal.feePercentage}%)</span>
                 <span className="font-semibold">{formatCurrency(confirmModal.feeAmount)}</span>
               </div>
@@ -115,7 +115,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
               </p>
             )}
             {confirmModal.hasFee && (
-              <div className="border-t border-border-dark pt-3 flex justify-between font-semibold text-text-primary">
+              <div className="border-t border-[rgba(255,255,255,0.08)] pt-3 flex justify-between font-semibold text-text-primary">
                 <span>Total debitado del portfolio</span>
                 <span>
                   {formatCurrency(confirmModal.withdrawalAmount + confirmModal.feeAmount)}
@@ -193,7 +193,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             />
           )}
 
-          <div className="bg-accent/30 p-4 rounded-lg text-sm text-text-primary">
+          <div className="info-box text-sm text-text-primary">
             <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
             <p>• {t('withdrawals.processingHoursLine1')}</p>
             <p>• {t('withdrawals.processingHoursLine2')}</p>
@@ -204,9 +204,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             <div
               role="alert"
               className={`p-4 rounded-lg ${
-                message.type === 'success'
-                  ? 'bg-[rgba(76,175,80,0.15)] text-success'
-                  : 'bg-[rgba(239,83,80,0.15)] text-error'
+                message.type === 'success' ? 'badge-completed' : 'badge-rejected'
               }`}
             >
               {message.text}

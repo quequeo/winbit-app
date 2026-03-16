@@ -18,16 +18,28 @@ const METHOD_LABELS = {
 };
 
 const STATUS_CONFIG = {
-  COMPLETED: { label: 'Completado', cls: 'bg-[rgba(76,175,80,0.15)] text-success' },
-  PENDING: { label: 'Pendiente', cls: 'bg-[rgba(255,152,0,0.15)] text-warning' },
-  REJECTED: { label: 'Rechazado', cls: 'bg-[rgba(239,83,80,0.15)] text-error' },
-  CANCELLED: { label: 'Cancelado', cls: 'bg-dark-section text-text-muted' },
+  COMPLETED: {
+    label: 'Completado',
+    cls: 'badge-completed',
+  },
+  PENDING: {
+    label: 'Pendiente',
+    cls: 'badge-pending',
+  },
+  REJECTED: {
+    label: 'Rechazado',
+    cls: 'badge-rejected',
+  },
+  CANCELLED: {
+    label: 'Cancelado',
+    cls: 'badge-cancelled',
+  },
 };
 
 const statusConfig = (status) =>
   STATUS_CONFIG[String(status ?? '').toUpperCase()] ?? {
     label: status ?? '—',
-    cls: 'bg-dark-section text-text-muted',
+    cls: 'badge-cancelled',
   };
 
 export const RequestsPage = () => {
@@ -56,10 +68,10 @@ export const RequestsPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('withdrawals.title')}</h1>
-        <p className="text-text-muted mt-1">{t('withdrawals.subtitle')}</p>
+        <p className="section-subtitle mt-1">{t('withdrawals.subtitle')}</p>
       </div>
 
-      <div className="border-b border-border-dark">
+      <div className="border-b border-[rgba(255,255,255,0.08)]">
         <nav className="-mb-px flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
           {[
             { id: 'form', label: t('withdrawals.tabs.newRequest') },
@@ -96,7 +108,7 @@ export const RequestsPage = () => {
               <Spinner size="lg" />
             </div>
           ) : withdrawals.length === 0 ? (
-            <div className="rounded-lg border border-border-dark bg-dark-card p-8 text-center text-sm text-text-muted">
+            <div className="winbit-card text-center text-sm text-text-muted">
               No hay retiros registrados aún.
             </div>
           ) : (
@@ -105,10 +117,7 @@ export const RequestsPage = () => {
                 {withdrawals.map((r) => {
                   const sc = statusConfig(r.status);
                   return (
-                    <div
-                      key={r.id}
-                      className="rounded-lg border border-border-dark bg-dark-card p-4"
-                    >
+                    <div key={r.id} className="winbit-card--compact">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="font-semibold text-text-primary">
@@ -130,9 +139,9 @@ export const RequestsPage = () => {
                 })}
               </div>
 
-              <div className="hidden overflow-x-auto rounded-lg border border-border-dark bg-dark-card md:block">
-                <table className="min-w-full divide-y divide-border-dark text-sm">
-                  <thead className="bg-dark-section">
+              <div className="hidden overflow-x-auto winbit-card !p-0 md:block">
+                <table className="min-w-full divide-y divide-[rgba(255,255,255,0.08)] text-sm">
+                  <thead className="bg-[rgba(20,20,20,0.55)]">
                     <tr>
                       {['Fecha', 'Monto', 'Método', 'Estado'].map((h) => (
                         <th
@@ -144,11 +153,11 @@ export const RequestsPage = () => {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border-dark">
+                  <tbody className="divide-y divide-[rgba(255,255,255,0.08)]">
                     {withdrawals.map((r) => {
                       const sc = statusConfig(r.status);
                       return (
-                        <tr key={r.id} className="hover:bg-accent-dim">
+                        <tr key={r.id} className="hover:bg-[rgba(101,167,165,0.08)]">
                           <td className="px-5 py-3 text-text-primary">{formatDate(r.date)}</td>
                           <td className="px-5 py-3 text-right font-mono font-semibold text-text-primary">
                             {formatCurrency(Number(r.amount))}

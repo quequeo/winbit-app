@@ -76,14 +76,44 @@ const getLastUpdateDate = () => {
   return `${yDay} ${MONTHS_SHORT[yMonth]} ${yYear} - 18:00 (UTC-3)`;
 };
 
-const formatChartAxisDate = (isoDate) => {
+const getLastUpdateIsoLabel = () => {
+  const now = new Date();
+  const arFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: AR_TZ,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  });
+  const parts = {};
+  for (const { type, value } of arFormatter.formatToParts(now)) {
+    parts[type] = value;
+  }
+
+  const currentHour = parseInt(parts.hour, 10);
+  const day = parseInt(parts.day, 10);
+  const month = parseInt(parts.month, 10);
+  const year = parseInt(parts.year, 10);
+
+  if (currentHour >= 18) {
+    return `${day} ${MONTHS_SHORT[month - 1]}`;
+  }
+
+  const yesterday = new Date(Date.UTC(year, month - 1, day - 1));
+  return `${yesterday.getUTCDate()} ${MONTHS_SHORT[yesterday.getUTCMonth()]}`;
+};
+
+const formatChartAxisDate = (isoDate, overrideLabel) => {
+  if (overrideLabel) return overrideLabel;
   if (!isoDate) return '';
   const d = new Date(`${isoDate}T12:00:00.000Z`);
   if (isNaN(d.getTime())) return '';
   return `${d.getUTCDate()} ${MONTHS_SHORT[d.getUTCMonth()]}`;
 };
 
-const PortfolioLineChart = ({ series, title }) => {
+const PortfolioLineChart = ({ series, title, endAxisLabel }) => {
   const [hoveredPoint, setHoveredPoint] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const width = 900;
@@ -208,7 +238,7 @@ const PortfolioLineChart = ({ series, title }) => {
       >
         <defs>
           <linearGradient id="portfolioArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#65a7a5" stopOpacity="0.28" />
+            <stop offset="0%" stopColor="#65a7a5" stopOpacity="0.18" />
             <stop offset="100%" stopColor="#65a7a5" stopOpacity="0.02" />
           </linearGradient>
         </defs>
@@ -291,11 +321,13 @@ const PortfolioLineChart = ({ series, title }) => {
 
       {hoveredPoint && (
         <div
-          className="fixed bg-[#181818] text-text-primary text-xs rounded-lg px-3 py-2 pointer-events-none z-50"
+          className="fixed text-text-primary text-xs rounded-lg px-3 py-2 pointer-events-none z-50"
           style={{
             left: `${tooltipPosition.x}px`,
             top: `${tooltipPosition.y}px`,
             transform: 'translate(-50%, -100%)',
+            background: 'rgba(18, 24, 24, 0.95)',
+            border: '1px solid rgba(101, 167, 165, 0.22)',
             boxShadow: '0 4px 12px rgba(0,0,0,0.7)',
           }}
         >
@@ -306,11 +338,7 @@ const PortfolioLineChart = ({ series, title }) => {
 
       <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
         <span>{series[0]?.date ? formatChartAxisDate(series[0].date) : ''}</span>
-        <span>
-          {series[series.length - 1]?.date
-            ? formatChartAxisDate(series[series.length - 1].date)
-            : ''}
-        </span>
+        <span>{endAxisLabel || formatChartAxisDate(series[series.length - 1]?.date)}</span>
       </div>
     </div>
   );
@@ -387,6 +415,7 @@ export const DashboardPage = () => {
   }, [fullSeries, rangeKey]);
 
   const lastUpdate = useMemo(() => getLastUpdateDate(), []);
+  const endAxisLabel = useMemo(() => getLastUpdateIsoLabel(), []);
 
   if (loading) {
     return (
@@ -418,22 +447,22 @@ export const DashboardPage = () => {
         <h1 className="text-3xl font-bold text-text-primary">
           {t('dashboard.welcomeBack', { name: formatName(data.name) })}
         </h1>
-        <p className="text-text-muted mt-1">{t('dashboard.subtitle')}</p>
+        <p className="section-subtitle mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
-      {/* Row 1: Capital invertido + Valor del portafolio */}
+      {/* Row 1: Valor del portfolio + Capital invertido */}
       <div className="grid gap-4 md:grid-cols-2 mb-6">
-        <KpiCard
-          title={t('dashboard.kpis.totalInvested')}
-          value={data.totalInvested ?? 0}
-          variant="currency"
-          tone="neutral"
-        />
         <KpiCard
           title={t('dashboard.kpis.currentValue')}
           value={data.balance}
           variant="currency"
           highlighted={true}
+        />
+        <KpiCard
+          title={t('dashboard.kpis.totalInvested')}
+          value={data.totalInvested ?? 0}
+          variant="currency"
+          tone="neutral"
         />
       </div>
 
@@ -452,7 +481,7 @@ export const DashboardPage = () => {
         />
       </div>
 
-      {/* Row 3: Resultado 2026 (%) + Resultado 2026 (USD) */}
+      {/* Row 3: Resultado estrategia actual (%) + Resultado estrategia actual (USD) */}
       <div className="grid gap-4 md:grid-cols-2 mb-4">
         <KpiCard
           title={t('dashboard.kpis.strategyReturnYtdPct')}
@@ -467,10 +496,7 @@ export const DashboardPage = () => {
         />
       </div>
 
-      <div
-        className="rounded-lg bg-dark-card border border-border-dark p-6"
-        data-testid="portfolio-evolution"
-      >
+      <div className="winbit-card" data-testid="portfolio-evolution">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-text-primary">
@@ -493,8 +519,8 @@ export const DashboardPage = () => {
                 onClick={() => setRangeKey(opt.key)}
                 className={`rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-dark-section text-text-muted border-border-dark hover:border-primary hover:text-primary'
+                    ? 'bg-[rgba(101,167,165,0.18)] text-[#8dc8bf] border-[rgba(101,167,165,0.35)]'
+                    : 'bg-transparent text-text-muted border-[rgba(255,255,255,0.08)] hover:border-[rgba(101,167,165,0.35)] hover:text-primary'
                 }`}
               >
                 {opt.label}
@@ -507,9 +533,13 @@ export const DashboardPage = () => {
           {historyLoading ? (
             <div className="text-sm text-text-muted">{t('dashboard.chart.loading')}</div>
           ) : series.length >= 2 ? (
-            <PortfolioLineChart series={series} title={t('dashboard.chart.title')} />
+            <PortfolioLineChart
+              series={series}
+              title={t('dashboard.chart.title')}
+              endAxisLabel={endAxisLabel}
+            />
           ) : (
-            <div className="rounded-md border border-dashed border-border-dark p-6 text-sm text-text-muted">
+            <div className="rounded-md border border-dashed border-[rgba(101,167,165,0.22)] p-6 text-sm text-text-muted">
               {t('dashboard.chart.noData')}
             </div>
           )}

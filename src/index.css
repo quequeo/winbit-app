@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    background: #0a0a0a;
+    background: #0d0f10;
     color: #e8e8e8;
     font-family:
       'Montserrat',
@@ -18,7 +18,7 @@
   input,
   select,
   textarea {
-    background: rgba(20, 20, 20, 0.5);
+    background: rgba(15, 18, 18, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
@@ -50,5 +50,112 @@
 @layer components {
   .container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .winbit-card {
+    background: linear-gradient(180deg, rgba(18, 24, 24, 0.92) 0%, rgba(15, 18, 18, 0.96) 100%);
+    border: 1px solid rgba(101, 167, 165, 0.22);
+    border-radius: 8px;
+    padding: 28px 26px;
+    box-shadow:
+      inset 3px 0 0 rgba(101, 167, 165, 0.22),
+      0 10px 28px rgba(0, 0, 0, 0.22);
+  }
+
+  .winbit-card--highlight {
+    background: linear-gradient(180deg, rgba(28, 40, 40, 0.94) 0%, rgba(20, 28, 28, 0.98) 100%);
+    border: 1px solid rgba(101, 167, 165, 0.32);
+    border-radius: 8px;
+    padding: 28px 26px;
+    box-shadow:
+      inset 4px 0 0 rgba(101, 167, 165, 0.3),
+      0 12px 30px rgba(0, 0, 0, 0.24);
+  }
+
+  .winbit-card--compact {
+    background: linear-gradient(180deg, rgba(18, 24, 24, 0.92) 0%, rgba(15, 18, 18, 0.96) 100%);
+    border: 1px solid rgba(101, 167, 165, 0.22);
+    border-radius: 8px;
+    padding: 20px 22px;
+    box-shadow:
+      inset 3px 0 0 rgba(101, 167, 165, 0.22),
+      0 10px 28px rgba(0, 0, 0, 0.22);
+  }
+
+  .section-subtitle {
+    color: #65a7a5;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(101, 167, 165, 0.35);
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+
+  .badge-completed {
+    background: rgba(101, 167, 165, 0.14);
+    color: #8dc8bf;
+    border: 1px solid rgba(101, 167, 165, 0.2);
+  }
+
+  .badge-pending {
+    background: rgba(194, 170, 114, 0.14);
+    color: #c2aa72;
+    border: 1px solid rgba(194, 170, 114, 0.18);
+  }
+
+  .badge-rejected {
+    background: rgba(196, 107, 107, 0.14);
+    color: #c46b6b;
+    border: 1px solid rgba(196, 107, 107, 0.18);
+  }
+
+  .badge-cancelled {
+    background: rgba(20, 20, 20, 0.55);
+    color: #888888;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .info-box {
+    background: rgba(101, 167, 165, 0.1);
+    border: 1px solid rgba(101, 167, 165, 0.22);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .row-positive {
+    background: rgba(101, 167, 165, 0.1);
+  }
+
+  .row-positive:hover {
+    background: rgba(101, 167, 165, 0.16);
+  }
+
+  .row-negative {
+    background: rgba(196, 107, 107, 0.1);
+  }
+
+  .row-negative:hover {
+    background: rgba(196, 107, 107, 0.16);
+  }
+
+  .row-fee {
+    background: rgba(101, 167, 165, 0.1);
+  }
+
+  .row-fee:hover {
+    background: rgba(101, 167, 165, 0.16);
+  }
+
+  .btn-copy {
+    background: rgba(101, 167, 165, 0.1);
+    border: 1px solid rgba(101, 167, 165, 0.35);
+    color: #8dc8bf;
+    border-radius: 6px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-copy:hover {
+    background: rgba(101, 167, 165, 0.18);
+    border-color: rgba(101, 167, 165, 0.55);
   }
 }

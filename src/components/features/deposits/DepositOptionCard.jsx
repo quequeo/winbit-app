@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Card } from '../../ui/Card';
-import { Button } from '../../ui/Button';
 import { useTranslation } from 'react-i18next';
 
 const COPYABLE_KEYS = [
@@ -31,11 +30,11 @@ export const DepositOptionCard = ({ option }) => {
   const detailEntries = Object.entries(details).filter(([, v]) => v);
 
   return (
-    <Card className="transition-colors hover:border-border-accent">
+    <Card variant="compact" className="transition-colors hover:border-[rgba(101,167,165,0.35)]">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="font-semibold text-text-primary">{option.label}</h4>
-          <span className="text-xs font-medium text-text-muted bg-dark-section rounded-full px-2 py-0.5">
+          <span className="text-xs font-medium text-text-muted bg-[rgba(20,20,20,0.55)] rounded-full px-2 py-0.5">
             {option.currency}
           </span>
         </div>
@@ -48,13 +47,13 @@ export const DepositOptionCard = ({ option }) => {
                 <p className="text-sm text-text-primary font-mono break-all">{value}</p>
               </div>
               {COPYABLE_KEYS.includes(key) && (
-                <Button
+                <button
+                  type="button"
                   onClick={() => handleCopy(value, key)}
-                  variant="outline"
-                  className="shrink-0 text-xs py-1 px-3"
+                  className="btn-copy shrink-0 text-xs py-1.5 px-3"
                 >
                   {copiedKey === key ? t('deposits.copied') : t('deposits.copy')}
-                </Button>
+                </button>
               )}
             </div>
           ))}
