@@ -121,7 +121,8 @@ export const Select = ({
           <div
             role="listbox"
             aria-labelledby={id}
-            className="absolute left-0 right-0 mt-2 max-h-64 overflow-auto rounded-lg border border-border-dark bg-dark-card z-50"
+            className="absolute left-0 right-0 mt-2 max-h-64 overflow-auto rounded-lg border border-[rgba(101,167,165,0.22)] bg-[#15191b] z-50"
+            style={{ boxShadow: '0 12px 30px rgba(0, 0, 0, 0.35)' }}
           >
             {items.map((opt) => {
               const isSelected = String(opt?.value) === String(value);
@@ -132,8 +133,10 @@ export const Select = ({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => selectValue(opt?.value)}
-                  className={`w-full px-4 py-2.5 text-sm text-left hover:bg-accent-dim ${
-                    isSelected ? 'bg-primary/10 text-text-primary font-semibold' : 'text-text-muted'
+                  className={`w-full px-4 py-2.5 text-sm text-left transition-colors hover:bg-[rgba(101,167,165,0.10)] hover:text-white ${
+                    isSelected
+                      ? 'bg-[rgba(101,167,165,0.10)] text-text-primary font-semibold'
+                      : 'text-white/[0.88]'
                   }`}
                 >
                   {normalizeLabel(opt?.label)}

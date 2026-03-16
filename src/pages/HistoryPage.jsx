@@ -190,6 +190,24 @@ export const HistoryPage = () => {
     return base;
   };
 
+  const movementLabelMobile = (row) => {
+    const base = translateMovement(row?.movement);
+    const m = normalize(row?.movement);
+
+    if (m === 'trading_fee' && row?.tradingFeeSource === 'WITHDRAWAL') {
+      const feePct = formatFeePercentage(row?.tradingFeePercentage);
+      const line1 = `${base}${feePct ? ` (${feePct})` : ''}`;
+      const withdrawalAmount = Number(row?.tradingFeeWithdrawalAmount);
+      const line2 =
+        Number.isFinite(withdrawalAmount) && withdrawalAmount > 0
+          ? `sobre retiro ${formatCurrency(withdrawalAmount)}`
+          : null;
+      return { line1, line2 };
+    }
+
+    return { line1: movementLabel(row), line2: null };
+  };
+
   const shouldShowStatusPill = (movement) => {
     const m = normalize(movement);
     return (
@@ -400,68 +418,76 @@ export const HistoryPage = () => {
         <>
           {/* Mobile cards */}
           <div data-testid="history-mobile" className="md:hidden space-y-3">
-            {mobileVisibleRows.map((row, idx) => (
-              <div key={`${row.code}-${row.date}-${idx}`} className="winbit-card--compact">
-                <div className="flex items-start justify-between gap-3 mb-1">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="text-sm font-semibold text-text-primary truncate">
-                        {movementLabel(row)}
+            {mobileVisibleRows.map((row, idx) => {
+              const mobileLabel = movementLabelMobile(row);
+              return (
+                <div key={`${row.code}-${row.date}-${idx}`} className="winbit-card--compact">
+                  <div className="flex items-start justify-between gap-3 mb-1">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                        <div className="text-sm font-semibold text-text-primary leading-snug">
+                          {mobileLabel.line1}
+                          {mobileLabel.line2 && (
+                            <span className="block text-xs font-normal text-text-muted mt-0.5">
+                              {mobileLabel.line2}
+                            </span>
+                          )}
+                        </div>
+                        {movementCompletedIcon(row)}
+                        {shouldShowStatusPill(row?.movement) && row?.status ? (
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${statusPillClass(
+                              row.status,
+                            )}`}
+                          >
+                            {translateStatus(row.status, row?.movement)}
+                          </span>
+                        ) : null}
                       </div>
-                      {movementCompletedIcon(row)}
-                      {shouldShowStatusPill(row?.movement) && row?.status ? (
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${statusPillClass(
-                            row.status,
-                          )}`}
-                        >
-                          {translateStatus(row.status, row?.movement)}
-                        </span>
-                      ) : null}
+                      <div className="text-xs text-text-muted mt-1">{formatDate(row.date)}</div>
                     </div>
-                    <div className="text-xs text-text-muted mt-1">{formatDate(row.date)}</div>
+
+                    <div className="shrink-0 text-right">
+                      <div
+                        className={`text-base font-bold ${
+                          displayAmount(row) > 0
+                            ? 'text-success'
+                            : displayAmount(row) < 0
+                              ? 'text-error'
+                              : 'text-text-primary'
+                        }`}
+                      >
+                        {displayAmount(row) > 0 ? '+' : ''}
+                        {formatCurrency(displayAmount(row))}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="shrink-0 text-right">
-                    <div
-                      className={`text-base font-bold ${
-                        displayAmount(row) > 0
-                          ? 'text-success'
-                          : displayAmount(row) < 0
-                            ? 'text-error'
-                            : 'text-text-primary'
-                      }`}
+                  <div className="mt-2 text-[13px] text-text-muted flex items-center gap-2">
+                    <span>Balance:</span>
+                    <span className="font-medium text-text-primary">
+                      {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
+                    </span>
+                    <svg
+                      className="w-3 h-3 text-text-dim"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      {displayAmount(row) > 0 ? '+' : ''}
-                      {formatCurrency(displayAmount(row))}
-                    </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                    <span className="font-medium text-text-primary">
+                      {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
+                    </span>
                   </div>
                 </div>
-
-                <div className="mt-2 text-[13px] text-text-muted flex items-center gap-2">
-                  <span>Balance:</span>
-                  <span className="font-medium text-text-primary">
-                    {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
-                  </span>
-                  <svg
-                    className="w-3 h-3 text-text-dim"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    />
-                  </svg>
-                  <span className="font-medium text-text-primary">
-                    {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {shouldPaginateMobile ? (
