@@ -10,12 +10,15 @@ export const Button = ({
     'px-6 py-3 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
-    primary: 'bg-primary text-white hover:bg-primary/80 focus:ring-primary',
+    primary:
+      'bg-[rgba(101,167,165,0.15)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.25)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
     secondary:
-      'bg-accent-dim text-white border border-[rgba(101,167,165,0.45)] hover:bg-accent-glow hover:border-primary focus:ring-primary',
-    danger: 'bg-error text-white hover:bg-error/80 focus:ring-error',
+      'bg-[rgba(101,167,165,0.10)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.18)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
+    danger:
+      'bg-[rgba(196,107,107,0.14)] text-[#c46b6b] border border-[rgba(196,107,107,0.18)] hover:bg-[rgba(196,107,107,0.22)] focus:ring-error',
     outline:
-      'border border-[rgba(101,167,165,0.45)] text-primary bg-accent-dim hover:bg-accent-glow hover:border-primary focus:ring-primary',
+      'bg-[rgba(101,167,165,0.10)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.18)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
+    copy: 'btn-copy text-xs focus:ring-primary',
   };
 
   return (

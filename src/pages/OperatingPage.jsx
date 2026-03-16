@@ -30,11 +30,16 @@ const movementText = (row, t) => {
 
 const rowBgClass = (row) => {
   const amt = Number(row?.amount);
-  if (Number.isFinite(amt) && amt > 0)
-    return 'bg-[rgba(76,175,80,0.15)] hover:bg-[rgba(76,175,80,0.25)]';
-  if (Number.isFinite(amt) && amt < 0)
-    return 'bg-[rgba(239,83,80,0.15)] hover:bg-[rgba(239,83,80,0.25)]';
-  return 'hover:bg-accent-dim';
+  if (Number.isFinite(amt) && amt > 0) return 'row-positive';
+  if (Number.isFinite(amt) && amt < 0) return 'row-negative';
+  return 'hover:bg-[rgba(101,167,165,0.08)]';
+};
+
+const mobileAmountColor = (row) => {
+  const amt = Number(row?.amount);
+  if (Number.isFinite(amt) && amt > 0) return 'text-success';
+  if (Number.isFinite(amt) && amt < 0) return 'text-error';
+  return 'text-text-primary';
 };
 
 export const OperatingPage = () => {
@@ -78,7 +83,6 @@ export const OperatingPage = () => {
   }, [rows.length, desktopPageSize]);
 
   useEffect(() => {
-    // Keep pages in bounds when data changes
     setMobilePage((p) => Math.min(Math.max(1, p), mobileTotalPages));
   }, [mobileTotalPages]);
 
@@ -115,7 +119,7 @@ export const OperatingPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('operating.title')}</h1>
-        <p className="text-text-muted mt-1">{t('operating.subtitle')}</p>
+        <p className="section-subtitle mt-1">{t('operating.subtitle')}</p>
       </div>
 
       {rows.length === 0 ? (
@@ -129,10 +133,7 @@ export const OperatingPage = () => {
           {/* Mobile cards */}
           <div data-testid="operating-mobile" className="md:hidden space-y-3">
             {mobileVisibleRows.map((row, idx) => (
-              <div
-                key={`${row.code}-${row.date}-${idx}`}
-                className="bg-dark-card rounded-lg border border-border-dark p-4"
-              >
+              <div key={`${row.code}-${row.date}-${idx}`} className="winbit-card--compact">
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-text-primary truncate">
@@ -142,15 +143,7 @@ export const OperatingPage = () => {
                   </div>
 
                   <div className="shrink-0 text-right">
-                    <div
-                      className={`text-base font-bold ${
-                        Number(row.amount) > 0
-                          ? 'text-success'
-                          : Number(row.amount) < 0
-                            ? 'text-error'
-                            : 'text-text-primary'
-                      }`}
-                    >
+                    <div className={`text-base font-bold ${mobileAmountColor(row)}`}>
                       {Number(row.amount) > 0 ? '+' : ''}
                       {formatCurrency(row.amount)}
                     </div>
@@ -195,7 +188,7 @@ export const OperatingPage = () => {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.max(1, p - 1))}
                   disabled={mobilePage <= 1}
                 >
@@ -203,7 +196,7 @@ export const OperatingPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setMobilePage((p) => Math.min(mobileTotalPages, p + 1))}
                   disabled={mobilePage >= mobileTotalPages}
                 >
@@ -216,11 +209,11 @@ export const OperatingPage = () => {
           {/* Desktop table */}
           <div
             data-testid="operating-desktop"
-            className="hidden md:block overflow-hidden bg-dark-card rounded-lg border border-border-dark"
+            className="hidden md:block overflow-hidden winbit-card !p-0"
           >
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-dark">
-                <thead className="bg-dark-section">
+              <table className="min-w-full divide-y divide-[rgba(255,255,255,0.08)]">
+                <thead className="bg-[rgba(20,20,20,0.55)]">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                       {t('operating.table.date')}
@@ -239,7 +232,7 @@ export const OperatingPage = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-dark-card divide-y divide-border-dark">
+                <tbody className="divide-y divide-[rgba(255,255,255,0.08)]">
                   {desktopVisibleRows.map((row, idx) => (
                     <tr key={`${row.code}-${row.date}-${idx}`} className={rowBgClass(row)}>
                       <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
@@ -264,7 +257,7 @@ export const OperatingPage = () => {
             </div>
 
             {shouldPaginateDesktop ? (
-              <div className="flex items-center justify-between gap-4 px-4 py-3 border-t border-border-dark bg-dark-card">
+              <div className="flex items-center justify-between gap-4 px-4 py-3 border-t border-[rgba(255,255,255,0.08)]">
                 <div className="flex items-center gap-3">
                   <div className="text-xs text-text-muted">
                     {t('common.pageOf', 'Página {{page}} de {{total}}', {
@@ -282,7 +275,7 @@ export const OperatingPage = () => {
                     </label>
                     <select
                       id="operating-page-size-desktop"
-                      className="text-xs rounded-lg border border-border-dark bg-dark-card px-2 py-1.5 text-text-primary"
+                      className="text-xs rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(15,18,18,0.8)] px-2 py-1.5 text-text-primary"
                       value={desktopPageSize}
                       onChange={(e) => {
                         const next = Number(e.target.value);
@@ -304,7 +297,7 @@ export const OperatingPage = () => {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => setDesktopPage((p) => Math.max(1, p - 1))}
                     disabled={desktopPage <= 1}
                   >
@@ -312,7 +305,7 @@ export const OperatingPage = () => {
                   </button>
                   <button
                     type="button"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-border-dark text-text-primary hover:bg-accent-dim disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => setDesktopPage((p) => Math.min(desktopTotalPages, p + 1))}
                     disabled={desktopPage >= desktopTotalPages}
                   >

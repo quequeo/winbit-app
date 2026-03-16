@@ -17,32 +17,20 @@ export const KpiCard = ({
         ? formatPercentage(value)
         : String(value ?? '');
 
-  const resolvedTone = highlighted ? 'highlight' : tone;
+  const cardVariant = highlighted ? 'highlight' : 'default';
 
-  const cardClassName =
-    resolvedTone === 'highlight'
-      ? 'bg-gradient-to-r from-primary to-[#4a9d8e] text-white'
-      : resolvedTone === 'neutral'
-        ? 'bg-[rgba(101,167,165,0.06)] border border-border-accent'
-        : 'bg-dark-card';
+  const titleClassName = highlighted ? 'text-sm text-[#8dc8bf]' : 'text-sm text-text-muted';
 
-  const titleClassName =
-    resolvedTone === 'highlight'
-      ? 'text-sm text-white/90'
-      : resolvedTone === 'neutral'
-        ? 'text-sm text-text-muted'
-        : 'text-sm text-text-muted';
-
-  const valueClassName =
-    resolvedTone === 'highlight'
-      ? 'text-3xl font-bold text-white'
-      : resolvedTone === 'neutral'
-        ? 'text-2xl font-semibold text-text-primary'
-        : 'text-2xl font-semibold text-text-primary';
+  const valueClassName = highlighted
+    ? 'text-3xl font-bold text-text-primary'
+    : tone === 'neutral'
+      ? 'text-2xl font-semibold text-text-primary'
+      : 'text-2xl font-semibold text-text-primary';
 
   return (
     <Card
-      className={`${cardClassName} transition-transform duration-200 ease-out hover:-translate-y-0.5`}
+      variant={cardVariant}
+      className="transition-transform duration-200 ease-out hover:-translate-y-0.5"
     >
       <div className="space-y-2">
         <p className={titleClassName}>{title}</p>

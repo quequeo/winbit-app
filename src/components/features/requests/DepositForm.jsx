@@ -212,7 +212,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
               ref={fileInputRef}
               accept="image/jpeg,image/png,image/webp,application/pdf"
               onChange={handleFileChange}
-              className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+              className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgba(101,167,165,0.10)] file:text-[#8dc8bf] hover:file:bg-[rgba(101,167,165,0.18)] cursor-pointer"
             />
             {attachment && (
               <p className="mt-1 text-xs text-success">
@@ -221,7 +221,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
             )}
           </div>
 
-          <div className="bg-accent/30 p-4 rounded-lg text-sm text-text-primary">
+          <div className="info-box text-sm text-text-primary">
             <p className="font-medium mb-1">{t('deposits.processingHoursTitle')}</p>
             <p>• {t('deposits.processingHoursLine1')}</p>
             <p>• {t('deposits.processingHoursLine2')}</p>
@@ -232,10 +232,10 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
               role="alert"
               className={`rounded-lg p-4 ${
                 message.type === 'error'
-                  ? 'bg-[rgba(239,83,80,0.15)] text-error'
+                  ? 'badge-rejected'
                   : message.type === 'success'
-                    ? 'bg-[rgba(76,175,80,0.15)] text-success'
-                    : 'bg-[rgba(101,167,165,0.15)] text-info'
+                    ? 'badge-completed'
+                    : 'info-box'
               }`}
             >
               <p className="text-sm">{message.text}</p>

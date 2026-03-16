@@ -10,7 +10,7 @@ export default {
         'accent-dim': 'rgba(101, 167, 165, 0.15)',
         'accent-glow': 'rgba(101, 167, 165, 0.3)',
         dark: {
-          bg: '#0a0a0a',
+          bg: '#0d0f10',
           card: 'rgba(20, 20, 20, 0.5)',
           section: 'rgba(20, 20, 20, 0.55)',
         },
@@ -19,9 +19,9 @@ export default {
         'text-dim': '#555555',
         'border-dark': 'rgba(255, 255, 255, 0.08)',
         'border-accent': 'rgba(101, 167, 165, 0.3)',
-        success: '#4caf50',
-        warning: '#ff9800',
-        error: '#ef5350',
+        success: '#8dc8bf',
+        warning: '#c2aa72',
+        error: '#c46b6b',
         info: '#65a7a5',
       },
       fontFamily: {
