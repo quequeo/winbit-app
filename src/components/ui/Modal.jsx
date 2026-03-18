@@ -35,7 +35,7 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 transition-opacity" onClick={onClose} />
+      <div className="absolute inset-0 bg-black transition-opacity" onClick={onClose} />
 
       <div
         className={`relative w-full max-w-sm rounded-lg border-2 p-8 backdrop-blur-md ${bgColorClass}`}

@@ -26,7 +26,7 @@ export const ConfirmModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 transition-opacity" onClick={onCancel} />
+      <div className="absolute inset-0 bg-black transition-opacity" onClick={onCancel} />
 
       <div
         className="relative w-full max-w-sm rounded-lg border-2 border-[rgba(255,152,0,0.3)] bg-[rgba(255,152,0,0.15)] p-8 backdrop-blur-md"
