@@ -26,7 +26,12 @@ const renderAt = (path) => {
   );
 };
 
-const switchToGoogleTab = () => {
+const switchToEmailTab = () => {
+  const matches = screen.getAllByText('Email y contraseña');
+  fireEvent.click(matches[0]);
+};
+
+const _switchToGoogleTab = () => {
   const matches = screen.getAllByText('Acceder con Google');
   fireEvent.click(matches[0]);
 };
@@ -51,10 +56,19 @@ describe('LoginPage', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
-  it('shows email/password form by default', () => {
+  it('shows Google sign-in by default', () => {
     useAuth.mockReturnValue(defaultMock);
 
     renderAt('/login');
+    expect(screen.queryByLabelText('Correo electrónico')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Acceder con Google').length).toBeGreaterThan(0);
+  });
+
+  it('shows email/password form when switching to email tab', () => {
+    useAuth.mockReturnValue(defaultMock);
+
+    renderAt('/login');
+    switchToEmailTab();
     expect(screen.getByLabelText('Correo electrónico')).toBeInTheDocument();
     expect(screen.getByLabelText(/Contraseña/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ingresar' })).toBeInTheDocument();
@@ -65,6 +79,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithEmail });
 
     renderAt('/login');
+    switchToEmailTab();
     fireEvent.change(screen.getByLabelText('Correo electrónico'), {
       target: { value: 'test@example.com' },
     });
@@ -84,6 +99,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithEmail });
 
     renderAt('/login');
+    switchToEmailTab();
     fireEvent.change(screen.getByLabelText('Correo electrónico'), {
       target: { value: 'test@example.com' },
     });
@@ -98,7 +114,6 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
 
     renderAt('/login');
-    switchToGoogleTab();
     clickGoogleLoginButton();
 
     await waitFor(() => {
@@ -114,7 +129,6 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
 
     renderAt('/login');
-    switchToGoogleTab();
     clickGoogleLoginButton();
 
     expect(await screen.findByText(/Este dominio no está autorizado/)).toBeInTheDocument();
@@ -129,7 +143,6 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
 
     renderAt('/login');
-    switchToGoogleTab();
     clickGoogleLoginButton();
 
     expect(
@@ -145,7 +158,6 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
 
     renderAt('/login');
-    switchToGoogleTab();
     clickGoogleLoginButton();
 
     expect(
@@ -161,7 +173,6 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
 
     renderAt('/login');
-    switchToGoogleTab();
     clickGoogleLoginButton();
 
     expect(
@@ -177,7 +188,6 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
 
     renderAt('/login');
-    switchToGoogleTab();
     clickGoogleLoginButton();
 
     expect(await screen.findByText('No estás registrado como inversor')).toBeInTheDocument();
@@ -191,7 +201,6 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithGoogle });
 
     renderAt('/login');
-    switchToGoogleTab();
     clickGoogleLoginButton();
 
     expect(

@@ -4,13 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from './AuthProvider';
 import { AuthContext } from './AuthContext';
 
-import {
-  signInWithPopup,
-  signInWithRedirect,
-  signOut,
-  onAuthStateChanged,
-  getRedirectResult,
-} from 'firebase/auth';
+import { signInWithPopup, getRedirectResult, signOut, onAuthStateChanged } from 'firebase/auth';
 
 vi.mock('firebase/auth', () => ({
   signInWithPopup: vi.fn(),
@@ -30,6 +24,8 @@ vi.mock('../../../services/api', () => ({
   loginWithEmailPassword: vi.fn(),
 }));
 
+import { validateInvestor } from '../../../services/api';
+
 const ContextConsumer = () => {
   const { user, loading, loginWithGoogle, loginWithEmail, logout, validationError } =
     useContext(AuthContext);
@@ -48,6 +44,8 @@ const ContextConsumer = () => {
 describe('AuthProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    globalThis.localStorage?.clear();
+    getRedirectResult.mockResolvedValue(null);
   });
 
   it('sets user from onAuthStateChanged and stops loading', async () => {
@@ -173,7 +171,6 @@ describe('AuthProvider', () => {
   });
 
   it('loginWithGoogle sets validationError when investor not found', async () => {
-    const { validateInvestor } = await import('../../../services/api');
     validateInvestor.mockResolvedValueOnce({
       valid: false,
       error: 'Investor not found in database',
@@ -201,7 +198,6 @@ describe('AuthProvider', () => {
   });
 
   it('loginWithGoogle sets validationError when account inactive', async () => {
-    const { validateInvestor } = await import('../../../services/api');
     validateInvestor.mockResolvedValueOnce({
       valid: false,
       error: 'Investor account is not active',
@@ -246,36 +242,7 @@ describe('AuthProvider', () => {
     });
   });
 
-  it('handleRedirectResult sets validationError when redirect user is invalid', async () => {
-    getRedirectResult.mockResolvedValueOnce({
-      user: { email: 'redirect@example.com' },
-    });
-    const { validateInvestor } = await import('../../../services/api');
-    validateInvestor.mockResolvedValueOnce({
-      valid: false,
-      error: 'Investor not found in database',
-    });
-    signOut.mockResolvedValueOnce();
-    onAuthStateChanged.mockImplementation((_auth, cb) => {
-      cb(null);
-      return () => {};
-    });
-
-    render(
-      <AuthProvider>
-        <ContextConsumer />
-      </AuthProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId('validation-error')).toHaveTextContent(
-        /No estás registrado como inversor/,
-      );
-    });
-  });
-
   it('loginWithGoogle sets validationError for generic validation error', async () => {
-    const { validateInvestor } = await import('../../../services/api');
     validateInvestor.mockResolvedValueOnce({
       valid: false,
       error: 'Custom validation error',
@@ -301,30 +268,6 @@ describe('AuthProvider', () => {
     });
   });
 
-  it('uses signInWithRedirect in production (DEV=false)', async () => {
-    const originalDev = import.meta.env.DEV;
-    import.meta.env.DEV = false;
-    onAuthStateChanged.mockImplementation((_auth, cb) => {
-      cb(null);
-      return () => {};
-    });
-
-    render(
-      <AuthProvider>
-        <ContextConsumer />
-      </AuthProvider>,
-    );
-
-    fireEvent.click(screen.getByText('loginGoogle'));
-
-    await waitFor(() => {
-      expect(signInWithRedirect).toHaveBeenCalledTimes(1);
-      expect(signInWithPopup).not.toHaveBeenCalled();
-    });
-
-    import.meta.env.DEV = originalDev;
-  });
-
   it('loginWithGoogle returns error when popup throws generic error', async () => {
     signInWithPopup.mockRejectedValueOnce(new Error('Network error'));
     onAuthStateChanged.mockImplementation((_auth, cb) => {
@@ -342,16 +285,34 @@ describe('AuthProvider', () => {
 
     await waitFor(() => {
       expect(signInWithPopup).toHaveBeenCalledTimes(1);
-      expect(signInWithRedirect).not.toHaveBeenCalled();
     });
   });
 
-  it('loginWithGoogle falls back to redirect when popup is blocked', async () => {
-    signInWithPopup.mockRejectedValueOnce({
-      code: 'auth/popup-blocked',
-      message: 'Popup blocked',
+  it('handles redirect result and validates investor on mount', async () => {
+    getRedirectResult.mockResolvedValueOnce({ user: { email: 'redirect@example.com' } });
+    validateInvestor.mockResolvedValueOnce({ valid: true });
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ email: 'redirect@example.com' });
+      return () => {};
     });
-    signInWithRedirect.mockResolvedValueOnce();
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(validateInvestor).toHaveBeenCalledWith('redirect@example.com');
+    });
+  });
+
+  it('handles redirect result with invalid investor', async () => {
+    getRedirectResult.mockResolvedValueOnce({ user: { email: 'bad@example.com' } });
+    validateInvestor.mockResolvedValueOnce({
+      valid: false,
+      error: 'Investor not found in database',
+    });
     onAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(null);
       return () => {};
@@ -363,10 +324,11 @@ describe('AuthProvider', () => {
       </AuthProvider>,
     );
 
-    fireEvent.click(screen.getByText('loginGoogle'));
-
     await waitFor(() => {
-      expect(signInWithRedirect).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('validation-error')).toHaveTextContent(
+        /No estás registrado como inversor/,
+      );
     });
+    expect(signOut).toHaveBeenCalled();
   });
 });
