@@ -4,12 +4,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider } from './AuthProvider';
 import { AuthContext } from './AuthContext';
 
-import { signInWithPopup, getRedirectResult, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
 vi.mock('firebase/auth', () => ({
   signInWithPopup: vi.fn(),
-  signInWithRedirect: vi.fn(),
-  getRedirectResult: vi.fn(() => Promise.resolve(null)),
   signOut: vi.fn(),
   onAuthStateChanged: vi.fn(),
 }));
@@ -45,7 +43,6 @@ describe('AuthProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     globalThis.localStorage?.clear();
-    getRedirectResult.mockResolvedValue(null);
   });
 
   it('sets user from onAuthStateChanged and stops loading', async () => {
@@ -64,7 +61,7 @@ describe('AuthProvider', () => {
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
   });
 
-  it('loginWithGoogle calls signInWithPopup in dev (import.meta.env.DEV=true)', async () => {
+  it('loginWithGoogle calls signInWithPopup and validates investor', async () => {
     onAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(null);
       return () => {};
@@ -82,6 +79,7 @@ describe('AuthProvider', () => {
     await waitFor(() => {
       expect(signInWithPopup).toHaveBeenCalledTimes(1);
     });
+    expect(validateInvestor).toHaveBeenCalledWith('a@b.com');
   });
 
   it('loginWithEmail stores session and sets user on success', async () => {
@@ -268,7 +266,7 @@ describe('AuthProvider', () => {
     });
   });
 
-  it('loginWithGoogle returns error when popup throws generic error', async () => {
+  it('loginWithGoogle returns error when popup throws', async () => {
     signInWithPopup.mockRejectedValueOnce(new Error('Network error'));
     onAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(null);
@@ -286,49 +284,5 @@ describe('AuthProvider', () => {
     await waitFor(() => {
       expect(signInWithPopup).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it('handles redirect result and validates investor on mount', async () => {
-    getRedirectResult.mockResolvedValueOnce({ user: { email: 'redirect@example.com' } });
-    validateInvestor.mockResolvedValueOnce({ valid: true });
-    onAuthStateChanged.mockImplementation((_auth, cb) => {
-      cb({ email: 'redirect@example.com' });
-      return () => {};
-    });
-
-    render(
-      <AuthProvider>
-        <ContextConsumer />
-      </AuthProvider>,
-    );
-
-    await waitFor(() => {
-      expect(validateInvestor).toHaveBeenCalledWith('redirect@example.com');
-    });
-  });
-
-  it('handles redirect result with invalid investor', async () => {
-    getRedirectResult.mockResolvedValueOnce({ user: { email: 'bad@example.com' } });
-    validateInvestor.mockResolvedValueOnce({
-      valid: false,
-      error: 'Investor not found in database',
-    });
-    onAuthStateChanged.mockImplementation((_auth, cb) => {
-      cb(null);
-      return () => {};
-    });
-
-    render(
-      <AuthProvider>
-        <ContextConsumer />
-      </AuthProvider>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId('validation-error')).toHaveTextContent(
-        /No estás registrado como inversor/,
-      );
-    });
-    expect(signOut).toHaveBeenCalled();
   });
 });

@@ -1,11 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../../../services/firebase';
 import { validateInvestor, loginWithEmailPassword as apiLoginEmail } from '../../../services/api';
 
@@ -72,21 +66,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
 
-    getRedirectResult(auth)
-      .then(async (result) => {
-        if (result?.user) {
-          const errorMessage = await validateAndReject(result.user.email);
-          if (errorMessage) {
-            setValidationError(errorMessage);
-            setIsValidated(true);
-            await signOut(auth);
-          } else {
-            setIsValidated(true);
-          }
-        }
-      })
-      .catch(() => {});
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         const session = getStoredSession();
@@ -107,38 +86,21 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  const isDev = import.meta.env.DEV;
-
   const loginWithGoogle = async () => {
     setValidationError(null);
     setIsValidated(false);
 
-    if (isDev) {
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const errorMessage = await validateAndReject(result.user.email);
-        if (errorMessage) {
-          setValidationError(errorMessage);
-          setIsValidated(true);
-          await signOut(auth);
-          return { user: null, error: { code: 'auth/unauthorized', message: errorMessage } };
-        }
-        setIsValidated(true);
-        return { user: result.user, error: null };
-      } catch (error) {
-        return {
-          user: null,
-          error: {
-            code: error?.code ?? 'auth/unknown',
-            message: error?.message ?? 'Unknown authentication error',
-          },
-        };
-      }
-    }
-
     try {
-      await signInWithRedirect(auth, googleProvider);
-      return { user: null, error: null };
+      const result = await signInWithPopup(auth, googleProvider);
+      const errorMessage = await validateAndReject(result.user.email);
+      if (errorMessage) {
+        setValidationError(errorMessage);
+        setIsValidated(true);
+        await signOut(auth);
+        return { user: null, error: { code: 'auth/unauthorized', message: errorMessage } };
+      }
+      setIsValidated(true);
+      return { user: result.user, error: null };
     } catch (error) {
       return {
         user: null,
