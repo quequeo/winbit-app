@@ -10,7 +10,7 @@ export const LoginPage = () => {
     useAuth();
   const [error, setError] = useState(null);
   const [loggingIn, setLoggingIn] = useState(false);
-  const [authMode, setAuthMode] = useState('email');
+  const [authMode, setAuthMode] = useState('google');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

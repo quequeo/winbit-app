@@ -41,6 +41,22 @@ const clearStoredSession = () => {
   }
 };
 
+const validateAndReject = async (email) => {
+  const validation = await validateInvestor(email);
+  if (validation.valid) return null;
+
+  let errorMessage = 'No estás autorizado para acceder a este portal.';
+  if (validation.error === 'Investor not found in database') {
+    errorMessage = 'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
+  } else if (validation.error === 'Investor account is not active') {
+    errorMessage =
+      'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
+  } else if (validation.error) {
+    errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
+  }
+  return errorMessage;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,32 +72,20 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
 
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
+    getRedirectResult(auth)
+      .then(async (result) => {
         if (result?.user) {
-          const validation = await validateInvestor(result.user.email);
-          if (!validation.valid) {
-            let errorMessage = 'No estás autorizado para acceder a este portal.';
-            if (validation.error === 'Investor not found in database') {
-              errorMessage =
-                'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
-            } else if (validation.error === 'Investor account is not active') {
-              errorMessage =
-                'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
-            } else if (validation.error) {
-              errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
-            }
+          const errorMessage = await validateAndReject(result.user.email);
+          if (errorMessage) {
             setValidationError(errorMessage);
+            setIsValidated(true);
             await signOut(auth);
+          } else {
+            setIsValidated(true);
           }
         }
-      } catch (_error) {
-        // Intentionally swallow here; UI handles login errors on demand.
-      }
-    };
-
-    handleRedirectResult();
+      })
+      .catch(() => {});
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -92,7 +96,6 @@ export const AuthProvider = ({ children }) => {
         }
       } else if (!getStoredSession()) {
         setUser((prev) => {
-          // Preserve email/password user even if localStorage was cleared (e.g. another tab)
           if (prev?.authMethod === 'email') return prev;
           return null;
         });
@@ -104,30 +107,17 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
+  const isDev = import.meta.env.DEV;
+
   const loginWithGoogle = async () => {
     setValidationError(null);
     setIsValidated(false);
 
-    // In development use popup (redirect sends back to firebaseapp.com, not localhost).
-    // In production use redirect: more reliable on Safari, mobile, and when
-    // third-party cookies are blocked.
-    const isDev = import.meta.env.DEV;
-
-    try {
-      if (isDev) {
+    if (isDev) {
+      try {
         const result = await signInWithPopup(auth, googleProvider);
-        const validation = await validateInvestor(result.user.email);
-        if (!validation.valid) {
-          let errorMessage = 'No estás autorizado para acceder a este portal.';
-          if (validation.error === 'Investor not found in database') {
-            errorMessage =
-              'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
-          } else if (validation.error === 'Investor account is not active') {
-            errorMessage =
-              'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
-          } else if (validation.error) {
-            errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
-          }
+        const errorMessage = await validateAndReject(result.user.email);
+        if (errorMessage) {
           setValidationError(errorMessage);
           setIsValidated(true);
           await signOut(auth);
@@ -135,25 +125,25 @@ export const AuthProvider = ({ children }) => {
         }
         setIsValidated(true);
         return { user: result.user, error: null };
-      } else {
-        await signInWithRedirect(auth, googleProvider);
-        return { user: null, error: null };
+      } catch (error) {
+        return {
+          user: null,
+          error: {
+            code: error?.code ?? 'auth/unknown',
+            message: error?.message ?? 'Unknown authentication error',
+          },
+        };
       }
+    }
+
+    try {
+      await signInWithRedirect(auth, googleProvider);
+      return { user: null, error: null };
     } catch (error) {
-      const code = error?.code;
-      if (
-        isDev &&
-        (code === 'auth/popup-blocked' ||
-          code === 'auth/popup-closed-by-user' ||
-          code === 'auth/cancelled-popup-request')
-      ) {
-        await signInWithRedirect(auth, googleProvider);
-        return { user: null, error: null };
-      }
       return {
         user: null,
         error: {
-          code: code ?? 'auth/unknown',
+          code: error?.code ?? 'auth/unknown',
           message: error?.message ?? 'Unknown authentication error',
         },
       };

@@ -43,6 +43,7 @@ export default defineConfig({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/__\//],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
