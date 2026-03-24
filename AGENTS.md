@@ -231,6 +231,43 @@ Se ejecuta en push a `main` y en pull requests.
 
 ## 12) Protocolo Git y PRs
 
+### Flujo directo a main (cambios visuales / CSS)
+
+Para cambios visuales menores (CSS, estilos, tamaños, colores, spacing), se permite pushear directo a main **solo si todos los quality gates pasan**.
+
+**Pasos obligatorios antes de pushear:**
+
+```bash
+npm run lint           # ESLint — debe pasar sin errores
+npm run format:check   # Prettier — debe pasar sin errores. Si falla, correr: npm run format
+npm run test:ci        # Vitest — todos los tests deben estar en verde
+```
+
+**Si alguno falla:** corregir el error y volver a correr los tres comandos. NUNCA pushear con errores.
+
+**Si todos pasan:**
+
+```bash
+git add -A
+git commit -m "Descripción breve del cambio"
+git push origin main
+```
+
+**Después del push, deployar:**
+
+```bash
+npm run build && firebase deploy
+```
+
+**Reglas:**
+
+- NUNCA pushear si algún quality gate falla.
+- NUNCA commitear archivos `.env` ni secretos.
+- NUNCA mencionar IA, Cursor, Claude, Copilot ni herramientas similares en commits.
+- Si el cambio toca lógica (JS, hooks, servicios), usar el flujo de PR en vez de push directo.
+
+### Flujo completo (PR obligatorio para cambios de lógica)
+
 ### Reglas de branches
 
 - Un branch por cambio puntual y atómico.
