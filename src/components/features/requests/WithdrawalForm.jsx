@@ -151,26 +151,26 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             <label className="block text-sm font-medium text-text-primary mb-3">
               {t('withdrawals.form.type.label')} <span className="text-error">*</span>
             </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div className="flex gap-5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="radio"
                   name="type"
                   value="partial"
                   checked={type === 'partial'}
                   onChange={(e) => setType(e.target.value)}
-                  className="w-4 h-4 text-primary"
+                  className="w-5 h-5 text-primary accent-[#65a7a5]"
                 />
                 <span>{t('withdrawals.form.type.partial')}</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="radio"
                   name="type"
                   value="full"
                   checked={type === 'full'}
                   onChange={(e) => setType(e.target.value)}
-                  className="w-4 h-4 text-primary"
+                  className="w-5 h-5 text-primary accent-[#65a7a5]"
                 />
                 <span>{t('withdrawals.form.type.full')}</span>
               </label>

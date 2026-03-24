@@ -238,9 +238,16 @@ const PortfolioLineChart = ({ series, title, endAxisLabel }) => {
       >
         <defs>
           <linearGradient id="portfolioArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#65a7a5" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#65a7a5" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="#65a7a5" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#65a7a5" stopOpacity="0.03" />
           </linearGradient>
+          <filter id="lineGlow">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
         {tickValues.map((v) => {
@@ -281,6 +288,7 @@ const PortfolioLineChart = ({ series, title, endAxisLabel }) => {
           strokeWidth="2"
           strokeLinejoin="round"
           strokeLinecap="round"
+          filter="url(#lineGlow)"
         />
 
         {points.map((point, idx) => (
@@ -296,13 +304,23 @@ const PortfolioLineChart = ({ series, title, endAxisLabel }) => {
         ))}
 
         {hoveredPoint && (
-          <circle
-            cx={hoveredPoint.x}
-            cy={hoveredPoint.y}
-            r="5"
-            fill="#65a7a5"
-            style={{ transition: 'r 0.2s, fill 0.2s' }}
-          />
+          <>
+            <circle
+              cx={hoveredPoint.x}
+              cy={hoveredPoint.y}
+              r="10"
+              fill="rgba(101,167,165,0.15)"
+              stroke="none"
+            />
+            <circle
+              cx={hoveredPoint.x}
+              cy={hoveredPoint.y}
+              r="5"
+              fill="#8dc8bf"
+              stroke="#65a7a5"
+              strokeWidth="1.5"
+            />
+          </>
         )}
 
         {hoveredPoint && (

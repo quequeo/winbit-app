@@ -217,11 +217,14 @@ export const WalletsPage = () => {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[rgba(255,255,255,0.08)]">
-                    {deposits.map((r) => {
+                  <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
+                    {deposits.map((r, idx) => {
                       const sc = statusConfig(r.status);
                       return (
-                        <tr key={r.id} className="hover:bg-[rgba(101,167,165,0.08)]">
+                        <tr
+                          key={r.id}
+                          className={`hover:bg-[rgba(101,167,165,0.08)] transition-colors duration-150 ${idx % 2 === 1 ? 'bg-[rgba(101,167,165,0.03)]' : ''}`}
+                        >
                           <td className="px-5 py-3 text-text-primary">{formatDate(r.date)}</td>
                           <td className="px-5 py-3 text-right font-mono font-semibold text-text-primary">
                             {formatCurrency(Number(r.amount))}

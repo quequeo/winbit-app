@@ -31,12 +31,14 @@ export const Header = () => {
     <header className="bg-dark-card border-b border-border-dark">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/dashboard" className="flex items-center gap-2 pl-2 md:pl-0">
+          <Link to="/dashboard" className="flex items-center gap-2 pl-2 md:pl-0 mr-4 md:mr-6">
             <img
               src="/logo-winbit.png"
               alt="Winbit"
-              className="h-12 md:h-14"
-              style={{ filter: 'brightness(1.15)' }}
+              className="h-14 md:h-16"
+              style={{
+                filter: 'brightness(1.15) drop-shadow(0 0 6px rgba(101,167,165,0.25))',
+              }}
             />
           </Link>
 
@@ -49,13 +51,15 @@ export const Header = () => {
                     key={item.path}
                     to={item.path}
                     className={`nav-link flex items-center gap-2 font-medium transition-colors ${
-                      isActive ? 'text-primary' : 'text-text-muted hover:text-primary'
+                      isActive
+                        ? 'nav-link-active text-primary'
+                        : 'text-text-muted hover:text-primary'
                     }`}
                   >
                     <img
                       src={item.icon}
                       alt=""
-                      className={`w-[18px] h-[18px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
+                      className={`w-[22px] h-[22px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
                     />
                     {item.label}
                   </Link>
@@ -140,7 +144,7 @@ export const Header = () => {
                 <img
                   src="/icons/cambiar-contrasena.png"
                   alt=""
-                  className="w-[18px] h-[18px] nav-icon"
+                  className="w-[22px] h-[22px] nav-icon"
                 />
               </button>
               <Button
