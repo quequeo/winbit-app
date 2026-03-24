@@ -257,6 +257,10 @@ npm run build   # Usa .env.production automáticamente
 
 ### Deploy a Firebase Hosting
 
+El deploy es automático: push a `main` → CI corre lint, test, build → deploy a Firebase Hosting.
+
+También se puede deployar manualmente:
+
 ```bash
 npm run build && firebase deploy
 ```
@@ -300,11 +304,7 @@ git commit -m "Descripción breve del cambio"
 git push origin main
 ```
 
-**Después del push, deployar:**
-
-```bash
-npm run build && firebase deploy
-```
+**Después del push a main, el deploy a Firebase es automático** (vía GitHub Actions). No hace falta correr nada manual.
 
 **Reglas:**
 
