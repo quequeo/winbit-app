@@ -10,8 +10,8 @@ export default {
         'accent-dim': 'rgba(101, 167, 165, 0.15)',
         'accent-glow': 'rgba(101, 167, 165, 0.3)',
         dark: {
-          bg: '#0d0f10',
-          card: 'rgba(20, 20, 20, 0.5)',
+          bg: '#0B0F0E',
+          card: 'rgba(20, 20, 20, 0.6)',
           section: 'rgba(20, 20, 20, 0.55)',
         },
         'text-primary': '#e8e8e8',

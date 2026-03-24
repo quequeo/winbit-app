@@ -26,10 +26,13 @@ export const ConfirmModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black transition-opacity" onClick={onCancel} />
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+        onClick={onCancel}
+      />
 
       <div
-        className="relative w-full max-w-sm rounded-lg border-2 border-[rgba(255,152,0,0.3)] bg-[rgba(255,152,0,0.15)] p-8 backdrop-blur-md"
+        className="relative w-full max-w-sm rounded-lg border border-[rgba(101,167,165,0.25)] bg-[rgba(20,20,20,0.6)] backdrop-blur-xl p-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02),0_10px_30px_rgba(0,0,0,0.35)]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
@@ -63,7 +66,7 @@ export const ConfirmModal = ({
           </div>
 
           {title && (
-            <h3 id="confirm-modal-title" className="text-xl font-bold text-text-primary">
+            <h3 id="confirm-modal-title" className="text-xl font-bold text-white">
               {title}
             </h3>
           )}
@@ -74,14 +77,14 @@ export const ConfirmModal = ({
             <button
               onClick={onConfirm}
               disabled={loading}
-              className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg transition-colors hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary disabled:opacity-60"
+              className="w-full px-6 py-3 bg-[rgba(101,167,165,0.2)] text-white font-semibold rounded-lg border border-[rgba(101,167,165,0.35)] transition-all duration-200 hover:bg-[rgba(101,167,165,0.3)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary disabled:opacity-60"
             >
               {loading ? 'Enviando...' : confirmLabel}
             </button>
             <button
               onClick={onCancel}
               disabled={loading}
-              className="w-full px-6 py-3 bg-dark-section border border-border-dark text-text-primary font-semibold rounded-lg transition-colors hover:bg-accent-dim focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary disabled:opacity-60"
+              className="w-full px-6 py-3 bg-dark-section border border-border-dark text-text-primary font-semibold rounded-lg transition-all duration-200 hover:bg-accent-dim focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary disabled:opacity-60"
             >
               {cancelLabel}
             </button>
