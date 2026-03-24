@@ -12,101 +12,11 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    {
-      path: '/dashboard',
-      label: t('nav.dashboard'),
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
-          />
-        </svg>
-      ),
-    },
-    {
-      path: '/wallets',
-      label: t('nav.deposits'),
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"
-          />
-        </svg>
-      ),
-    },
-    {
-      path: '/requests',
-      label: t('nav.withdrawals'),
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
-          />
-        </svg>
-      ),
-    },
-    {
-      path: '/history',
-      label: t('nav.history'),
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-          />
-        </svg>
-      ),
-    },
-    {
-      path: '/operational',
-      label: t('nav.operating'),
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
-          />
-        </svg>
-      ),
-    },
+    { path: '/dashboard', label: t('nav.dashboard'), icon: '/icons/dashboard.png' },
+    { path: '/wallets', label: t('nav.deposits'), icon: '/icons/depositos.png' },
+    { path: '/requests', label: t('nav.withdrawals'), icon: '/icons/retiros.png' },
+    { path: '/history', label: t('nav.history'), icon: '/icons/historial.png' },
+    { path: '/operational', label: t('nav.operating'), icon: '/icons/operativa.png' },
   ];
 
   const handleLanguageChange = (lng) => {
@@ -127,20 +37,25 @@ export const Header = () => {
 
           {user && (
             <nav className="hidden md:flex items-center gap-6">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center gap-1.5 font-medium transition-colors ${
-                    location.pathname === item.path
-                      ? 'text-primary'
-                      : 'text-text-muted hover:text-primary'
-                  }`}
-                >
-                  <span className="opacity-50">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`nav-link flex items-center gap-2 font-medium transition-colors ${
+                      isActive ? 'text-primary' : 'text-text-muted hover:text-primary'
+                    }`}
+                  >
+                    <img
+                      src={item.icon}
+                      alt=""
+                      className={`w-[18px] h-[18px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
+                    />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
           )}
 
@@ -217,20 +132,11 @@ export const Header = () => {
                 className="hidden md:inline-flex items-center justify-center rounded-lg border border-border-dark p-2 text-text-muted hover:text-primary hover:border-primary transition-colors"
                 title={t('auth.changePassword.title')}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z"
-                  />
-                </svg>
+                <img
+                  src="/icons/cambiar-contrasena.png"
+                  alt=""
+                  className="w-[18px] h-[18px] nav-icon"
+                />
               </button>
               <Button
                 onClick={logout}
@@ -252,32 +158,44 @@ export const Header = () => {
           }`}
         >
           <nav className="flex flex-col gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  location.pathname === item.path
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-text-primary hover:bg-accent-dim hover:text-primary'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span className="opacity-50">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`nav-link flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-text-primary hover:bg-accent-dim hover:text-primary'
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <img
+                    src={item.icon}
+                    alt=""
+                    className={`w-[20px] h-[20px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
+                  />
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <Link
             to="/change-password"
-            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`nav-link flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               location.pathname === '/change-password'
                 ? 'bg-primary/10 text-primary'
                 : 'text-text-primary hover:bg-accent-dim hover:text-primary'
             }`}
             onClick={() => setIsMobileMenuOpen(false)}
           >
+            <img
+              src="/icons/cambiar-contrasena.png"
+              alt=""
+              className={`w-[20px] h-[20px] nav-icon ${location.pathname === '/change-password' ? 'nav-icon-active' : ''}`}
+            />
             {t('auth.changePassword.title')}
           </Link>
 
