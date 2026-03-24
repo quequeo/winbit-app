@@ -31,8 +31,13 @@ export const Header = () => {
     <header className="bg-dark-card border-b border-border-dark">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/dashboard" className="flex items-center gap-2">
-            <img src="/logo-winbit.png" alt="Winbit" className="h-8" />
+          <Link to="/dashboard" className="flex items-center gap-2 pl-2 md:pl-0">
+            <img
+              src="/logo-winbit.png"
+              alt="Winbit"
+              className="h-7 md:h-8 max-h-8 brightness-110"
+              style={{ filter: 'brightness(1.1)' }}
+            />
           </Link>
 
           {user && (
