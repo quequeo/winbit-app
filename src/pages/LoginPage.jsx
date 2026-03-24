@@ -77,7 +77,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark-bg px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-dark-card rounded-lg border border-border-dark p-8 backdrop-blur-sm">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary mb-2">Winbit</h1>

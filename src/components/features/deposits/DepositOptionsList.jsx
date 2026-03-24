@@ -28,13 +28,13 @@ export const DepositOptionsList = ({ options }) => {
   const sortedCategories = CATEGORY_ORDER.filter((cat) => grouped[cat]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {sortedCategories.map((category) => (
         <div key={category}>
-          <h3 className="text-lg font-semibold text-text-primary mb-3">
+          <h3 className="text-lg font-semibold text-primary mb-3">
             {t(`deposits.categories.${category}`)}
           </h3>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             {grouped[category].map((opt) => (
               <DepositOptionCard key={opt.id} option={opt} />
             ))}

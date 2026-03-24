@@ -232,9 +232,12 @@ export const OperatingPage = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[rgba(255,255,255,0.08)]">
+                <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
                   {desktopVisibleRows.map((row, idx) => (
-                    <tr key={`${row.code}-${row.date}-${idx}`} className={rowBgClass(row)}>
+                    <tr
+                      key={`${row.code}-${row.date}-${idx}`}
+                      className={`${rowBgClass(row)} transition-colors duration-150 ${idx % 2 === 1 ? 'bg-[rgba(101,167,165,0.03)]' : ''}`}
+                    >
                       <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
                         {formatDate(row.date)}
                       </td>
