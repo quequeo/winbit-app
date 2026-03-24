@@ -35,8 +35,8 @@ export const Header = () => {
             <img
               src="/logo-winbit.png"
               alt="Winbit"
-              className="h-7 md:h-8 max-h-8 brightness-110"
-              style={{ filter: 'brightness(1.1)' }}
+              className="h-10 md:h-11"
+              style={{ filter: 'brightness(1.15)' }}
             />
           </Link>
 
