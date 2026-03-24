@@ -15,7 +15,54 @@ Si algo no está claro o hay más de una opción válida, el agente DEBE pregunt
 
 - **Framework:** React 18 + Vite 5.
 - **Lenguaje:** JavaScript (no TypeScript). Decisión pragmática; la arquitectura facilita migración futura.
-- **Estilos:** Tailwind CSS 3 (config en `tailwind.config.js`). Color primario: `#58b098`. Font: Montserrat.
+- **Estilos:** Tailwind CSS 3 (config en `tailwind.config.js`). Color primario: `#65a7a5`. Font: Montserrat.
+
+### Diseño visual (referencia para cambios CSS)
+
+**Paleta de colores:**
+
+| Token           | Valor                       | Uso                       |
+| --------------- | --------------------------- | ------------------------- |
+| `primary`       | `#65a7a5`                   | Acento principal, botones |
+| `dark.bg`       | `#0B0F0E`                   | Fondo base                |
+| `dark.card`     | `rgba(20, 20, 20, 0.6)`     | Fondo de cards            |
+| `text.primary`  | `#e8e8e8`                   | Texto principal           |
+| `text.muted`    | `#888888`                   | Texto secundario          |
+| `text.dim`      | `#555555`                   | Texto terciario           |
+| `border.dark`   | `rgba(255, 255, 255, 0.08)` | Bordes default            |
+| `border.accent` | `rgba(101, 167, 165, 0.3)`  | Bordes activos/cards      |
+| `success`       | `#9dd4cb`                   | Estado completado         |
+| `warning`       | `#d4bf82`                   | Estado pendiente          |
+| `error`         | `#d48080`                   | Estado rechazado          |
+
+**Fondo global (body):** Radial gradient sutil con dos elipses verdes sobre `#0B0F0E`. Definido en `src/index.css`. NO usar `bg-dark-bg` en contenedores — el gradiente viene del `body`.
+
+**Clases CSS propias (definidas en `src/index.css`):**
+
+| Clase                    | Uso                                    |
+| ------------------------ | -------------------------------------- |
+| `winbit-card`            | Card estándar con glassmorphism        |
+| `winbit-card--highlight` | Card principal (más peso visual)       |
+| `winbit-card--compact`   | Card compacta (menos padding)          |
+| `card-inner`             | Contenedor interior dentro de cards    |
+| `section-subtitle`       | Subtítulo verde de sección             |
+| `badge-completed`        | Badge estado completado (verde)        |
+| `badge-pending`          | Badge estado pendiente (amarillo)      |
+| `badge-rejected`         | Badge estado rechazado (rojo)          |
+| `badge-cancelled`        | Badge estado cancelado (gris)          |
+| `info-box`               | Caja informativa (borde verde)         |
+| `btn-copy`               | Botón copiar (con hover glow)          |
+| `nav-icon`               | Icono de navegación (color default)    |
+| `nav-icon-active`        | Icono de navegación (color activo)     |
+| `nav-link`               | Link de navegación (underline animado) |
+
+**Reglas de diseño:**
+
+- Todas las cards usan hover con `translateY(-2px)` + green glow.
+- Bordes de cards: `rgba(101, 167, 165, 0.3)` mínimo.
+- Botón primario: hover con elevación y glow verde.
+- Tablas: filas alternas con tinte verde, dividers suaves.
+- Gráfico: línea con glow SVG, gradiente visible.
 - **Routing:** React Router DOM 6.
 - **Data fetching:** React Query (`@tanstack/react-query`) con `staleTime: 5min`.
 - **Auth:** Firebase Auth (Google Sign-In).
