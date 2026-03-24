@@ -15,30 +15,18 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
 
   if (!isOpen) return null;
 
-  const bgColorClass =
-    type === 'success'
-      ? 'bg-[rgba(76,175,80,0.15)] border-[rgba(76,175,80,0.3)]'
-      : type === 'error'
-        ? 'bg-[rgba(239,83,80,0.15)] border-[rgba(239,83,80,0.3)]'
-        : 'bg-[rgba(101,167,165,0.15)] border-[rgba(101,167,165,0.3)]';
-
   const iconColorClass =
     type === 'success' ? 'text-success' : type === 'error' ? 'text-error' : 'text-primary';
 
-  const buttonColorClass =
-    type === 'success'
-      ? 'bg-success hover:bg-success/80 focus:ring-success'
-      : type === 'error'
-        ? 'bg-error hover:bg-error/80 focus:ring-error'
-        : 'bg-primary hover:bg-primary/80 focus:ring-primary';
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black transition-opacity" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
 
       <div
-        className={`relative w-full max-w-sm rounded-lg border-2 p-8 backdrop-blur-md ${bgColorClass}`}
+        className="relative w-full max-w-sm rounded-lg border border-[rgba(101,167,165,0.25)] bg-[rgba(20,20,20,0.6)] backdrop-blur-xl p-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02),0_10px_30px_rgba(0,0,0,0.35)]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -92,7 +80,7 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
 
           <div className="space-y-2">
             {title && (
-              <h3 id="modal-title" className="text-xl font-bold text-text-primary">
+              <h3 id="modal-title" className="text-xl font-bold text-white">
                 {title}
               </h3>
             )}
@@ -101,7 +89,7 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
 
           <button
             onClick={onClose}
-            className={`w-full mt-2 px-6 py-3 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg ${buttonColorClass}`}
+            className="w-full mt-2 px-6 py-3 bg-[rgba(101,167,165,0.2)] text-white font-semibold rounded-lg border border-[rgba(101,167,165,0.35)] transition-all duration-200 hover:bg-[rgba(101,167,165,0.3)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary"
           >
             Aceptar
           </button>

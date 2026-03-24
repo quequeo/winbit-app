@@ -12,11 +12,101 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { path: '/dashboard', label: t('nav.dashboard') },
-    { path: '/wallets', label: t('nav.deposits') },
-    { path: '/requests', label: t('nav.withdrawals') },
-    { path: '/history', label: t('nav.history') },
-    { path: '/operational', label: t('nav.operating') },
+    {
+      path: '/dashboard',
+      label: t('nav.dashboard'),
+      icon: (
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+          />
+        </svg>
+      ),
+    },
+    {
+      path: '/wallets',
+      label: t('nav.deposits'),
+      icon: (
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"
+          />
+        </svg>
+      ),
+    },
+    {
+      path: '/requests',
+      label: t('nav.withdrawals'),
+      icon: (
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
+          />
+        </svg>
+      ),
+    },
+    {
+      path: '/history',
+      label: t('nav.history'),
+      icon: (
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
+      ),
+    },
+    {
+      path: '/operational',
+      label: t('nav.operating'),
+      icon: (
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
+          />
+        </svg>
+      ),
+    },
   ];
 
   const handleLanguageChange = (lng) => {
@@ -32,7 +122,7 @@ export const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary">Winbit</span>
+            <img src="/logo-winbit.png" alt="Winbit" className="h-8" />
           </Link>
 
           {user && (
@@ -41,12 +131,13 @@ export const Header = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 font-medium transition-colors ${
                     location.pathname === item.path
                       ? 'text-primary'
                       : 'text-text-muted hover:text-primary'
                   }`}
                 >
+                  <span className="opacity-50">{item.icon}</span>
                   {item.label}
                 </Link>
               ))}
@@ -165,13 +256,14 @@ export const Header = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   location.pathname === item.path
                     ? 'bg-primary/10 text-primary'
                     : 'text-text-primary hover:bg-accent-dim hover:text-primary'
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
+                <span className="opacity-50">{item.icon}</span>
                 {item.label}
               </Link>
             ))}

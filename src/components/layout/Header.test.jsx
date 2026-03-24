@@ -28,7 +28,7 @@ describe('Header', () => {
   it('renders logo', () => {
     useAuth.mockReturnValue({ user: null, logout: vi.fn() });
     renderWithRouter(<Header />);
-    expect(screen.getByText('Winbit')).toBeInTheDocument();
+    expect(screen.getByAltText('Winbit')).toBeInTheDocument();
   });
 
   it('renders navigation when user is logged in', () => {

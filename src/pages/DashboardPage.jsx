@@ -442,7 +442,7 @@ export const DashboardPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">
           {t('dashboard.welcomeBack', { name: formatName(data.name) })}
@@ -451,7 +451,7 @@ export const DashboardPage = () => {
       </div>
 
       {/* Row 1: Valor del portfolio + Capital invertido */}
-      <div className="grid gap-4 md:grid-cols-2 mb-6">
+      <div className="grid gap-6 md:grid-cols-2 mb-6">
         <KpiCard
           title={t('dashboard.kpis.currentValue')}
           value={data.balance}
@@ -467,7 +467,7 @@ export const DashboardPage = () => {
       </div>
 
       {/* Row 2: Resultado histórico (%) + Resultado histórico (USD) */}
-      <div className="grid gap-4 md:grid-cols-2 mb-4">
+      <div className="grid gap-6 md:grid-cols-2 mb-4">
         <KpiCard
           title={t('dashboard.kpis.strategyReturnAllPct')}
           value={data.strategyReturnAllPct ?? 0}
@@ -482,7 +482,7 @@ export const DashboardPage = () => {
       </div>
 
       {/* Row 3: Resultado estrategia actual (%) + Resultado estrategia actual (USD) */}
-      <div className="grid gap-4 md:grid-cols-2 mb-4">
+      <div className="grid gap-6 md:grid-cols-2 mb-4">
         <KpiCard
           title={t('dashboard.kpis.strategyReturnYtdPct')}
           value={data.strategyReturnYtdPct ?? 0}

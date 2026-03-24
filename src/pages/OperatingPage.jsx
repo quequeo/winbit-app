@@ -136,7 +136,7 @@ export const OperatingPage = () => {
               <div key={`${row.code}-${row.date}-${idx}`} className="winbit-card--compact">
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-text-primary truncate">
+                    <div className="text-sm font-semibold text-text-primary whitespace-normal break-words">
                       {formatDate(row.date)}
                     </div>
                     <div className="text-xs text-text-muted mt-1">{movementText(row, t)}</div>

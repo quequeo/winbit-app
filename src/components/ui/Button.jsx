@@ -11,13 +11,13 @@ export const Button = ({
 
   const variants = {
     primary:
-      'bg-[rgba(101,167,165,0.15)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.25)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
+      'bg-[rgba(101,167,165,0.2)] text-white border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.3)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
     secondary:
-      'bg-[rgba(101,167,165,0.10)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.18)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
+      'bg-[rgba(101,167,165,0.1)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.2)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
     danger:
       'bg-[rgba(196,107,107,0.14)] text-[#c46b6b] border border-[rgba(196,107,107,0.18)] hover:bg-[rgba(196,107,107,0.22)] focus:ring-error',
     outline:
-      'bg-[rgba(101,167,165,0.10)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.18)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
+      'bg-[rgba(101,167,165,0.1)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.2)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
     copy: 'btn-copy text-xs focus:ring-primary',
   };
 
