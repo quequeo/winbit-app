@@ -405,7 +405,7 @@ export const HistoryPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('history.title')}</h1>
-        <p className="text-text-primary mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
+        <p className="text-[#9fd3d2] text-sm font-medium mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
           {t('history.subtitle')}
         </p>
       </div>

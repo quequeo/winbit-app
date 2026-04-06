@@ -133,7 +133,9 @@ export const RequestsPage = () => {
                           {sc.label}
                         </span>
                       </div>
-                      <p className="mt-2 text-xs text-text-dim">{formatDate(r.date)}</p>
+                      <p className="mt-2 text-xs text-[rgba(230,244,243,0.55)]">
+                        {formatDate(r.date, { hourSuffix: true })}
+                      </p>
                     </div>
                   );
                 })}
@@ -161,7 +163,9 @@ export const RequestsPage = () => {
                           key={r.id}
                           className={`hover:bg-[rgba(101,167,165,0.08)] transition-colors duration-150 ${idx % 2 === 1 ? 'bg-[rgba(101,167,165,0.03)]' : ''}`}
                         >
-                          <td className="px-5 py-3 text-text-primary">{formatDate(r.date)}</td>
+                          <td className="px-5 py-3 text-text-primary">
+                            {formatDate(r.date, { hourSuffix: true })}
+                          </td>
                           <td className="px-5 py-3 text-right font-mono font-semibold text-text-primary">
                             {formatCurrency(Number(r.amount))}
                           </td>

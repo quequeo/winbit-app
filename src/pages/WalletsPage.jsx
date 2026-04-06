@@ -77,8 +77,8 @@ export const WalletsPage = () => {
               onClick={() => setTab(id)}
               className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap px-1 ${
                 tab === id
-                  ? 'border-[#65a7a5] text-[#8dc8bf]'
-                  : 'border-transparent text-text-muted hover:text-[#8dc8bf]'
+                  ? 'border-[#65a7a5] text-[#9fd3d2]'
+                  : 'border-transparent text-text-muted hover:text-[#9fd3d2]'
               }`}
             >
               {label}
@@ -89,22 +89,22 @@ export const WalletsPage = () => {
 
       {tab === 'methods' && (
         <div className="space-y-6 py-2">
-          <div className="winbit-card">
-            <div className="mb-6 border-b border-[rgba(255,255,255,0.08)] pb-4">
+          <div className="rounded-2xl px-1 py-2">
+            <div className="mb-6 border-b border-[rgba(101,167,165,0.1)] pb-4">
               <h2 className="text-xl font-bold text-text-primary">Métodos de depósito</h2>
-              <p className="text-sm text-text-muted mt-2">
+              <p className="text-sm text-[rgba(230,244,243,0.82)] mt-2">
                 Realizá tu transferencia o depósito utilizando alguno de los siguientes métodos.
               </p>
-              <p className="text-sm text-text-muted mt-2">
+              <p className="text-sm text-[rgba(230,244,243,0.82)] mt-2">
                 Luego de enviar los fondos, dirigite a{' '}
-                <span className="font-semibold text-text-primary">
+                <span className="font-semibold text-[#f3fbfb]">
                   {'"'}Informar depósito{'"'}
                 </span>{' '}
                 para registrar la operación.
               </p>
-              <p className="text-sm text-text-muted mt-2">
+              <p className="text-sm text-[rgba(230,244,243,0.82)] mt-2">
                 Si realizaste o querés realizar un depósito en efectivo, dirigite directamente a{' '}
-                <span className="font-semibold text-text-primary">
+                <span className="font-semibold text-[#f3fbfb]">
                   {'"'}Informar depósito{'"'}
                 </span>
                 .
@@ -121,7 +121,7 @@ export const WalletsPage = () => {
               <DepositOptionsList options={depositOptions} />
             )}
 
-            <div className="mt-6 pt-4 border-t border-[rgba(255,255,255,0.08)] text-center">
+            <div className="mt-6 pt-4 border-t border-[rgba(101,167,165,0.1)] text-center">
               <p className="text-sm text-text-muted mb-3">{t('deposits.depositButton')}</p>
               <button
                 type="button"
@@ -194,7 +194,9 @@ export const WalletsPage = () => {
                           {sc.label}
                         </span>
                       </div>
-                      <p className="mt-2 text-xs text-text-dim">{formatDate(r.date)}</p>
+                      <p className="mt-2 text-xs text-[rgba(230,244,243,0.55)]">
+                        {formatDate(r.date, { hourSuffix: true })}
+                      </p>
                     </div>
                   );
                 })}
@@ -222,7 +224,9 @@ export const WalletsPage = () => {
                           key={r.id}
                           className={`hover:bg-[rgba(101,167,165,0.08)] transition-colors duration-150 ${idx % 2 === 1 ? 'bg-[rgba(101,167,165,0.03)]' : ''}`}
                         >
-                          <td className="px-5 py-3 text-text-primary">{formatDate(r.date)}</td>
+                          <td className="px-5 py-3 text-text-primary">
+                            {formatDate(r.date, { hourSuffix: true })}
+                          </td>
                           <td className="px-5 py-3 text-right font-mono font-semibold text-text-primary">
                             {formatCurrency(Number(r.amount))}
                           </td>

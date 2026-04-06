@@ -491,15 +491,15 @@ export const DashboardPage = () => {
         <h1 className="text-3xl font-bold text-text-primary">
           {t('dashboard.welcomeBack', { name: formatName(data.name) })}
         </h1>
-        <p className="section-subtitle mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
+        <p className="mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)] text-sm text-[#9fd3d2]">
           {t('dashboard.subtitle')}
         </p>
       </div>
 
       {/* Portfolio value — standalone, outside card */}
-      <div className="mt-2">
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-[#8dc8bf]">{t('dashboard.kpis.currentValue')}</p>
+      <div className="mt-4">
+        <div className="flex items-center gap-3 mb-2">
+          <p className="text-sm text-[#9fd3d2]">{t('dashboard.kpis.currentValue')}</p>
           <button
             type="button"
             onClick={toggleBalanceVisibility}
@@ -514,7 +514,7 @@ export const DashboardPage = () => {
           </button>
         </div>
         <p
-          className="text-4xl md:text-5xl font-bold text-text-primary mt-1"
+          className="text-5xl md:text-6xl font-bold text-text-primary mt-1"
           style={{ filter: 'drop-shadow(0 0 6px rgba(141,200,191,0.15))' }}
         >
           {isBalanceHidden ? MASKED_VALUE : formatCurrency(data.balance)}

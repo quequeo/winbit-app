@@ -195,8 +195,8 @@ const resources = {
           history: 'Historial de retiros',
         },
         processingHoursTitle: 'Horario de procesamiento:',
-        processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan el mismo día.',
-        processingHoursLine2: 'Solicitudes posteriores → 08:00 h del siguiente día hábil.',
+        processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan a las 18:00 h.',
+        processingHoursLine2: 'Solicitudes posteriores → 08:00 h del día hábil siguiente.',
         processingHoursLine3:
           'El comprobante se enviará por correo electrónico una vez completado el retiro.',
         form: {
@@ -501,7 +501,7 @@ const resources = {
           history: 'Withdrawal history',
         },
         processingHoursTitle: 'Processing hours:',
-        processingHoursLine1: 'Requests until 16:00 h → processed the same day.',
+        processingHoursLine1: 'Requests until 16:00 h → processed at 18:00 h.',
         processingHoursLine2: 'Requests after that → 08:00 h the next business day.',
         processingHoursLine3: 'The receipt will be sent by email once the withdrawal is completed.',
         form: {

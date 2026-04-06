@@ -3,11 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     background:
-      radial-gradient(ellipse at 20% 0%, rgba(31, 122, 99, 0.12), transparent 55%),
-      radial-gradient(ellipse at 80% 100%, rgba(31, 122, 99, 0.06), transparent 50%);
-    background-color: #0b0f0e;
+      radial-gradient(circle at 20% 0%, rgba(101, 167, 165, 0.1), transparent 45%),
+      radial-gradient(circle at 80% 10%, rgba(101, 167, 165, 0.06), transparent 55%),
+      linear-gradient(180deg, #040b0a 0%, #010404 100%);
     color: #e8e8e8;
     font-family:
       'Montserrat',
@@ -18,12 +23,19 @@
     line-height: 1.6;
   }
 
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #e6f4f3;
+  }
+
   input,
   select,
   textarea {
-    background: #121716;
-    color: #ffffff;
-    border: 1px solid rgba(101, 167, 165, 0.25);
+    background: rgba(5, 15, 15, 0.9);
+    color: #e6f4f3;
+    border: 1px solid rgba(101, 167, 165, 0.2);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     font-family:
@@ -47,8 +59,8 @@
   select:focus,
   textarea:focus {
     outline: none;
-    border-color: #65a7a5;
-    box-shadow: 0 0 0 1px rgba(101, 167, 165, 0.3);
+    border-color: rgba(101, 167, 165, 0.4);
+    box-shadow: 0 0 10px rgba(101, 167, 165, 0.15);
   }
 }
 
@@ -58,88 +70,135 @@
   }
 
   .winbit-card {
-    background:
-      linear-gradient(135deg, rgba(20, 24, 22, 0.85), rgba(16, 20, 18, 0.9)),
-      radial-gradient(ellipse at 30% 0%, rgba(101, 167, 165, 0.06), transparent 60%),
-      linear-gradient(160deg, rgba(101, 167, 165, 0.03), transparent 40%);
-    backdrop-filter: blur(16px) saturate(1.15);
-    -webkit-backdrop-filter: blur(16px) saturate(1.15);
-    border: 1px solid rgba(141, 200, 191, 0.12);
-    border-radius: 8px;
-    padding: 32px 30px;
+    position: relative;
+    background: linear-gradient(180deg, rgba(18, 38, 38, 0.85), rgba(6, 18, 18, 0.95));
+    border: 1px solid rgba(101, 167, 165, 0.18);
+    border-radius: 18px;
+    padding: 20px 22px;
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.02),
-      0 10px 30px rgba(0, 0, 0, 0.35);
-    transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease,
-      border-color 0.25s ease;
+      0 10px 40px rgba(0, 0, 0, 0.6),
+      0 0 25px rgba(101, 167, 165, 0.06),
+      inset 0 0 10px rgba(101, 167, 165, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+  }
+
+  .winbit-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 1px;
+    background: linear-gradient(
+      120deg,
+      rgba(101, 167, 165, 0.25),
+      rgba(101, 167, 165, 0.05),
+      transparent 60%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   .winbit-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(141, 200, 191, 0.22);
+    transform: translateY(-2px) scale(1.01);
+    border-color: rgba(101, 167, 165, 0.3);
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-      0 14px 36px rgba(0, 0, 0, 0.4),
-      0 0 18px rgba(101, 167, 165, 0.06);
+      0 15px 50px rgba(0, 0, 0, 0.8),
+      0 0 40px rgba(101, 167, 165, 0.12),
+      inset 0 0 15px rgba(101, 167, 165, 0.06);
   }
 
   .winbit-card--highlight {
-    background:
-      linear-gradient(135deg, rgba(20, 24, 22, 0.88), rgba(16, 20, 18, 0.92)),
-      radial-gradient(ellipse at 30% 0%, rgba(101, 167, 165, 0.08), transparent 60%),
-      linear-gradient(160deg, rgba(101, 167, 165, 0.04), transparent 40%);
-    backdrop-filter: blur(16px) saturate(1.15);
-    -webkit-backdrop-filter: blur(16px) saturate(1.15);
-    border: 1px solid rgba(141, 200, 191, 0.18);
-    border-radius: 8px;
-    padding: 32px 30px;
+    position: relative;
+    background: linear-gradient(180deg, rgba(18, 38, 38, 0.85), rgba(6, 18, 18, 0.95));
+    border: 1px solid rgba(101, 167, 165, 0.25);
+    border-radius: 18px;
+    padding: 20px 22px;
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-      0 12px 32px rgba(0, 0, 0, 0.38),
-      0 0 10px rgba(101, 167, 165, 0.05);
-    transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease,
-      border-color 0.25s ease;
+      0 10px 40px rgba(0, 0, 0, 0.6),
+      0 0 25px rgba(101, 167, 165, 0.08),
+      inset 0 0 10px rgba(101, 167, 165, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+  }
+
+  .winbit-card--highlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 1px;
+    background: linear-gradient(
+      120deg,
+      rgba(101, 167, 165, 0.3),
+      rgba(101, 167, 165, 0.08),
+      transparent 60%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   .winbit-card--highlight:hover {
-    transform: translateY(-2px);
-    border-color: rgba(141, 200, 191, 0.28);
+    transform: translateY(-2px) scale(1.01);
+    border-color: rgba(101, 167, 165, 0.35);
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-      0 16px 40px rgba(0, 0, 0, 0.42),
-      0 0 18px rgba(101, 167, 165, 0.08);
+      0 15px 50px rgba(0, 0, 0, 0.8),
+      0 0 40px rgba(101, 167, 165, 0.14),
+      inset 0 0 15px rgba(101, 167, 165, 0.07);
   }
 
   .winbit-card--compact {
-    background:
-      linear-gradient(135deg, rgba(20, 24, 22, 0.85), rgba(16, 20, 18, 0.9)),
-      radial-gradient(ellipse at 30% 0%, rgba(101, 167, 165, 0.06), transparent 60%),
-      linear-gradient(160deg, rgba(101, 167, 165, 0.03), transparent 40%);
-    backdrop-filter: blur(16px) saturate(1.15);
-    -webkit-backdrop-filter: blur(16px) saturate(1.15);
-    border: 1px solid rgba(141, 200, 191, 0.12);
-    border-radius: 8px;
+    position: relative;
+    background: linear-gradient(180deg, rgba(18, 38, 38, 0.85), rgba(6, 18, 18, 0.95));
+    border: 1px solid rgba(101, 167, 165, 0.18);
+    border-radius: 18px;
     padding: 24px 26px;
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.02),
-      0 10px 30px rgba(0, 0, 0, 0.35);
-    transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease,
-      border-color 0.25s ease;
+      0 10px 40px rgba(0, 0, 0, 0.6),
+      0 0 25px rgba(101, 167, 165, 0.06),
+      inset 0 0 10px rgba(101, 167, 165, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+  }
+
+  .winbit-card--compact::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 1px;
+    background: linear-gradient(
+      120deg,
+      rgba(101, 167, 165, 0.25),
+      rgba(101, 167, 165, 0.05),
+      transparent 60%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   .winbit-card--compact:hover {
-    transform: translateY(-2px);
-    border-color: rgba(141, 200, 191, 0.22);
+    transform: translateY(-2px) scale(1.01);
+    border-color: rgba(101, 167, 165, 0.3);
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-      0 14px 36px rgba(0, 0, 0, 0.4),
-      0 0 18px rgba(101, 167, 165, 0.06);
+      0 15px 50px rgba(0, 0, 0, 0.8),
+      0 0 40px rgba(101, 167, 165, 0.12),
+      inset 0 0 15px rgba(101, 167, 165, 0.06);
   }
 
   .card-inner {
@@ -148,10 +207,12 @@
     padding: 16px;
   }
 
-  .section-subtitle {
-    color: #65a7a5;
+  .section-subtitle,
+  .section-label {
+    color: #9fd3d2;
+    font-size: 14px;
+    font-weight: 500;
     padding-bottom: 8px;
-    font-size: 0.95rem;
     margin-top: 4px;
   }
 
@@ -215,19 +276,20 @@
   }
 
   .btn-copy {
-    background: rgba(101, 167, 165, 0.14);
-    border: 1px solid rgba(101, 167, 165, 0.45);
-    color: #8dc8bf;
+    background: rgba(101, 167, 165, 0.1);
+    border: 1px solid rgba(101, 167, 165, 0.28);
+    color: #bfe7e5;
     border-radius: 6px;
     padding: 8px 16px;
     font-weight: 500;
+    box-shadow: none;
     transition: all 0.2s ease;
   }
 
   .btn-copy:hover {
-    background: rgba(101, 167, 165, 0.24);
-    border-color: rgba(101, 167, 165, 0.65);
-    box-shadow: 0 0 10px rgba(101, 167, 165, 0.12);
+    background: rgba(101, 167, 165, 0.16);
+    border-color: rgba(101, 167, 165, 0.4);
+    box-shadow: none;
     transform: translateY(-1px);
   }
 
@@ -285,5 +347,190 @@
   .nav-link-active::after {
     width: 100%;
     left: 0;
+  }
+
+  .primary-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #c8f7f5;
+    text-shadow:
+      0 0 10px rgba(101, 167, 165, 0.25),
+      0 0 25px rgba(101, 167, 165, 0.15);
+  }
+
+  .icon {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
+
+  .icon:hover {
+    opacity: 1;
+  }
+
+  .filter-button {
+    border-radius: 999px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(101, 167, 165, 0.15);
+    color: rgba(200, 240, 240, 0.7);
+    font-size: 13px;
+    transition: all 0.2s ease;
+  }
+
+  .filter-button.active {
+    background: rgba(101, 167, 165, 0.15);
+    border: 1px solid rgba(101, 167, 165, 0.4);
+    color: #c8f7f5;
+    box-shadow: 0 0 15px rgba(101, 167, 165, 0.15);
+  }
+
+  .filter-button:hover {
+    border: 1px solid rgba(101, 167, 165, 0.3);
+  }
+
+  .chart-container {
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+
+  .chart-line {
+    stroke: #8fe3e0;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 6px rgba(101, 167, 165, 0.4));
+  }
+
+  .deposit-container {
+    background: linear-gradient(180deg, rgba(15, 35, 35, 0.6), rgba(5, 15, 15, 0.7));
+    border: 1px solid rgba(101, 167, 165, 0.12);
+    border-radius: 20px;
+    box-shadow:
+      inset 0 0 20px rgba(101, 167, 165, 0.04),
+      0 0 40px rgba(0, 0, 0, 0.6);
+    padding: 22px;
+  }
+
+  .deposit-card {
+    background: linear-gradient(180deg, rgba(10, 25, 25, 0.95), rgba(3, 10, 10, 0.98));
+    border: 1px solid rgba(101, 167, 165, 0.18);
+    border-radius: 16px;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.7),
+      0 0 20px rgba(101, 167, 165, 0.05);
+    transition: all 0.25s ease;
+  }
+
+  .deposit-card:hover {
+    border-color: rgba(101, 167, 165, 0.35);
+    box-shadow:
+      0 15px 40px rgba(0, 0, 0, 0.9),
+      0 0 30px rgba(101, 167, 165, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .alert-important {
+    background: rgba(101, 167, 165, 0.08);
+    border: 1px solid rgba(101, 167, 165, 0.25);
+    color: #c8f7f5;
+  }
+
+  .alert-important strong {
+    color: #c8f7f5;
+  }
+
+  .alert-important .icon {
+    color: #65a7a5;
+  }
+
+  .file-button {
+    background: rgba(101, 167, 165, 0.15);
+    border: 1px solid rgba(101, 167, 165, 0.3);
+    color: #c8f7f5;
+  }
+
+  .primary-button {
+    background: linear-gradient(180deg, rgba(101, 167, 165, 0.25), rgba(101, 167, 165, 0.15));
+    border: 1px solid rgba(101, 167, 165, 0.35);
+    color: #e6f4f3;
+    box-shadow: 0 0 20px rgba(101, 167, 165, 0.15);
+  }
+
+  .primary-button:hover {
+    background: linear-gradient(180deg, rgba(101, 167, 165, 0.35), rgba(101, 167, 165, 0.2));
+  }
+
+  .history-amount {
+    color: #e6f4f3;
+    font-weight: 600;
+  }
+
+  .history-date {
+    color: rgba(230, 244, 243, 0.7);
+    font-size: 13px;
+  }
+
+  .status-badge {
+    background: rgba(101, 167, 165, 0.15);
+    border: 1px solid rgba(101, 167, 165, 0.3);
+    color: #c8f7f5;
+  }
+
+  .divider {
+    opacity: 0.12;
+  }
+
+  .deposit-methods-container {
+    background: linear-gradient(180deg, rgba(18, 40, 40, 0.55), rgba(8, 22, 22, 0.62));
+    border: 1px solid rgba(101, 167, 165, 0.1);
+    border-radius: 22px;
+    box-shadow:
+      inset 0 0 18px rgba(101, 167, 165, 0.03),
+      0 0 30px rgba(0, 0, 0, 0.45);
+  }
+
+  .deposit-method-card {
+    background: linear-gradient(180deg, rgba(7, 16, 16, 0.96), rgba(3, 8, 8, 0.98));
+    border: 1px solid rgba(101, 167, 165, 0.18);
+    border-radius: 18px;
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.65),
+      0 0 14px rgba(101, 167, 165, 0.04);
+  }
+
+  .deposit-method-section-title {
+    color: #e6f4f3 !important;
+    font-weight: 600;
+  }
+
+  .deposit-methods-container p,
+  .deposit-methods-container .description {
+    color: rgba(230, 244, 243, 0.82) !important;
+  }
+
+  .deposit-method-card .label {
+    color: rgba(230, 244, 243, 0.6) !important;
+  }
+
+  .deposit-method-card .value {
+    color: #f3fbfb !important;
+  }
+
+  .deposit-method-card .asset-badge,
+  .deposit-method-card span:last-child,
+  .deposit-method-card .badge {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .deposit-method-card .copy-button {
+    background: rgba(101, 167, 165, 0.1);
+    border: 1px solid rgba(101, 167, 165, 0.28);
+    color: #bfe7e5;
+    box-shadow: none;
+  }
+
+  .deposit-method-card .copy-button:hover {
+    background: rgba(101, 167, 165, 0.16);
+    border-color: rgba(101, 167, 165, 0.4);
   }
 }

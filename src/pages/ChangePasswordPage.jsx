@@ -52,7 +52,7 @@ export const ChangePasswordPage = () => {
       <h1 className="text-2xl font-bold text-text-primary mb-2">
         {t('auth.changePassword.title')}
       </h1>
-      <p className="text-sm text-text-muted mb-6">{t('auth.changePassword.subtitle')}</p>
+      <p className="text-sm text-[#9fd3d2] font-medium mb-6">{t('auth.changePassword.subtitle')}</p>
 
       {!isEmailUser && (
         <div className="p-4 bg-[rgba(255,152,0,0.15)] text-warning rounded-lg text-sm mb-6">
