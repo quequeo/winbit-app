@@ -247,12 +247,12 @@ export const HistoryPage = () => {
   const statusPillClass = (status) => {
     const s = normalize(status);
     if (s === 'rechazado' || s === 'rejected') {
-      return 'badge-rejected';
+      return 'bg-red-500/10 text-red-400 border border-red-500/20';
     }
     if (s === 'pendiente' || s === 'pending') {
-      return 'badge-pending';
+      return 'bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20';
     }
-    return 'badge-completed';
+    return 'bg-[#8dc8bf]/10 text-[#8dc8bf] border border-[#8dc8bf]/20';
   };
 
   const movementKind = (movement) => {
@@ -405,7 +405,9 @@ export const HistoryPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('history.title')}</h1>
-        <p className="section-subtitle mt-1">{t('history.subtitle')}</p>
+        <p className="text-text-primary mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
+          {t('history.subtitle')}
+        </p>
       </div>
 
       {rows.length === 0 ? (
@@ -448,16 +450,7 @@ export const HistoryPage = () => {
                     </div>
 
                     <div className="shrink-0 text-right">
-                      <div
-                        className={`text-base font-bold ${
-                          displayAmount(row) > 0
-                            ? 'text-success'
-                            : displayAmount(row) < 0
-                              ? 'text-error'
-                              : 'text-text-primary'
-                        }`}
-                      >
-                        {displayAmount(row) > 0 ? '+' : ''}
+                      <div className="text-base font-bold text-text-primary">
                         {formatCurrency(displayAmount(row))}
                       </div>
                     </div>
@@ -492,7 +485,7 @@ export const HistoryPage = () => {
 
           {shouldPaginateMobile ? (
             <div className="md:hidden flex items-center justify-between gap-3">
-              <div className="text-xs text-text-muted">
+              <div className="text-xs text-text-primary">
                 {t('common.pageOf', 'Página {{page}} de {{total}}', {
                   page: mobilePage,
                   total: mobileTotalPages,
@@ -604,7 +597,7 @@ export const HistoryPage = () => {
           {/* Desktop pagination */}
           <div className="hidden md:flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="text-xs text-text-muted">
+              <div className="text-xs text-text-primary">
                 {t('common.pageOf', 'Página {{page}} de {{total}}', {
                   page: desktopPage,
                   total: desktopTotalPages,

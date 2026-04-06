@@ -13,8 +13,6 @@ const MONTHS_SHORT = [
   'Dec',
 ];
 
-const AR_TZ = 'America/Argentina/Buenos_Aires';
-
 export const formatDate = (dateString, opts = { time: true }) => {
   if (!dateString) {
     return '';
@@ -26,15 +24,16 @@ export const formatDate = (dateString, opts = { time: true }) => {
     return '';
   }
 
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: AR_TZ,
+  const formatterOpts = {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  });
+  };
+
+  const formatter = new Intl.DateTimeFormat('en-US', formatterOpts);
 
   const parts = {};
   for (const { type, value } of formatter.formatToParts(date)) {
@@ -51,6 +50,7 @@ export const formatDate = (dateString, opts = { time: true }) => {
 
   const hour = parts.hour;
   const minute = parts.minute;
+  const suffix = opts.hourSuffix ? ' h' : '';
 
-  return `${day} ${month} ${year} - ${hour}:${minute}`;
+  return `${day} ${month} ${year} - ${hour}:${minute}${suffix}`;
 };

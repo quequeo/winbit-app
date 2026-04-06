@@ -28,4 +28,10 @@ describe('KpiCard', () => {
     render(<KpiCard title="Invested" value={500} variant="currency" tone="neutral" />);
     expect(screen.getByText('$500.00')).toBeInTheDocument();
   });
+
+  it('renders displayOverride instead of formatted value', () => {
+    render(<KpiCard title="Balance" value={1000} variant="currency" displayOverride="••••••" />);
+    expect(screen.getByText('••••••')).toBeInTheDocument();
+    expect(screen.queryByText('$1,000.00')).not.toBeInTheDocument();
+  });
 });

@@ -20,26 +20,26 @@ const METHOD_LABELS = {
 const STATUS_CONFIG = {
   COMPLETED: {
     label: 'Completado',
-    cls: 'badge-completed',
+    cls: 'bg-[#8dc8bf]/10 text-[#8dc8bf] border border-[#8dc8bf]/20',
   },
   PENDING: {
     label: 'Pendiente',
-    cls: 'badge-pending',
+    cls: 'bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20',
   },
   REJECTED: {
     label: 'Rechazado',
-    cls: 'badge-rejected',
+    cls: 'bg-red-500/10 text-red-400 border border-red-500/20',
   },
   CANCELLED: {
     label: 'Cancelado',
-    cls: 'badge-cancelled',
+    cls: 'bg-gray-500/10 text-gray-400 border border-gray-500/20',
   },
 };
 
 const statusConfig = (status) =>
   STATUS_CONFIG[String(status ?? '').toUpperCase()] ?? {
     label: status ?? '—',
-    cls: 'badge-cancelled',
+    cls: 'bg-gray-500/10 text-gray-400 border border-gray-500/20',
   };
 
 export const RequestsPage = () => {

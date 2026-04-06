@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
 import { useInvestorHistory } from '../hooks/useInvestorHistory';
@@ -11,6 +12,9 @@ import { formatName } from '../utils/formatName';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
 import { rangeStartMs } from '../utils/rangeStartMs';
+
+const BALANCE_HIDDEN_KEY = 'winbit-dashboard-hide-balances';
+const MASKED_VALUE = '\u2022\u2022\u2022\u2022\u2022\u2022';
 
 const MONTHS_SHORT = [
   'Jan',
@@ -379,6 +383,28 @@ export const DashboardPage = () => {
 
   const [rangeKey, setRangeKey] = useState('3M');
 
+  const [isBalanceHidden, setIsBalanceHidden] = useState(() => {
+    try {
+      return globalThis?.localStorage?.getItem(BALANCE_HIDDEN_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleBalanceVisibility = () => {
+    setIsBalanceHidden((prev) => {
+      const next = !prev;
+      try {
+        globalThis?.localStorage?.setItem(BALANCE_HIDDEN_KEY, String(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
+
+  const maskedOrValue = isBalanceHidden ? MASKED_VALUE : undefined;
+
   const fullSeries = useMemo(() => {
     const rows = Array.isArray(historyData) ? historyData : [];
 
@@ -465,52 +491,71 @@ export const DashboardPage = () => {
         <h1 className="text-3xl font-bold text-text-primary">
           {t('dashboard.welcomeBack', { name: formatName(data.name) })}
         </h1>
-        <p className="section-subtitle mt-1">{t('dashboard.subtitle')}</p>
+        <p className="section-subtitle mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
+          {t('dashboard.subtitle')}
+        </p>
       </div>
 
-      {/* Row 1: Valor del portfolio + Capital invertido */}
-      <div className="grid gap-6 md:grid-cols-2 mb-6">
-        <KpiCard
-          title={t('dashboard.kpis.currentValue')}
-          value={data.balance}
-          variant="currency"
-          highlighted={true}
-        />
+      {/* Portfolio value — standalone, outside card */}
+      <div className="mt-2">
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#8dc8bf]">{t('dashboard.kpis.currentValue')}</p>
+          <button
+            type="button"
+            onClick={toggleBalanceVisibility}
+            className="text-text-muted hover:text-text-primary transition-colors"
+            aria-label={isBalanceHidden ? t('dashboard.showBalances') : t('dashboard.hideBalances')}
+          >
+            {isBalanceHidden ? (
+              <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+            ) : (
+              <Eye className="w-4 h-4" strokeWidth={1.75} />
+            )}
+          </button>
+        </div>
+        <p
+          className="text-4xl md:text-5xl font-bold text-text-primary mt-1"
+          style={{ filter: 'drop-shadow(0 0 6px rgba(141,200,191,0.15))' }}
+        >
+          {isBalanceHidden ? MASKED_VALUE : formatCurrency(data.balance)}
+        </p>
+      </div>
+
+      {/* KPI grid — 2 columns */}
+      <div className="grid gap-6 md:grid-cols-2 mt-10">
         <KpiCard
           title={t('dashboard.kpis.totalInvested')}
           value={data.totalInvested ?? 0}
           variant="currency"
           tone="neutral"
+          displayOverride={maskedOrValue}
         />
-      </div>
-
-      {/* Row 2: Resultado histórico (%) + Resultado histórico (USD) */}
-      <div className="grid gap-6 md:grid-cols-2 mb-4">
-        <KpiCard
-          title={t('dashboard.kpis.strategyReturnAllPct')}
-          value={data.strategyReturnAllPct ?? 0}
-          variant="percentage"
-        />
+        <div className="hidden md:block" aria-hidden="true" />
         <KpiCard
           title={t('dashboard.kpis.strategyReturnAllUsd')}
           value={data.strategyReturnAllUsd ?? 0}
           variant="currency"
           showSign={true}
+          displayOverride={maskedOrValue}
         />
-      </div>
-
-      {/* Row 3: Resultado estrategia actual (%) + Resultado estrategia actual (USD) */}
-      <div className="grid gap-6 md:grid-cols-2 mb-4">
         <KpiCard
-          title={t('dashboard.kpis.strategyReturnYtdPct')}
-          value={data.strategyReturnYtdPct ?? 0}
+          title={t('dashboard.kpis.strategyReturnAllPct')}
+          value={data.strategyReturnAllPct ?? 0}
           variant="percentage"
+          displayOverride={maskedOrValue}
         />
         <KpiCard
           title={t('dashboard.kpis.strategyReturnYtdUsd')}
           value={data.strategyReturnYtdUsd ?? 0}
           variant="currency"
           showSign={true}
+          displayOverride={maskedOrValue}
+        />
+        <KpiCard
+          title={t('dashboard.kpis.strategyReturnYtdPct')}
+          value={data.strategyReturnYtdPct ?? 0}
+          variant="percentage"
+          displayOverride={maskedOrValue}
         />
       </div>
 

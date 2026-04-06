@@ -49,7 +49,7 @@ describe('HistoryPage', () => {
 
     const mobile = screen.getByTestId('history-mobile');
     expect(within(mobile).getByText('Depósito')).toBeInTheDocument();
-    expect(within(mobile).getByText('+$10,000.00')).toBeInTheDocument();
+    expect(within(mobile).getByText('$10,000.00')).toBeInTheDocument();
     expect(within(mobile).getByText('Acreditado')).toBeInTheDocument();
     expect(within(mobile).getByTestId('icon-deposit-completed')).toBeInTheDocument();
 

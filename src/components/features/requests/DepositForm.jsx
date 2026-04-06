@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Clock } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
@@ -158,7 +159,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
         message={modal?.message}
         type={modal?.type}
       />
-      <Card title={t('deposits.requestForm.title')}>
+      <Card title={t('deposits.requestForm.title')} className="border-t-0">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="amount" className="mb-2 block text-sm font-medium text-text-primary">
@@ -222,7 +223,14 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
           </div>
 
           <div className="info-box text-sm text-text-primary">
-            <p className="font-medium mb-1">{t('deposits.processingHoursTitle')}</p>
+            <p className="font-medium mb-1 flex items-center gap-2">
+              <Clock
+                className="w-4 h-4 shrink-0 text-[#8dc8bf]"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+              {t('deposits.processingHoursTitle')}
+            </p>
             <p>• {t('deposits.processingHoursLine1')}</p>
             <p>• {t('deposits.processingHoursLine2')}</p>
           </div>

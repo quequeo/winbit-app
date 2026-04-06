@@ -9,13 +9,15 @@ export const KpiCard = ({
   highlighted = false,
   tone = 'default',
   showSign = false,
+  displayOverride,
 }) => {
   const displayValue =
-    variant === 'currency'
+    displayOverride ??
+    (variant === 'currency'
       ? formatCurrency(value, showSign)
       : variant === 'percentage'
         ? formatPercentage(value)
-        : String(value ?? '');
+        : String(value ?? ''));
 
   const cardVariant = highlighted ? 'highlight' : 'default';
 

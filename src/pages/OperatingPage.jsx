@@ -6,8 +6,31 @@ import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { EmptyState } from '../components/ui/EmptyState';
 import { formatCurrency } from '../utils/formatCurrency';
-import { formatDate } from '../utils/formatDate';
 import { formatPercentage } from '../utils/formatPercentage';
+
+const MONTH_ABBR = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+const operatingDateLabel = (dateValue) => {
+  const d = new Date(dateValue);
+  if (isNaN(d.getTime())) return String(dateValue ?? '');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mon = MONTH_ABBR[d.getMonth()];
+  const yyyy = d.getFullYear();
+  return `${dd} ${mon} ${yyyy} - 18:00 h`;
+};
 
 const normalize = (value) =>
   String(value ?? '')
@@ -119,7 +142,9 @@ export const OperatingPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('operating.title')}</h1>
-        <p className="section-subtitle mt-1">{t('operating.subtitle')}</p>
+        <p className="section-subtitle mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
+          {t('operating.subtitle')}
+        </p>
       </div>
 
       {rows.length === 0 ? (
@@ -137,7 +162,7 @@ export const OperatingPage = () => {
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-text-primary whitespace-normal break-words">
-                      {formatDate(row.date)}
+                      {operatingDateLabel(row.date)}
                     </div>
                     <div className="text-xs text-text-muted mt-1">{movementText(row, t)}</div>
                   </div>
@@ -239,7 +264,7 @@ export const OperatingPage = () => {
                       className={`${rowBgClass(row)} transition-colors duration-150 ${idx % 2 === 1 ? 'bg-[rgba(101,167,165,0.03)]' : ''}`}
                     >
                       <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
-                        {formatDate(row.date)}
+                        {operatingDateLabel(row.date)}
                       </td>
                       <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
                         {movementText(row, t)}

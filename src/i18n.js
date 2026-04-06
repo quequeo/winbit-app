@@ -87,6 +87,8 @@ const resources = {
       dashboard: {
         welcomeBack: '{{name}}',
         subtitle: 'Resumen del portafolio',
+        hideBalances: 'Ocultar saldos',
+        showBalances: 'Mostrar saldos',
         noDataForAccount: 'No hay datos disponibles para tu cuenta',
         kpis: {
           currentValue: 'Valor del portafolio (USD)',
@@ -120,7 +122,7 @@ const resources = {
           'Realizá tu transferencia o depósito utilizando alguno de los siguientes métodos.',
         warningTitle: 'Importante:',
         warningText:
-          'Verificá siempre los datos antes de enviar fondos. Enviar a una dirección o cuenta incorrecta puede resultar en pérdida de fondos.',
+          'Verificá siempre los datos antes de enviar fondos. Enviar a una dirección o cuenta incorrecta puede resultar en la pérdida de fondos.',
         noWalletsTitle: 'No hay wallets disponibles',
         noWalletsMessage: 'No hay direcciones de depósito configuradas todavía.',
         noOptionsTitle: 'No hay opciones disponibles',
@@ -147,9 +149,9 @@ const resources = {
         },
         copy: 'Copiar',
         copied: '✓ ¡Copiado!',
-        processingHoursTitle: '⏰ Horario de procesamiento:',
+        processingHoursTitle: 'Horario de procesamiento:',
         processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan a las 18:00 h.',
-        processingHoursLine2: 'Solicitudes posteriores → 10:00 h del día hábil siguiente.',
+        processingHoursLine2: 'Solicitudes posteriores → 08:00 h del día hábil siguiente.',
         depositButton: '¿Ya realizaste tu depósito?',
         depositButtonAction: 'Informar depósito',
         requestForm: {
@@ -192,9 +194,9 @@ const resources = {
           newRequest: 'Nueva solicitud',
           history: 'Historial de retiros',
         },
-        processingHoursTitle: '⏰ Horario de procesamiento:',
+        processingHoursTitle: 'Horario de procesamiento:',
         processingHoursLine1: 'Solicitudes hasta 16:00 h → se procesan el mismo día.',
-        processingHoursLine2: 'Solicitudes posteriores → 10:00 h del siguiente día hábil.',
+        processingHoursLine2: 'Solicitudes posteriores → 08:00 h del siguiente día hábil.',
         processingHoursLine3:
           'El comprobante se enviará por correo electrónico una vez completado el retiro.',
         form: {
@@ -392,6 +394,8 @@ const resources = {
       dashboard: {
         welcomeBack: '{{name}}',
         subtitle: 'Portfolio overview',
+        hideBalances: 'Hide balances',
+        showBalances: 'Show balances',
         noDataForAccount: 'No data available for your account',
         kpis: {
           currentValue: 'Portfolio value (USD)',
@@ -451,9 +455,9 @@ const resources = {
         },
         copy: 'Copy',
         copied: '✓ Copied!',
-        processingHoursTitle: '⏰ Processing hours:',
+        processingHoursTitle: 'Processing hours:',
         processingHoursLine1: 'Requests until 16:00 h → processed at 18:00 h.',
-        processingHoursLine2: 'Requests after that → 10:00 h the next business day.',
+        processingHoursLine2: 'Requests after that → 08:00 h the next business day.',
         depositButton: 'Already made your deposit?',
         depositButtonAction: 'Report deposit',
         requestForm: {
@@ -496,9 +500,9 @@ const resources = {
           newRequest: 'New request',
           history: 'Withdrawal history',
         },
-        processingHoursTitle: '⏰ Processing hours:',
+        processingHoursTitle: 'Processing hours:',
         processingHoursLine1: 'Requests until 16:00 h → processed the same day.',
-        processingHoursLine2: 'Requests after that → 10:00 h the next business day.',
+        processingHoursLine2: 'Requests after that → 08:00 h the next business day.',
         processingHoursLine3: 'The receipt will be sent by email once the withdrawal is completed.',
         form: {
           type: {

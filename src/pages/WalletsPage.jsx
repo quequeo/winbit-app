@@ -22,15 +22,15 @@ const METHOD_LABELS = {
 const STATUS_CONFIG = {
   COMPLETED: {
     label: 'Acreditado',
-    cls: 'badge-completed',
+    cls: 'bg-[#8dc8bf]/10 text-[#8dc8bf] border border-[#8dc8bf]/20',
   },
   PENDING: {
     label: 'Pendiente',
-    cls: 'badge-pending',
+    cls: 'bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20',
   },
   REJECTED: {
     label: 'Rechazado',
-    cls: 'badge-rejected',
+    cls: 'bg-red-500/10 text-red-400 border border-red-500/20',
   },
   CANCELLED: {
     label: 'Cancelado',
@@ -77,8 +77,8 @@ export const WalletsPage = () => {
               onClick={() => setTab(id)}
               className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap px-1 ${
                 tab === id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-text-muted hover:text-text-primary'
+                  ? 'border-[#65a7a5] text-[#8dc8bf]'
+                  : 'border-transparent text-text-muted hover:text-[#8dc8bf]'
               }`}
             >
               {label}
@@ -89,7 +89,6 @@ export const WalletsPage = () => {
 
       {tab === 'methods' && (
         <div className="space-y-6 py-2">
-          <p className="section-subtitle">Métodos de depósito</p>
           <div className="winbit-card">
             <div className="mb-6 border-b border-[rgba(255,255,255,0.08)] pb-4">
               <h2 className="text-xl font-bold text-text-primary">Métodos de depósito</h2>
@@ -104,7 +103,7 @@ export const WalletsPage = () => {
                 para registrar la operación.
               </p>
               <p className="text-sm text-text-muted mt-2">
-                Si realizaste un depósito en efectivo, podés dirigirte directamente a{' '}
+                Si realizaste o querés realizar un depósito en efectivo, dirigite directamente a{' '}
                 <span className="font-semibold text-text-primary">
                   {'"'}Informar depósito{'"'}
                 </span>
@@ -138,7 +137,6 @@ export const WalletsPage = () => {
 
       {tab === 'deposit' && (
         <div className="space-y-6 py-2">
-          <p className="section-subtitle">Informar depósito</p>
           <div className="info-box">
             <div className="flex gap-3">
               <div className="shrink-0 mt-0.5 text-primary">
@@ -166,7 +164,6 @@ export const WalletsPage = () => {
 
       {tab === 'history' && (
         <div>
-          <p className="section-subtitle mb-4">Historial</p>
           {historyLoading ? (
             <div className="flex items-center justify-center py-12">
               <Spinner size="lg" />

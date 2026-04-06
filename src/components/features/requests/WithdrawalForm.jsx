@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Clock } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
@@ -194,7 +195,14 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
           )}
 
           <div className="info-box text-sm text-text-primary">
-            <p className="font-medium mb-1">{t('withdrawals.processingHoursTitle')}</p>
+            <p className="font-medium mb-1 flex items-center gap-2">
+              <Clock
+                className="w-4 h-4 shrink-0 text-[#8dc8bf]"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+              {t('withdrawals.processingHoursTitle')}
+            </p>
             <p>• {t('withdrawals.processingHoursLine1')}</p>
             <p>• {t('withdrawals.processingHoursLine2')}</p>
             <p>• {t('withdrawals.processingHoursLine3')}</p>
