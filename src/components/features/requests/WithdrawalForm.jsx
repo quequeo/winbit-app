@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, AlertTriangle } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
@@ -10,9 +10,18 @@ import { createInvestorRequest, getWithdrawalFeePreview } from '../../../service
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 
+const CRYPTO_NETWORKS = [
+  { value: 'BEP20', label: 'BEP20 (BSC)' },
+  { value: 'POLYGON', label: 'Polygon' },
+  { value: 'ERC20', label: 'ERC20 (Ethereum)' },
+  { value: 'TRC20', label: 'TRC20 (Tron)' },
+];
+
 export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [type, setType] = useState('partial');
   const [method, setMethod] = useState('CASH_USD');
+  const [network, setNetwork] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
@@ -20,13 +29,28 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [confirmModal, setConfirmModal] = useState(null);
   const { t } = useTranslation();
 
+  const isCrypto = method === 'CRYPTO';
+
   const methodOptions = [
     { value: 'CASH_USD', label: t('requests.method.cash_usd') },
     { value: 'SWIFT', label: t('requests.method.swift') },
     { value: 'CRYPTO', label: t('requests.method.crypto') },
   ];
 
+  const networkOptions = [
+    { value: '', label: t('withdrawals.form.network.placeholder') },
+    ...CRYPTO_NETWORKS,
+  ];
+
   const withdrawalAmount = type === 'full' ? currentBalance : parseFloat(amount);
+
+  const handleMethodChange = (e) => {
+    setMethod(e.target.value);
+    if (e.target.value !== 'CRYPTO') {
+      setNetwork('');
+      setWalletAddress('');
+    }
+  };
 
   const validate = () => {
     if (type === 'partial' && (!amount || withdrawalAmount <= 0)) {
@@ -35,6 +59,14 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
     }
     if (withdrawalAmount > currentBalance) {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.exceedsBalance') });
+      return false;
+    }
+    if (isCrypto && !network) {
+      setMessage({ type: 'error', text: t('withdrawals.form.validation.networkRequired') });
+      return false;
+    }
+    if (isCrypto && !walletAddress.trim()) {
+      setMessage({ type: 'error', text: t('withdrawals.form.validation.walletAddressRequired') });
       return false;
     }
     return true;
@@ -48,7 +80,8 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       type: 'WITHDRAWAL',
       amount: withdrawalAmount,
       method: method,
-      network: null,
+      network: isCrypto ? network : null,
+      walletAddress: isCrypto ? walletAddress.trim() : null,
       lemontag: null,
     });
 
@@ -63,6 +96,8 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       });
       setAmount('');
       setType('partial');
+      setNetwork('');
+      setWalletAddress('');
     } else {
       setMessage({
         type: 'error',
@@ -142,11 +177,47 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             id="method"
             name="method"
             value={method}
-            onChange={(e) => setMethod(e.target.value)}
+            onChange={handleMethodChange}
             options={methodOptions}
             disabled={loading}
             required
           />
+
+          {isCrypto && (
+            <>
+              <Select
+                label={t('withdrawals.form.network.label')}
+                id="network"
+                name="network"
+                value={network}
+                onChange={(e) => setNetwork(e.target.value)}
+                options={networkOptions}
+                disabled={loading}
+                required
+              />
+
+              <Input
+                label={t('withdrawals.form.walletAddress.label')}
+                type="text"
+                id="walletAddress"
+                name="walletAddress"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                disabled={loading}
+                required
+                placeholder={t('withdrawals.form.walletAddress.placeholder')}
+              />
+
+              <div className="info-box text-sm text-text-primary flex items-start gap-3">
+                <AlertTriangle
+                  className="w-5 h-5 shrink-0 text-warning mt-0.5"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                <p>{t('withdrawals.form.walletWarning')}</p>
+              </div>
+            </>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-text-primary mb-3">

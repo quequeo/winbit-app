@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { WithdrawalForm } from './WithdrawalForm';
 import { createInvestorRequest, getWithdrawalFeePreview } from '../../../services/api';
 import { i18n } from '../../../i18n';
@@ -34,6 +34,10 @@ const previewWithFee = {
 };
 
 describe('WithdrawalForm', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders English strings when language is en', async () => {
     await act(async () => {
       await i18n.changeLanguage('en');
@@ -167,6 +171,7 @@ describe('WithdrawalForm', () => {
         amount: 50,
         method: 'CASH_USD',
         network: null,
+        walletAddress: null,
         lemontag: null,
       });
     });
@@ -235,5 +240,105 @@ describe('WithdrawalForm', () => {
 
     expect(await screen.findByText('Error de red')).toBeInTheDocument();
     expect(screen.queryByText('Confirmar retiro')).not.toBeInTheDocument();
+  });
+
+  it('shows network and wallet fields when CRYPTO is selected', async () => {
+    render(<WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />);
+
+    const methodButton = screen.getByLabelText(/Método/);
+    fireEvent.click(methodButton);
+    const cryptoOption = screen.getByRole('option', { name: /Cripto/i });
+    fireEvent.click(cryptoOption);
+
+    expect(screen.getByText('Red')).toBeInTheDocument();
+    expect(screen.getByText('Dirección de wallet')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Verificá siempre la dirección y la red antes de confirmar/),
+    ).toBeInTheDocument();
+  });
+
+  it('validates missing network when method is CRYPTO', async () => {
+    const { container } = render(
+      <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
+    );
+
+    const methodButton = screen.getByLabelText(/Método/);
+    fireEvent.click(methodButton);
+    fireEvent.click(screen.getByRole('option', { name: /Cripto/i }));
+
+    const amountInput = screen.getByLabelText(/Monto/);
+    fireEvent.change(amountInput, { target: { value: '50' } });
+    fireEvent.submit(container.querySelector('form'));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Seleccioná una red');
+    expect(getWithdrawalFeePreview).not.toHaveBeenCalled();
+  });
+
+  it('validates missing wallet address when method is CRYPTO', async () => {
+    const { container } = render(
+      <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
+    );
+
+    const methodButton = screen.getByLabelText(/Método/);
+    fireEvent.click(methodButton);
+    fireEvent.click(screen.getByRole('option', { name: /Cripto/i }));
+
+    const amountInput = screen.getByLabelText(/Monto/);
+    fireEvent.change(amountInput, { target: { value: '50' } });
+
+    const networkButton = screen.getByLabelText(/Red/);
+    fireEvent.click(networkButton);
+    fireEvent.click(screen.getByRole('option', { name: /BEP20/i }));
+
+    fireEvent.submit(container.querySelector('form'));
+
+    expect(await screen.findByText('Ingresá la dirección de wallet')).toBeInTheDocument();
+    expect(getWithdrawalFeePreview).not.toHaveBeenCalled();
+  });
+
+  it('submits crypto withdrawal with network and walletAddress', async () => {
+    getWithdrawalFeePreview.mockResolvedValueOnce(defaultPreview);
+    createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
+
+    const { container } = render(
+      <WithdrawalForm userName="Test" userEmail="t@e.com" currentBalance={100} />,
+    );
+
+    const methodButton = screen.getByLabelText(/Método/);
+    fireEvent.click(methodButton);
+    fireEvent.click(screen.getByRole('option', { name: /Cripto/i }));
+
+    const amountInput = screen.getByLabelText(/Monto/);
+    fireEvent.change(amountInput, { target: { value: '50' } });
+
+    const networkButton = screen.getByLabelText(/Red/);
+    fireEvent.click(networkButton);
+    fireEvent.click(screen.getByRole('option', { name: /TRC20/i }));
+
+    const walletInput = screen.getByLabelText(/Dirección de wallet/);
+    fireEvent.change(walletInput, { target: { value: 'TXyz123abc456def' } });
+
+    fireEvent.submit(container.querySelector('form'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+
+    await waitFor(() => {
+      expect(createInvestorRequest).toHaveBeenCalledWith({
+        email: 't@e.com',
+        type: 'WITHDRAWAL',
+        amount: 50,
+        method: 'CRYPTO',
+        network: 'TRC20',
+        walletAddress: 'TXyz123abc456def',
+        lemontag: null,
+      });
+    });
+
+    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
   });
 });

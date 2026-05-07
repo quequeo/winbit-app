@@ -209,10 +209,22 @@ const resources = {
             label: 'Monto',
             placeholder: '1,000.00',
           },
+          network: {
+            label: 'Red',
+            placeholder: 'Seleccioná una red',
+          },
+          walletAddress: {
+            label: 'Dirección de wallet',
+            placeholder: 'Pegá la dirección de destino',
+          },
+          walletWarning:
+            'Verificá siempre la dirección y la red antes de confirmar. Enviar a una dirección incorrecta puede resultar en la pérdida de fondos.',
           validation: {
             invalidAmount: 'Ingresá un monto válido',
             exceedsBalance: 'El monto supera el saldo actual',
             lemonTagRequired: 'Ingresá tu Lemontag',
+            networkRequired: 'Seleccioná una red',
+            walletAddressRequired: 'Ingresá la dirección de wallet',
           },
         },
       },
@@ -514,10 +526,22 @@ const resources = {
             label: 'Amount',
             placeholder: '1,000.00',
           },
+          network: {
+            label: 'Network',
+            placeholder: 'Select a network',
+          },
+          walletAddress: {
+            label: 'Wallet address',
+            placeholder: 'Paste the destination address',
+          },
+          walletWarning:
+            'Always verify the address and network before confirming. Sending to the wrong address may result in loss of funds.',
           validation: {
             invalidAmount: 'Enter a valid amount',
             exceedsBalance: 'Amount exceeds current balance',
             lemonTagRequired: 'Enter your Lemontag',
+            networkRequired: 'Select a network',
+            walletAddressRequired: 'Enter the wallet address',
           },
         },
       },
