@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
@@ -7,6 +7,7 @@ import { Button } from '../../ui/Button';
 import { Modal } from '../../ui/Modal';
 import { ConfirmModal } from '../../ui/ConfirmModal';
 import { createInvestorRequest, getWithdrawalFeePreview } from '../../../services/api';
+import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
 
@@ -17,9 +18,35 @@ const CRYPTO_NETWORKS = [
   { value: 'TRC20', label: 'TRC20 (Tron)' },
 ];
 
+/** Fallback si el endpoint de métodos no responde (alineado con seed de payment_methods en prod). */
+const FALLBACK_WITHDRAWAL_METHODS = [
+  {
+    code: 'CASH_USD',
+    name: 'Efectivo USD',
+    requiresNetwork: false,
+    requiresLemontag: false,
+    requiresWalletAddress: false,
+  },
+  {
+    code: 'CRYPTO',
+    name: 'Criptomonedas',
+    requiresNetwork: true,
+    requiresLemontag: false,
+    requiresWalletAddress: true,
+  },
+  {
+    code: 'LEMON_CASH',
+    name: 'Lemon Cash',
+    requiresNetwork: false,
+    requiresLemontag: true,
+    requiresWalletAddress: false,
+  },
+];
+
 export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [type, setType] = useState('partial');
   const [method, setMethod] = useState('CASH_USD');
+  const [lemontag, setLemontag] = useState('');
   const [network, setNetwork] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
   const [amount, setAmount] = useState('');
@@ -28,14 +55,37 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [modal, setModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
   const { t } = useTranslation();
+  const {
+    paymentMethods: apiMethods,
+    loading: methodsLoading,
+    error: methodsError,
+  } = usePaymentMethods('withdrawal');
 
-  const isCrypto = method === 'CRYPTO';
+  const paymentMethods = useMemo(() => {
+    if (apiMethods.length > 0) return apiMethods;
+    return FALLBACK_WITHDRAWAL_METHODS;
+  }, [apiMethods]);
 
-  const methodOptions = [
-    { value: 'CASH_USD', label: t('requests.method.cash_usd') },
-    { value: 'SWIFT', label: t('requests.method.swift') },
-    { value: 'CRYPTO', label: t('requests.method.crypto') },
-  ];
+  const selectedMethod = useMemo(
+    () => paymentMethods.find((m) => m.code === method) ?? null,
+    [paymentMethods, method],
+  );
+
+  useEffect(() => {
+    if (!paymentMethods.length) return;
+    if (!paymentMethods.some((m) => m.code === method)) {
+      setMethod(paymentMethods[0].code);
+    }
+  }, [paymentMethods, method]);
+
+  const methodOptions = useMemo(
+    () =>
+      paymentMethods.map((m) => ({
+        value: m.code,
+        label: m.name || m.code,
+      })),
+    [paymentMethods],
+  );
 
   const networkOptions = [
     { value: '', label: t('withdrawals.form.network.placeholder') },
@@ -45,11 +95,12 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const withdrawalAmount = type === 'full' ? currentBalance : parseFloat(amount);
 
   const handleMethodChange = (e) => {
-    setMethod(e.target.value);
-    if (e.target.value !== 'CRYPTO') {
-      setNetwork('');
-      setWalletAddress('');
-    }
+    const next = e.target.value;
+    setMethod(next);
+    const nextMeta = paymentMethods.find((m) => m.code === next);
+    if (!nextMeta?.requiresNetwork) setNetwork('');
+    if (!nextMeta?.requiresWalletAddress) setWalletAddress('');
+    if (!nextMeta?.requiresLemontag) setLemontag('');
   };
 
   const validate = () => {
@@ -61,11 +112,15 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.exceedsBalance') });
       return false;
     }
-    if (isCrypto && !network) {
+    if (selectedMethod?.requiresLemontag && !lemontag.trim()) {
+      setMessage({ type: 'error', text: t('withdrawals.form.validation.lemonTagRequired') });
+      return false;
+    }
+    if (selectedMethod?.requiresNetwork && !network) {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.networkRequired') });
       return false;
     }
-    if (isCrypto && !walletAddress.trim()) {
+    if (selectedMethod?.requiresWalletAddress && !walletAddress.trim()) {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.walletAddressRequired') });
       return false;
     }
@@ -80,9 +135,9 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       type: 'WITHDRAWAL',
       amount: withdrawalAmount,
       method: method,
-      network: isCrypto ? network : null,
-      walletAddress: isCrypto ? walletAddress.trim() : null,
-      lemontag: null,
+      network: selectedMethod?.requiresNetwork ? network : null,
+      walletAddress: selectedMethod?.requiresWalletAddress ? walletAddress.trim() : null,
+      lemontag: selectedMethod?.requiresLemontag ? lemontag.trim() : null,
     });
 
     setLoading(false);
@@ -98,6 +153,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
       setType('partial');
       setNetwork('');
       setWalletAddress('');
+      setLemontag('');
     } else {
       setMessage({
         type: 'error',
@@ -124,6 +180,9 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
 
     setConfirmModal(preview.data);
   };
+
+  const showCryptoFields = selectedMethod?.requiresNetwork || selectedMethod?.requiresWalletAddress;
+  const showLemontagField = selectedMethod?.requiresLemontag;
 
   return (
     <>
@@ -172,6 +231,12 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
 
       <Card title={t('withdrawals.formTitle')}>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {methodsError && (
+            <p className="text-xs text-text-muted" role="status">
+              {t('withdrawals.form.methodsLoadWarning')}
+            </p>
+          )}
+
           <Select
             label={t('requests.method.label')}
             id="method"
@@ -179,11 +244,26 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             value={method}
             onChange={handleMethodChange}
             options={methodOptions}
-            disabled={loading}
+            disabled={loading || methodsLoading}
             required
           />
 
-          {isCrypto && (
+          {showLemontagField && (
+            <Input
+              label={t('requests.lemonTag.label')}
+              type="text"
+              id="lemontag"
+              name="lemontag"
+              value={lemontag}
+              onChange={(e) => setLemontag(e.target.value)}
+              disabled={loading}
+              required
+              placeholder={t('requests.lemonTag.placeholder')}
+              autoComplete="off"
+            />
+          )}
+
+          {showCryptoFields && (
             <>
               <Select
                 label={t('withdrawals.form.network.label')}
@@ -193,7 +273,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
                 onChange={(e) => setNetwork(e.target.value)}
                 options={networkOptions}
                 disabled={loading}
-                required
+                required={selectedMethod?.requiresNetwork}
               />
 
               <Input
@@ -204,7 +284,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 disabled={loading}
-                required
+                required={selectedMethod?.requiresWalletAddress}
                 placeholder={t('withdrawals.form.walletAddress.placeholder')}
               />
 
@@ -290,7 +370,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
             </div>
           )}
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" disabled={loading || methodsLoading} className="w-full">
             {loading ? t('common.sending') : t('common.sendRequest')}
           </Button>
         </form>

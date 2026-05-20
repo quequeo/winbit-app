@@ -226,6 +226,8 @@ const resources = {
           },
           walletWarning:
             'Verificá siempre la dirección y la red antes de confirmar. Enviar a una dirección incorrecta puede resultar en la pérdida de fondos.',
+          methodsLoadWarning:
+            'No se pudieron cargar los métodos desde el servidor. Se muestran opciones por defecto.',
           validation: {
             invalidAmount: 'Ingresá un monto válido',
             exceedsBalance: 'El monto supera el saldo actual',
@@ -551,6 +553,8 @@ const resources = {
           },
           walletWarning:
             'Always verify the address and network before confirming. Sending to the wrong address may result in loss of funds.',
+          methodsLoadWarning:
+            'Could not load payment methods from the server. Showing default options.',
           validation: {
             invalidAmount: 'Enter a valid amount',
             exceedsBalance: 'Amount exceeds current balance',

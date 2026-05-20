@@ -207,6 +207,28 @@ export const getDepositOptions = async () => {
 };
 
 /**
+ * Obtiene métodos de pago habilitados para depósito o retiro
+ * @param {'deposit'|'withdrawal'} flow
+ * @returns {Promise<{data: array | null, error: string | null}>}
+ */
+export const getPaymentMethods = async (flow = 'withdrawal') => {
+  try {
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/payment_methods?flow=${encodeURIComponent(flow)}`;
+    const response = await silentFetch(url);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `API Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return { data: result.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.message };
+  }
+};
+
+/**
  * Crea una solicitud de depósito o retiro
  * @param {object} requestData - Datos de la solicitud
  * @param {string} requestData.investorEmail - Email del inversor

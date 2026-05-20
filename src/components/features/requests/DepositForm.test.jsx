@@ -247,6 +247,43 @@ describe('DepositForm', () => {
     expect(createInvestorRequest).not.toHaveBeenCalled();
   });
 
+  it('maps LEMON category to LEMON_CASH method for the API', async () => {
+    uploadImage.mockResolvedValueOnce({
+      url: 'https://firebasestorage.googleapis.com/v0/b/bucket/o/receipt.jpg?alt=media',
+      error: null,
+    });
+    createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
+
+    const lemonOptions = [
+      {
+        id: 'lemon',
+        category: 'LEMON',
+        label: 'Lemon Cash',
+        currency: 'USD',
+        details: { lemon_tag: '$winbit' },
+      },
+    ];
+    const { container } = renderWithQuery(
+      <DepositForm userEmail="t@e.com" depositOptions={lemonOptions} />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '100' } });
+    const file = new File(['img'], 'receipt.jpg', { type: 'image/jpeg' });
+    fireEvent.change(container.querySelector('input[type="file"]'), {
+      target: { files: [file] },
+    });
+    fireEvent.submit(container.querySelector('form'));
+
+    await waitFor(() => {
+      expect(createInvestorRequest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'LEMON_CASH',
+          attachmentUrl: expect.stringContaining('https://'),
+        }),
+      );
+    });
+  });
+
   it('derives method options from deposit options', () => {
     renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
 

@@ -4,6 +4,7 @@ import {
   getInvestorHistory,
   getWallets,
   getDepositOptions,
+  getPaymentMethods,
   getWithdrawalFeePreview,
   createInvestorRequest,
   validateInvestor,
@@ -521,6 +522,44 @@ describe('api service', () => {
     });
   });
 
+  describe('getPaymentMethods', () => {
+    it('returns withdrawal payment methods successfully', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          data: [
+            {
+              code: 'LEMON_CASH',
+              name: 'Lemon Cash',
+              requiresLemontag: true,
+              requiresNetwork: false,
+              requiresWalletAddress: false,
+            },
+          ],
+        }),
+      });
+
+      const result = await getPaymentMethods('withdrawal');
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].code).toBe('LEMON_CASH');
+      expect(result.error).toBeNull();
+      expect(mockFetch.mock.calls[0][0]).toContain('/payment_methods?flow=withdrawal');
+    });
+
+    it('returns error when response is not ok', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => ({ error: 'Invalid flow' }),
+      });
+
+      const result = await getPaymentMethods('invalid');
+      expect(result.data).toBeNull();
+      expect(result.error).toContain('Invalid flow');
+    });
+  });
+
   describe('getWithdrawalFeePreview', () => {
     it('returns fee preview successfully', async () => {
       mockFetch.mockResolvedValueOnce({
@@ -588,6 +627,7 @@ describe('api service', () => {
       expect(getInvestorHistory).toBeDefined();
       expect(getWallets).toBeDefined();
       expect(getDepositOptions).toBeDefined();
+      expect(getPaymentMethods).toBeDefined();
       expect(getWithdrawalFeePreview).toBeDefined();
       expect(createInvestorRequest).toBeDefined();
       expect(validateInvestor).toBeDefined();
