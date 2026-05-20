@@ -8,6 +8,7 @@ import { formatDate } from '../utils/formatDate';
 import { formatPercentage } from '../utils/formatPercentage';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
+import { ReceiptAttachment } from '../components/features/attachments/ReceiptAttachment';
 
 const formatFeePercentage = (value) => {
   if (value === null || value === undefined) return '';
@@ -262,6 +263,23 @@ export const HistoryPage = () => {
     return null;
   };
 
+  const isDepositMovement = (movement) => movementKind(movement) === 'deposit';
+
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState(null);
+
+  const DepositReceiptAction = ({ row }) => {
+    if (!row?.attachmentUrl || !isDepositMovement(row?.movement)) return null;
+    return (
+      <button
+        type="button"
+        onClick={() => setReceiptPreviewUrl(row.attachmentUrl)}
+        className="mt-2 text-xs font-semibold text-primary hover:underline"
+      >
+        {t('history.viewReceipt', 'Ver comprobante')}
+      </button>
+    );
+  };
+
   const displayAmount = (row) => {
     const m = normalize(row?.movement);
     if (m === 'deposit_reversal') return -Math.abs(Number(row?.amount) || 0);
@@ -403,6 +421,31 @@ export const HistoryPage = () => {
 
   return (
     <div className="space-y-6">
+      {receiptPreviewUrl ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setReceiptPreviewUrl(null)}
+            aria-hidden
+          />
+          <div className="relative z-10 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-lg border border-[rgba(101,167,165,0.25)] bg-[rgba(20,20,20,0.95)] p-4 shadow-xl">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t('history.viewReceipt', 'Ver comprobante')}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setReceiptPreviewUrl(null)}
+                className="text-sm font-semibold text-text-muted hover:text-text-primary"
+              >
+                {t('common.close', 'Cerrar')}
+              </button>
+            </div>
+            <ReceiptAttachment url={receiptPreviewUrl} />
+          </div>
+        </div>
+      ) : null}
+
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('history.title')}</h1>
         <p className="text-[#9fd3d2] text-sm font-medium mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
@@ -478,6 +521,7 @@ export const HistoryPage = () => {
                       {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
                     </span>
                   </div>
+                  <DepositReceiptAction row={row} />
                 </div>
               );
             })}
@@ -577,6 +621,7 @@ export const HistoryPage = () => {
                             </span>
                           ) : null}
                         </div>
+                        <DepositReceiptAction row={row} />
                       </td>
                       <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
                         {formatCurrency(displayAmount(row))}

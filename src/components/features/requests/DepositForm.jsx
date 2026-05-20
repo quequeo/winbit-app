@@ -10,6 +10,7 @@ import { Spinner } from '../../ui/Spinner';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
+import { ReceiptAttachment } from '../attachments/ReceiptAttachment';
 
 const CASH_METHODS = ['CASH_USD'];
 
@@ -73,11 +74,16 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
     });
   };
 
+  const clearAttachment = () => {
+    setAttachment(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
     if (file && file.size > 5 * 1024 * 1024) {
       setMessage({ type: 'error', text: t('deposits.requestForm.attachment.tooLarge') });
-      setAttachment(null);
+      clearAttachment();
       return;
     }
     setAttachment(file);
@@ -140,8 +146,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
         message: t('requests.registered.crypto'),
       });
       setFormData((s) => ({ ...s, amount: '' }));
-      setAttachment(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      clearAttachment();
     } else {
       setMessage({
         type: 'error',
@@ -215,11 +220,7 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
               onChange={handleFileChange}
               className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgba(101,167,165,0.10)] file:text-[#8dc8bf] hover:file:bg-[rgba(101,167,165,0.18)] cursor-pointer"
             />
-            {attachment && (
-              <p className="mt-1 text-xs text-success">
-                {attachment.name} ({(attachment.size / 1024).toFixed(0)} KB)
-              </p>
-            )}
+            {attachment ? <ReceiptAttachment file={attachment} onRemove={clearAttachment} /> : null}
           </div>
 
           <div className="info-box text-sm text-text-primary">

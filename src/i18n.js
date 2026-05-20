@@ -174,6 +174,13 @@ const resources = {
               'Adjuntá el comprobante de la transferencia o depósito. (JPG, PNG, WEBP o PDF · máx. 5 MB)',
             upload: 'Subir comprobante',
             tooLarge: 'El archivo es demasiado grande. Máximo 5 MB.',
+            previewTitle: 'Vista previa del comprobante',
+            previewAlt: 'Vista previa del comprobante',
+            remove: 'Quitar',
+            pdfSelected: 'Archivo PDF seleccionado',
+            openFull: 'Ver en tamaño completo',
+            expand: 'Ampliar',
+            collapse: 'Reducir',
           },
           validation: {
             emailRequired: 'Debes iniciar sesión para enviar una solicitud.',
@@ -275,6 +282,7 @@ const resources = {
         subtitle: 'Historial de movimientos de tu cuenta',
         emptyTitle: 'Sin movimientos todavía',
         emptyDescription: 'Cuando haya movimientos, los vas a ver reflejados acá.',
+        viewReceipt: 'Ver comprobante',
         movement: {
           deposit: 'Depósito',
           withdrawal: 'Retiro',
@@ -492,6 +500,13 @@ const resources = {
               'Attach the transfer or deposit receipt. (JPG, PNG, WEBP or PDF · max. 5 MB)',
             upload: 'Upload receipt',
             tooLarge: 'File is too large. Maximum 5 MB.',
+            previewTitle: 'Receipt preview',
+            previewAlt: 'Receipt preview',
+            remove: 'Remove',
+            pdfSelected: 'PDF file selected',
+            openFull: 'View full size',
+            expand: 'Expand',
+            collapse: 'Collapse',
           },
           validation: {
             emailRequired: 'You must be logged in to submit a request.',
@@ -592,6 +607,7 @@ const resources = {
         subtitle: 'Account movement history',
         emptyTitle: 'No movements yet',
         emptyDescription: 'When there are movements, you will see them here.',
+        viewReceipt: 'View receipt',
         movement: {
           deposit: 'Deposit',
           withdrawal: 'Withdrawal',

@@ -8,6 +8,7 @@ import { DepositForm } from '../components/features/requests/DepositForm';
 import { Spinner } from '../components/ui/Spinner';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
+import { ReceiptAttachment } from '../components/features/attachments/ReceiptAttachment';
 
 const METHOD_LABELS = {
   CASH_USD: 'Efectivo USD',
@@ -50,6 +51,7 @@ export const WalletsPage = () => {
   const { depositOptions, loading: optionsLoading, error } = useDepositOptions();
   const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
   const [tab, setTab] = useState('methods');
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState(null);
 
   const deposits = useMemo(() => {
     if (!Array.isArray(history)) return [];
@@ -60,6 +62,31 @@ export const WalletsPage = () => {
 
   return (
     <div className="space-y-6">
+      {receiptPreviewUrl ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setReceiptPreviewUrl(null)}
+            aria-hidden
+          />
+          <div className="relative z-10 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-lg border border-[rgba(101,167,165,0.25)] bg-[rgba(20,20,20,0.95)] p-4 shadow-xl">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t('history.viewReceipt', 'Ver comprobante')}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setReceiptPreviewUrl(null)}
+                className="text-sm font-semibold text-text-muted hover:text-text-primary"
+              >
+                {t('common.close', 'Cerrar')}
+              </button>
+            </div>
+            <ReceiptAttachment url={receiptPreviewUrl} />
+          </div>
+        </div>
+      ) : null}
+
       <div>
         <h1 className="text-3xl font-bold text-text-primary">{t('deposits.title')}</h1>
       </div>
@@ -197,6 +224,15 @@ export const WalletsPage = () => {
                       <p className="mt-2 text-xs text-[rgba(230,244,243,0.55)]">
                         {formatDate(r.date, { hourSuffix: true })}
                       </p>
+                      {r.attachmentUrl ? (
+                        <button
+                          type="button"
+                          onClick={() => setReceiptPreviewUrl(r.attachmentUrl)}
+                          className="mt-2 text-xs font-semibold text-primary hover:underline"
+                        >
+                          {t('history.viewReceipt', 'Ver comprobante')}
+                        </button>
+                      ) : null}
                     </div>
                   );
                 })}
@@ -234,11 +270,22 @@ export const WalletsPage = () => {
                             {r.method ? (METHOD_LABELS[r.method] ?? r.method) : '—'}
                           </td>
                           <td className="px-5 py-3">
-                            <span
-                              className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${sc.cls}`}
-                            >
-                              {sc.label}
-                            </span>
+                            <div className="flex flex-col items-start gap-1">
+                              <span
+                                className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${sc.cls}`}
+                              >
+                                {sc.label}
+                              </span>
+                              {r.attachmentUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setReceiptPreviewUrl(r.attachmentUrl)}
+                                  className="text-xs font-semibold text-primary hover:underline"
+                                >
+                                  {t('history.viewReceipt', 'Ver comprobante')}
+                                </button>
+                              ) : null}
+                            </div>
                           </td>
                         </tr>
                       );

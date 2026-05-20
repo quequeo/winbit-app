@@ -180,6 +180,22 @@ describe('DepositForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/demasiado grande|5 MB/i);
   });
 
+  it('shows image preview after selecting a file', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('es');
+    });
+    renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
+
+    const file = new File(['img'], 'receipt.jpg', { type: 'image/jpeg' });
+    const input = document.getElementById('attachment');
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+
+    expect(screen.getByAltText(/Vista previa del comprobante/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Quitar/i })).toBeInTheDocument();
+  });
+
   it('validates attachment required for non-cash methods', async () => {
     await act(async () => {
       await i18n.changeLanguage('es');

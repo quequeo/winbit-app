@@ -96,6 +96,32 @@ describe('WalletsPage', () => {
     expect(screen.getAllByText(/Informar depósito/).length).toBeGreaterThan(0);
   });
 
+  it('shows view receipt button when deposit has attachmentUrl', async () => {
+    mockUseInvestorHistory.mockReturnValue({
+      data: [
+        {
+          id: 'request_1',
+          movement: 'DEPOSIT',
+          amount: 100,
+          date: '2026-01-01T12:00:00Z',
+          status: 'PENDING',
+          method: 'USDT',
+          attachmentUrl: 'https://example.com/receipt.jpg',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderWithQuery(<WalletsPage />);
+    await act(async () => {
+      await userEvent.click(screen.getByText('Historial'));
+    });
+
+    expect(screen.getAllByRole('button', { name: /Ver comprobante/i }).length).toBeGreaterThan(0);
+  });
+
   it('shows deposit rows in history when deposits exist', async () => {
     mockUseInvestorHistory.mockReturnValue({
       data: [

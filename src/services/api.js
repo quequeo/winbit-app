@@ -157,6 +157,7 @@ export const getInvestorHistory = async (email) => {
       tradingFeePercentage: item.tradingFeePercentage ?? null,
       tradingFeeSource: item.tradingFeeSource ?? null,
       tradingFeeWithdrawalAmount: item.tradingFeeWithdrawalAmount ?? null,
+      attachmentUrl: item.attachmentUrl ?? null,
     }));
 
     return { data: mappedHistory, error: null };
