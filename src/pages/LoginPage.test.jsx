@@ -26,19 +26,12 @@ const renderAt = (path) => {
   );
 };
 
-const switchToEmailTab = () => {
-  const matches = screen.getAllByText('Email y contraseña');
-  fireEvent.click(matches[0]);
-};
-
-const _switchToGoogleTab = () => {
-  const matches = screen.getAllByText('Acceder con Google');
-  fireEvent.click(matches[0]);
+const switchToEmailMode = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Ingresar con email y contraseña' }));
 };
 
 const clickGoogleLoginButton = () => {
-  const matches = screen.getAllByText('Acceder con Google');
-  fireEvent.click(matches[matches.length - 1]);
+  fireEvent.click(screen.getByRole('button', { name: 'Acceder con Google' }));
 };
 
 describe('LoginPage', () => {
@@ -46,7 +39,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loading: true });
 
     renderAt('/login');
-    expect(screen.queryByText('Acceder con Google')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Acceder con Google' })).not.toBeInTheDocument();
   });
 
   it('redirects to dashboard when already logged in', () => {
@@ -56,22 +49,26 @@ describe('LoginPage', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
-  it('shows Google sign-in by default', () => {
+  it('shows Google sign-in by default without email fields', () => {
     useAuth.mockReturnValue(defaultMock);
 
     renderAt('/login');
+    expect(screen.getByRole('button', { name: 'Acceder con Google' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ingresar con email y contraseña' })).toBeInTheDocument();
     expect(screen.queryByLabelText('Correo electrónico')).not.toBeInTheDocument();
-    expect(screen.getAllByText('Acceder con Google').length).toBeGreaterThan(0);
+    expect(screen.getByText('PLATAFORMA')).toBeInTheDocument();
+    expect(screen.getByText(/Acceso restringido/)).toBeInTheDocument();
   });
 
-  it('shows email/password form when switching to email tab', () => {
+  it('shows email/password form when choosing email access', () => {
     useAuth.mockReturnValue(defaultMock);
 
     renderAt('/login');
-    switchToEmailTab();
+    switchToEmailMode();
     expect(screen.getByLabelText('Correo electrónico')).toBeInTheDocument();
     expect(screen.getByLabelText(/Contraseña/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ingresar' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Acceder con Google' })).not.toBeInTheDocument();
   });
 
   it('calls loginWithEmail on email form submit', async () => {
@@ -79,7 +76,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithEmail });
 
     renderAt('/login');
-    switchToEmailTab();
+    switchToEmailMode();
     fireEvent.change(screen.getByLabelText('Correo electrónico'), {
       target: { value: 'test@example.com' },
     });
@@ -99,7 +96,7 @@ describe('LoginPage', () => {
     useAuth.mockReturnValue({ ...defaultMock, loginWithEmail });
 
     renderAt('/login');
-    switchToEmailTab();
+    switchToEmailMode();
     fireEvent.change(screen.getByLabelText('Correo electrónico'), {
       target: { value: 'test@example.com' },
     });

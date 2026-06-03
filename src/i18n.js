@@ -61,8 +61,13 @@ const resources = {
         passwordPlaceholder: 'Tu contraseña',
         login: {
           subtitle: 'Plataforma de inversores',
-          disclaimer:
-            'Acceso restringido a inversores registrados. La información se encuentra protegida mediante protocolos de seguridad.',
+          platformLine1: 'PLATAFORMA',
+          platformLine2: 'DE INVERSORES',
+          exclusiveAccess: 'Acceso exclusivo para inversores registrados',
+          useEmailPassword: 'Ingresar con email y contraseña',
+          backToGoogle: 'Volver a acceso con Google',
+          restrictedAccess:
+            '🛡️ Acceso restringido a inversores registrados. La información se encuentra protegida mediante protocolos de seguridad.',
         },
         changePassword: {
           title: 'Cambiar contraseña',
@@ -390,8 +395,13 @@ const resources = {
         passwordPlaceholder: 'Your password',
         login: {
           subtitle: 'Investor platform',
-          disclaimer:
-            'Access restricted to registered investors. Your information is protected by security protocols.',
+          platformLine1: 'PLATFORM',
+          platformLine2: 'FOR INVESTORS',
+          exclusiveAccess: 'Exclusive access for registered investors',
+          useEmailPassword: 'Sign in with email and password',
+          backToGoogle: 'Back to Google sign-in',
+          restrictedAccess:
+            '🛡️ Access restricted to registered investors. Your information is protected by security protocols.',
         },
         changePassword: {
           title: 'Change password',
