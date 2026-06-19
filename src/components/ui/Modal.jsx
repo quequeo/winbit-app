@@ -1,6 +1,18 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
-export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
+export const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  message,
+  type = 'info',
+  primaryActionLabel,
+  onPrimaryAction,
+  children,
+}) => {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -34,7 +46,7 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-text-dim hover:text-text-muted transition-colors"
-          aria-label="Cerrar"
+          aria-label={t('common.close', 'Cerrar')}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -78,21 +90,37 @@ export const Modal = ({ isOpen, onClose, title, message, type = 'info' }) => {
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 w-full">
             {title && (
               <h3 id="modal-title" className="text-xl font-bold text-white">
                 {title}
               </h3>
             )}
-            <p className="text-base text-text-muted whitespace-pre-line">{message}</p>
+            {children ?? <p className="text-base text-text-muted whitespace-pre-line">{message}</p>}
           </div>
 
-          <button
-            onClick={onClose}
-            className="w-full mt-2 px-6 py-3 bg-[rgba(101,167,165,0.2)] text-white font-semibold rounded-lg border border-[rgba(101,167,165,0.35)] transition-all duration-200 hover:bg-[rgba(101,167,165,0.3)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary"
-          >
-            Aceptar
-          </button>
+          <div className="w-full mt-2 space-y-2">
+            {primaryActionLabel && onPrimaryAction ? (
+              <button
+                type="button"
+                onClick={onPrimaryAction}
+                className="w-full px-6 py-3 bg-[rgba(101,167,165,0.28)] text-white font-semibold rounded-lg border border-[rgba(101,167,165,0.45)] transition-all duration-200 hover:bg-[rgba(101,167,165,0.38)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary"
+              >
+                {primaryActionLabel}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className={`w-full px-6 py-3 font-semibold rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg focus:ring-primary ${
+                primaryActionLabel
+                  ? 'bg-transparent text-text-muted border-[rgba(255,255,255,0.12)] hover:text-text-primary hover:border-[rgba(101,167,165,0.35)]'
+                  : 'bg-[rgba(101,167,165,0.2)] text-white border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.3)]'
+              }`}
+            >
+              {primaryActionLabel ? t('common.close', 'Cerrar') : t('common.accept', 'Aceptar')}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { WithdrawalForm } from './WithdrawalForm';
 import { createInvestorRequest, getWithdrawalFeePreview } from '../../../services/api';
 import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { i18n } from '../../../i18n';
+import { ToastProvider } from '../../ui/ToastProvider';
 
 vi.mock('../../../services/api', () => ({
   createInvestorRequest: vi.fn(),
@@ -41,7 +42,11 @@ const MOCK_WITHDRAWAL_METHODS = [
 
 const renderWithQuery = (ui) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>{ui}</ToastProvider>
+    </QueryClientProvider>,
+  );
 };
 
 const defaultPreview = {
@@ -216,8 +221,8 @@ describe('WithdrawalForm', () => {
       });
     });
 
-    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Ver mi solicitud/i })).toBeInTheDocument();
   });
 
   it('submits full withdrawal after confirm', async () => {
@@ -243,7 +248,7 @@ describe('WithdrawalForm', () => {
       expect(createInvestorRequest).toHaveBeenCalled();
     });
 
-    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
   });
 
   it('shows error when createInvestorRequest fails (after confirm)', async () => {
@@ -379,7 +384,7 @@ describe('WithdrawalForm', () => {
       });
     });
 
-    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
   });
 
   it('shows lemontag field when LEMON_CASH is selected', async () => {
@@ -444,6 +449,6 @@ describe('WithdrawalForm', () => {
       });
     });
 
-    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
   });
 });

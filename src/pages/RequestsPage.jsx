@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
 import { useInvestorHistory } from '../hooks/useInvestorHistory';
@@ -43,11 +44,18 @@ const statusConfig = (status) =>
   };
 
 export const RequestsPage = () => {
+  const location = useLocation();
   const { user, userEmail } = useAuth();
   const { data, loading } = useInvestorData(userEmail);
   const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
   const { t } = useTranslation();
-  const [tab, setTab] = useState('form');
+  const [tab, setTab] = useState(() => location.state?.tab ?? 'form');
+
+  useEffect(() => {
+    if (location.state?.tab) {
+      setTab(location.state.tab);
+    }
+  }, [location.state?.tab]);
 
   const withdrawals = useMemo(() => {
     if (!Array.isArray(history)) return [];
@@ -98,6 +106,7 @@ export const RequestsPage = () => {
           userName={data?.name || user?.displayName || 'Investor'}
           userEmail={userEmail}
           currentBalance={data?.balance || 0}
+          onSuccess={() => setTab('history')}
         />
       )}
 

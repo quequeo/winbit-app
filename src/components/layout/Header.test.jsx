@@ -6,6 +6,14 @@ import { useAuth } from '../../hooks/useAuth';
 import { beforeEach } from 'vitest';
 
 vi.mock('../../hooks/useAuth');
+vi.mock('../../hooks/useInvestorHistory', () => ({
+  useInvestorHistory: vi.fn(() => ({
+    data: [],
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  })),
+}));
 
 const renderWithRouter = (component) => {
   return render(
@@ -26,7 +34,12 @@ describe('Header', () => {
   });
 
   it('renders logo', () => {
-    useAuth.mockReturnValue({ user: null, logout: vi.fn() });
+    useAuth.mockReturnValue({
+      user: null,
+      userEmail: null,
+      isValidated: false,
+      logout: vi.fn(),
+    });
     renderWithRouter(<Header />);
     expect(screen.getByAltText('Winbit')).toBeInTheDocument();
   });
@@ -34,6 +47,8 @@ describe('Header', () => {
   it('renders navigation when user is logged in', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
+      userEmail: 'test@example.com',
+      isValidated: true,
       logout: vi.fn(),
     });
 
@@ -45,7 +60,12 @@ describe('Header', () => {
   });
 
   it('does not render navigation when user is not logged in', () => {
-    useAuth.mockReturnValue({ user: null, logout: vi.fn() });
+    useAuth.mockReturnValue({
+      user: null,
+      userEmail: null,
+      isValidated: false,
+      logout: vi.fn(),
+    });
     renderWithRouter(<Header />);
     expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
   });
@@ -66,6 +86,8 @@ describe('Header', () => {
   it('switches language when ES/EN buttons clicked', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
+      userEmail: 'test@example.com',
+      isValidated: true,
       logout: vi.fn(),
     });
 
@@ -83,6 +105,8 @@ describe('Header', () => {
   it('toggles mobile menu when hamburger button is clicked', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
+      userEmail: 'test@example.com',
+      isValidated: true,
       logout: vi.fn(),
     });
 

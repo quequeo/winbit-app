@@ -1,16 +1,35 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { Button } from '../ui/Button';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../hooks/useAuth';
+import { useInvestorHistory } from '../../hooks/useInvestorHistory';
+import { getPendingRequests } from '../../utils/requestHistory';
+import { Button } from '../ui/Button';
 
 export const Header = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, userEmail } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: history } = useInvestorHistory(userEmail);
 
+  const pendingDeposits = useMemo(() => {
+    return getPendingRequests(Array.isArray(history) ? history : []).filter(
+      (r) => String(r.movement).toUpperCase() === 'DEPOSIT',
+    ).length;
+  }, [history]);
+
+  const pendingWithdrawals = useMemo(() => {
+    return getPendingRequests(Array.isArray(history) ? history : []).filter(
+      (r) => String(r.movement).toUpperCase() === 'WITHDRAWAL',
+    ).length;
+  }, [history]);
+
+  const pendingByPath = {
+    '/wallets': pendingDeposits,
+    '/requests': pendingWithdrawals,
+  };
   const navItems = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: '/icons/dashboard.png' },
     { path: '/wallets', label: t('nav.deposits'), icon: '/icons/depositos.png' },
@@ -46,6 +65,7 @@ export const Header = () => {
             <nav className="hidden md:flex items-center gap-6">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
+                const pendingCount = pendingByPath[item.path] ?? 0;
                 return (
                   <Link
                     key={item.path}
@@ -56,11 +76,18 @@ export const Header = () => {
                         : 'text-text-muted hover:text-primary'
                     }`}
                   >
-                    <img
-                      src={item.icon}
-                      alt=""
-                      className={`w-[22px] h-[22px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
-                    />
+                    <span className="relative inline-flex">
+                      <img
+                        src={item.icon}
+                        alt=""
+                        className={`w-[22px] h-[22px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
+                      />
+                      {pendingCount > 0 ? (
+                        <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-warning text-[10px] font-bold text-dark-bg flex items-center justify-center">
+                          {pendingCount}
+                        </span>
+                      ) : null}
+                    </span>
                     {item.label}
                   </Link>
                 );
@@ -169,6 +196,7 @@ export const Header = () => {
           <nav className="flex flex-col gap-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
+              const pendingCount = pendingByPath[item.path] ?? 0;
               return (
                 <Link
                   key={item.path}
@@ -180,11 +208,18 @@ export const Header = () => {
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <img
-                    src={item.icon}
-                    alt=""
-                    className={`w-[20px] h-[20px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
-                  />
+                  <span className="relative inline-flex">
+                    <img
+                      src={item.icon}
+                      alt=""
+                      className={`w-[20px] h-[20px] nav-icon ${isActive ? 'nav-icon-active' : ''}`}
+                    />
+                    {pendingCount > 0 ? (
+                      <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-warning text-[10px] font-bold text-dark-bg flex items-center justify-center">
+                        {pendingCount}
+                      </span>
+                    ) : null}
+                  </span>
                   {item.label}
                 </Link>
               );

@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
 import { useInvestorHistory } from '../hooks/useInvestorHistory';
 import { KpiCard } from '../components/features/dashboard/KpiCard';
+import { PendingRequestsBanner } from '../components/features/requests/PendingRequestsBanner';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { UnauthorizedPage } from './UnauthorizedPage';
@@ -487,6 +488,8 @@ export const DashboardPage = () => {
 
   return (
     <div className="space-y-8">
+      <PendingRequestsBanner />
+
       <div>
         <h1 className="text-3xl font-bold text-text-primary">
           {t('dashboard.welcomeBack', { name: formatName(data.name) })}

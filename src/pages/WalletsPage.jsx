@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { DepositOptionsList } from '../components/features/deposits/DepositOptionsList';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -47,11 +48,18 @@ const statusConfig = (status) =>
 
 export const WalletsPage = () => {
   const { t } = useTranslation();
+  const location = useLocation();
   const { userEmail } = useAuth();
   const { depositOptions, loading: optionsLoading, error } = useDepositOptions();
   const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
-  const [tab, setTab] = useState('methods');
+  const [tab, setTab] = useState(() => location.state?.tab ?? 'methods');
   const [receiptPreviewUrl, setReceiptPreviewUrl] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.tab) {
+      setTab(location.state.tab);
+    }
+  }, [location.state?.tab]);
 
   const deposits = useMemo(() => {
     if (!Array.isArray(history)) return [];
@@ -185,7 +193,11 @@ export const WalletsPage = () => {
             </div>
           </div>
 
-          <DepositForm userEmail={userEmail} depositOptions={depositOptions} />
+          <DepositForm
+            userEmail={userEmail}
+            depositOptions={depositOptions}
+            onSuccess={() => setTab('history')}
+          />
         </div>
       )}
 

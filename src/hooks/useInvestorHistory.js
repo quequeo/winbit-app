@@ -2,8 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getInvestorHistory } from '../services/api';
 import { useAuth } from './useAuth';
 
-export const useInvestorHistory = (email) => {
+export const useInvestorHistory = (email, options = {}) => {
   const { isValidated } = useAuth();
+  const { refetchInterval } = options;
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['investor', email, 'history'],
@@ -15,6 +16,7 @@ export const useInvestorHistory = (email) => {
       return result.data;
     },
     enabled: !!email && !!isValidated,
+    refetchInterval,
   });
 
   return {

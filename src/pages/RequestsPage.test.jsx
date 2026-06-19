@@ -1,6 +1,7 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { RequestsPage } from './RequestsPage';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
@@ -13,8 +14,18 @@ vi.mock('../components/features/requests/WithdrawalForm', () => ({
   WithdrawalForm: () => <div>WithdrawalForm</div>,
 }));
 
+const renderPage = () =>
+  render(
+    <MemoryRouter>
+      <RequestsPage />
+    </MemoryRouter>,
+  );
+
 describe('RequestsPage', () => {
-  const mockAuth = { user: { email: 'test@example.com', displayName: 'Juan' } };
+  const mockAuth = {
+    user: { email: 'test@example.com', displayName: 'Juan' },
+    userEmail: 'test@example.com',
+  };
   const mockData = {
     data: { name: 'Juan', balance: 1000 },
     loading: false,
@@ -27,7 +38,7 @@ describe('RequestsPage', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue({ ...mockData, loading: true });
     useInvestorHistory.mockReturnValue(mockHistory);
-    render(<RequestsPage />);
+    renderPage();
     expect(screen.queryByText('Nueva solicitud')).not.toBeInTheDocument();
   });
 
@@ -35,7 +46,7 @@ describe('RequestsPage', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue(mockHistory);
-    render(<RequestsPage />);
+    renderPage();
     expect(screen.getByText('Nueva solicitud')).toBeInTheDocument();
     expect(screen.getByText('Historial de retiros')).toBeInTheDocument();
   });
@@ -44,7 +55,7 @@ describe('RequestsPage', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue(mockHistory);
-    render(<RequestsPage />);
+    renderPage();
     expect(screen.getByText('WithdrawalForm')).toBeInTheDocument();
   });
 
@@ -52,7 +63,7 @@ describe('RequestsPage', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue({ ...mockHistory, loading: true });
-    const { container } = render(<RequestsPage />);
+    const { container } = renderPage();
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });
@@ -63,7 +74,7 @@ describe('RequestsPage', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue(mockHistory);
-    render(<RequestsPage />);
+    renderPage();
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });
@@ -103,7 +114,7 @@ describe('RequestsPage', () => {
       loading: false,
       error: null,
     });
-    render(<RequestsPage />);
+    renderPage();
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });
@@ -129,7 +140,7 @@ describe('RequestsPage', () => {
       loading: false,
       error: null,
     });
-    render(<RequestsPage />);
+    renderPage();
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });

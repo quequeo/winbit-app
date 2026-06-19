@@ -32,6 +32,8 @@ const resources = {
         next: 'Siguiente',
         pageOf: 'Página {{page}} de {{total}}',
         rowsPerPage: 'Filas por página',
+        close: 'Cerrar',
+        accept: 'Aceptar',
       },
       errors: {
         somethingWentWrong: 'Ocurrió un error',
@@ -63,11 +65,12 @@ const resources = {
           subtitle: 'Plataforma de inversores',
           platformLine1: 'PLATAFORMA',
           platformLine2: 'DE INVERSORES',
+          logoTagline: 'TRADING DE FUTUROS',
           exclusiveAccess: 'Acceso exclusivo para inversores registrados',
           useEmailPassword: 'Ingresar con email y contraseña',
           backToGoogle: 'Volver a acceso con Google',
           restrictedAccess:
-            '🛡️ Acceso restringido a inversores registrados. La información se encuentra protegida mediante protocolos de seguridad.',
+            'Acceso restringido a inversores registrados. La información se encuentra protegida mediante protocolos de seguridad.',
         },
         changePassword: {
           title: 'Cambiar contraseña',
@@ -133,6 +136,7 @@ const resources = {
         noOptionsTitle: 'No hay opciones disponibles',
         noOptionsMessage: 'No hay opciones de depósito configuradas todavía.',
         categories: {
+          CUSTOM: 'Personalizado',
           CASH_USD: 'Efectivo USD',
           LEMON: 'Lemon Cash',
           CRYPTO: 'Cripto',
@@ -268,6 +272,29 @@ const resources = {
           withdrawalTitle: 'Retiro solicitado',
           withdrawal:
             'La solicitud de retiro fue registrada correctamente.\n\nEl retiro será procesado en el próximo cierre operativo.\nUna vez completado, recibirás el comprobante correspondiente por correo electrónico.',
+          reference: 'Referencia de solicitud',
+        },
+        notifications: {
+          viewRequest: 'Ver mi solicitud',
+          viewDeposits: 'Ver depósitos',
+          viewWithdrawals: 'Ver retiros',
+          typeDeposit: 'Depósito',
+          typeWithdrawal: 'Retiro',
+          submittedToastDeposit: 'Depósito registrado · {{amount}} · Pendiente de acreditación',
+          submittedToastWithdrawal: 'Retiro solicitado · {{amount}} · Pendiente de procesamiento',
+          pendingBannerTitle_one: '{{count}} solicitud pendiente',
+          pendingBannerTitle_other: '{{count}} solicitudes pendientes',
+          pendingBannerSubtitle:
+            'Tu solicitud fue registrada y está en revisión. Te avisaremos cuando se procese.',
+          pendingBannerMore: 'y {{count}} más…',
+          depositApprovedTitle: 'Depósito acreditado',
+          depositApprovedMessage: 'Se acreditó tu depósito de {{amount}}.',
+          withdrawalApprovedTitle: 'Retiro completado',
+          withdrawalApprovedMessage: 'Se procesó tu retiro de {{amount}}.',
+          depositRejectedTitle: 'Depósito rechazado',
+          depositRejectedMessage: 'Tu depósito de {{amount}} no pudo ser acreditado.',
+          withdrawalRejectedTitle: 'Retiro rechazado',
+          withdrawalRejectedMessage: 'Tu retiro de {{amount}} no pudo ser procesado.',
         },
       },
       history: {
@@ -366,6 +393,8 @@ const resources = {
         next: 'Next',
         pageOf: 'Page {{page}} of {{total}}',
         rowsPerPage: 'Rows per page',
+        close: 'Close',
+        accept: 'Accept',
       },
       errors: {
         somethingWentWrong: 'Something went wrong',
@@ -397,11 +426,12 @@ const resources = {
           subtitle: 'Investor platform',
           platformLine1: 'PLATFORM',
           platformLine2: 'FOR INVESTORS',
+          logoTagline: 'FUTURES TRADING',
           exclusiveAccess: 'Exclusive access for registered investors',
           useEmailPassword: 'Sign in with email and password',
           backToGoogle: 'Back to Google sign-in',
           restrictedAccess:
-            '🛡️ Access restricted to registered investors. Your information is protected by security protocols.',
+            'Access restricted to registered investors. Your information is protected by security protocols.',
         },
         changePassword: {
           title: 'Change password',
@@ -466,6 +496,7 @@ const resources = {
         noOptionsTitle: 'No options available',
         noOptionsMessage: 'No deposit options have been configured yet.',
         categories: {
+          CUSTOM: 'Custom',
           CASH_USD: 'Cash USD',
           LEMON: 'Lemon Cash',
           CRYPTO: 'Crypto',
@@ -600,6 +631,29 @@ const resources = {
           withdrawalTitle: 'Withdrawal requested',
           withdrawal:
             'The withdrawal request was registered successfully.\n\nThe withdrawal will be processed at the next operational close.\nOnce completed, you will receive the receipt by email.',
+          reference: 'Request reference',
+        },
+        notifications: {
+          viewRequest: 'View my request',
+          viewDeposits: 'View deposits',
+          viewWithdrawals: 'View withdrawals',
+          typeDeposit: 'Deposit',
+          typeWithdrawal: 'Withdrawal',
+          submittedToastDeposit: 'Deposit registered · {{amount}} · Pending credit',
+          submittedToastWithdrawal: 'Withdrawal requested · {{amount}} · Pending processing',
+          pendingBannerTitle_one: '{{count}} pending request',
+          pendingBannerTitle_other: '{{count}} pending requests',
+          pendingBannerSubtitle:
+            'Your request was registered and is under review. We will notify you when it is processed.',
+          pendingBannerMore: 'and {{count}} more…',
+          depositApprovedTitle: 'Deposit credited',
+          depositApprovedMessage: 'Your deposit of {{amount}} was credited.',
+          withdrawalApprovedTitle: 'Withdrawal completed',
+          withdrawalApprovedMessage: 'Your withdrawal of {{amount}} was processed.',
+          depositRejectedTitle: 'Deposit rejected',
+          depositRejectedMessage: 'Your deposit of {{amount}} could not be credited.',
+          withdrawalRejectedTitle: 'Withdrawal rejected',
+          withdrawalRejectedMessage: 'Your withdrawal of {{amount}} could not be processed.',
         },
       },
       history: {

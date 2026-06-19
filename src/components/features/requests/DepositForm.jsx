@@ -11,6 +11,9 @@ import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { useTranslation } from 'react-i18next';
 import { ReceiptAttachment } from '../attachments/ReceiptAttachment';
+import { useToast } from '../../../hooks/useToast';
+import { pendingHistoryId } from '../../../utils/requestHistory';
+import { formatCurrency } from '../../../utils/formatCurrency';
 
 const CASH_METHODS = ['CASH_USD'];
 
@@ -29,9 +32,10 @@ const CATEGORY_TO_METHOD = {
   SWIFT: 'SWIFT',
 };
 
-export const DepositForm = ({ userEmail, depositOptions = [] }) => {
+export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const methodOptions = useMemo(() => {
     if (!depositOptions || depositOptions.length === 0) {
@@ -68,6 +72,24 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
 
   const isCash = CASH_METHODS.includes(formData.method);
   const attachmentRequired = !isCash;
+
+  const depositSuccessMessage = (method) => {
+    if (method === 'CASH_USD') return t('requests.registered.cash');
+    if (method === 'SWIFT') return t('requests.registered.international');
+    return t('requests.registered.crypto');
+  };
+
+  const methodLabel = (method) => {
+    const opt = methodOptions.find((o) => o.value === method);
+    return opt?.label ?? method;
+  };
+
+  const invalidateAfterRequest = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['investor', userEmail] }),
+      queryClient.invalidateQueries({ queryKey: ['investor', userEmail, 'history'] }),
+    ]);
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -141,12 +163,30 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
     setLoadingPhase(null);
 
     if (apiResult.data) {
-      queryClient.invalidateQueries({ queryKey: ['investor'] });
+      await invalidateAfterRequest();
+
+      const requestId = apiResult.data?.id;
+      const amount = parseFloat(formData.amount);
+      const method = formData.method;
+
       setModal({
         type: 'success',
         title: t('requests.registered.title'),
-        message: t('requests.registered.crypto'),
+        message: depositSuccessMessage(method),
+        requestId,
+        amount,
+        methodLabel: methodLabel(method),
       });
+
+      showToast({
+        title: t('requests.registered.title'),
+        message: t('requests.notifications.submittedToastDeposit', {
+          amount: formatCurrency(amount),
+        }),
+        type: 'success',
+        duration: 7000,
+      });
+
       setFormData((s) => ({ ...s, amount: '' }));
       clearAttachment();
     } else {
@@ -163,9 +203,40 @@ export const DepositForm = ({ userEmail, depositOptions = [] }) => {
         isOpen={modal !== null}
         onClose={() => setModal(null)}
         title={modal?.title}
-        message={modal?.message}
         type={modal?.type}
-      />
+        primaryActionLabel={t('requests.notifications.viewRequest')}
+        onPrimaryAction={() => {
+          setModal(null);
+          onSuccess?.();
+        }}
+      >
+        {modal ? (
+          <div className="space-y-3 text-left w-full">
+            <p className="text-base text-text-muted whitespace-pre-line">{modal.message}</p>
+            {modal.requestId != null ? (
+              <div className="rounded-lg border border-[rgba(101,167,165,0.22)] bg-[rgba(101,167,165,0.06)] px-3 py-2 text-sm space-y-1">
+                <p className="text-text-muted">{t('requests.registered.reference')}</p>
+                <p className="font-mono font-semibold text-text-primary">
+                  {pendingHistoryId(modal.requestId)}
+                </p>
+              </div>
+            ) : null}
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p className="text-text-muted">{t('requests.method.label')}</p>
+                <p className="font-medium text-text-primary">{modal.methodLabel}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-text-muted">{t('deposits.requestForm.amount.label')}</p>
+                <p className="font-medium text-text-primary">{formatCurrency(modal.amount)}</p>
+              </div>
+            </div>
+            <p className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20">
+              {t('history.status.pending')}
+            </p>
+          </div>
+        ) : null}
+      </Modal>
       <Card title={t('deposits.requestForm.title')} className="border-t-0">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

@@ -5,10 +5,15 @@ import { DepositForm } from './DepositForm';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { i18n } from '../../../i18n';
+import { ToastProvider } from '../../ui/ToastProvider';
 
 const renderWithQuery = (ui) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>{ui}</ToastProvider>
+    </QueryClientProvider>,
+  );
 };
 
 vi.mock('../../../services/api', () => ({
@@ -96,8 +101,8 @@ describe('DepositForm', () => {
       );
     });
 
-    expect(await screen.findByText('Depósito informado')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Depósito informado' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Ver mi solicitud/i })).toBeInTheDocument();
   });
 
   it('shows service error', async () => {

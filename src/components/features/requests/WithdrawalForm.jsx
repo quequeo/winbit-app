@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
@@ -10,6 +11,8 @@ import { createInvestorRequest, getWithdrawalFeePreview } from '../../../service
 import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../../../hooks/useToast';
+import { pendingHistoryId } from '../../../utils/requestHistory';
 
 const CRYPTO_NETWORKS = [
   { value: 'BEP20', label: 'BEP20 (BSC)' },
@@ -43,7 +46,7 @@ const FALLBACK_WITHDRAWAL_METHODS = [
   },
 ];
 
-export const WithdrawalForm = ({ userEmail, currentBalance }) => {
+export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
   const [type, setType] = useState('partial');
   const [method, setMethod] = useState('CASH_USD');
   const [lemontag, setLemontag] = useState('');
@@ -55,6 +58,8 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
   const [modal, setModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const {
     paymentMethods: apiMethods,
     loading: methodsLoading,
@@ -144,11 +149,32 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
     setConfirmModal(null);
 
     if (apiResult.data) {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['investor', userEmail] }),
+        queryClient.invalidateQueries({ queryKey: ['investor', userEmail, 'history'] }),
+      ]);
+
+      const requestId = apiResult.data?.id;
+      const methodName = selectedMethod?.name || method;
+
       setModal({
         type: 'success',
         title: t('requests.registered.withdrawalTitle'),
         message: t('requests.registered.withdrawal'),
+        requestId,
+        amount: withdrawalAmount,
+        methodLabel: methodName,
       });
+
+      showToast({
+        title: t('requests.registered.withdrawalTitle'),
+        message: t('requests.notifications.submittedToastWithdrawal', {
+          amount: formatCurrency(withdrawalAmount),
+        }),
+        type: 'success',
+        duration: 7000,
+      });
+
       setAmount('');
       setType('partial');
       setNetwork('');
@@ -225,9 +251,40 @@ export const WithdrawalForm = ({ userEmail, currentBalance }) => {
         isOpen={modal !== null}
         onClose={() => setModal(null)}
         title={modal?.title}
-        message={modal?.message}
         type={modal?.type}
-      />
+        primaryActionLabel={t('requests.notifications.viewRequest')}
+        onPrimaryAction={() => {
+          setModal(null);
+          onSuccess?.();
+        }}
+      >
+        {modal ? (
+          <div className="space-y-3 text-left w-full">
+            <p className="text-base text-text-muted whitespace-pre-line">{modal.message}</p>
+            {modal.requestId != null ? (
+              <div className="rounded-lg border border-[rgba(101,167,165,0.22)] bg-[rgba(101,167,165,0.06)] px-3 py-2 text-sm space-y-1">
+                <p className="text-text-muted">{t('requests.registered.reference')}</p>
+                <p className="font-mono font-semibold text-text-primary">
+                  {pendingHistoryId(modal.requestId)}
+                </p>
+              </div>
+            ) : null}
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p className="text-text-muted">{t('requests.method.label')}</p>
+                <p className="font-medium text-text-primary">{modal.methodLabel}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-text-muted">{t('withdrawals.form.amount.label')}</p>
+                <p className="font-medium text-text-primary">{formatCurrency(modal.amount)}</p>
+              </div>
+            </div>
+            <p className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20">
+              {t('history.status.pending')}
+            </p>
+          </div>
+        ) : null}
+      </Modal>
 
       <Card title={t('withdrawals.formTitle')}>
         <form onSubmit={handleSubmit} className="space-y-6">
