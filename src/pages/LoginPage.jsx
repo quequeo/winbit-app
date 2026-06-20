@@ -4,6 +4,12 @@ import { useAuth } from '../hooks/useAuth';
 import { Spinner } from '../components/ui/Spinner';
 import { useTranslation } from 'react-i18next';
 
+const ShieldIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
 const GoogleIcon = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
     <path
@@ -111,34 +117,39 @@ export const LoginPage = () => {
 
   return (
     <div className="login-page relative min-h-screen flex flex-col items-center justify-center px-4 py-10 sm:py-14">
-      <div className="login-page__overlay absolute inset-0 pointer-events-none" aria-hidden="true" />
+      <div
+        className="login-page__overlay absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+      />
 
       <div className="relative z-10 w-full max-w-md flex flex-col items-center">
-        <img
-          src="/images/login/logo-winbit.png"
-          alt="Winbit"
-          className="h-16 sm:h-20 w-auto object-contain mb-6"
-          width={280}
-          height={80}
-        />
-
-        <div className="text-center mb-6 w-full">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-[0.2em] text-white uppercase leading-tight">
-            {t('auth.login.platformLine1')}
-          </h1>
-          <p className="text-2xl sm:text-3xl font-bold tracking-[0.18em] text-[#8dc8bf] uppercase leading-tight mt-1">
-            {t('auth.login.platformLine2')}
-          </p>
-          <div
-            className="mx-auto mt-4 h-px w-24 bg-gradient-to-r from-transparent via-[#65a7a5] to-transparent"
-            aria-hidden="true"
+        <div className="mb-6 flex flex-col items-center">
+          <img
+            src="/images/login/logo-winbit.png"
+            alt="Winbit"
+            className="h-14 sm:h-[4.5rem] w-auto object-contain"
+            width={280}
+            height={80}
           />
-          <p className="mt-4 text-xs sm:text-sm text-text-muted max-w-xs mx-auto">
-            {t('auth.login.exclusiveAccess')}
-          </p>
+          <p className="winbit-logo-tagline">{t('auth.login.logoTagline')}</p>
         </div>
 
-        <div className="login-card w-full rounded-2xl p-6 sm:p-8">
+        <div className="mb-6 w-full">
+          <div className="winbit-headline-block">
+            <div className="winbit-vline" aria-hidden="true" />
+            <div>
+              <h1 className="winbit-headline-block__line1">{t('auth.login.platformLine1')}</h1>
+              <p className="winbit-headline-block__line2">{t('auth.login.platformLine2')}</p>
+            </div>
+          </div>
+          <div className="winbit-line-dot-h mx-auto" aria-hidden="true">
+            <span className="winbit-line-dot-h__point" />
+            <span className="winbit-line-dot-h__stroke" />
+          </div>
+          <p className="winbit-headline-block__subtitle">{t('auth.login.exclusiveAccess')}</p>
+        </div>
+
+        <div className="winbit-card-glass login-card w-full rounded-2xl p-6 sm:p-8">
           {authMode === 'google' ? (
             <div className="space-y-5">
               <button
@@ -160,22 +171,24 @@ export const LoginPage = () => {
                 )}
               </button>
 
-              <div className="login-divider text-xs" aria-hidden="true">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#65a7a5]/50 shrink-0" />
+              <div className="winbit-divider-h" aria-hidden="true">
+                <span className="winbit-divider-h__point" />
               </div>
 
               <button
                 type="button"
                 onClick={switchToEmail}
                 disabled={loggingIn}
-                className="w-full text-center text-sm text-text-muted hover:text-[#8dc8bf] transition-colors disabled:opacity-60"
+                className="login-link-email w-full text-center text-sm disabled:opacity-60"
               >
                 {t('auth.login.useEmailPassword')}
               </button>
             </div>
           ) : (
             <form onSubmit={handleEmailLogin} className="space-y-4">
-              <p className="text-sm font-medium text-text-primary mb-1">{t('auth.emailPassword')}</p>
+              <p className="text-sm font-medium text-text-primary mb-1">
+                {t('auth.emailPassword')}
+              </p>
 
               <div>
                 <label htmlFor="login-email" className="sr-only">
@@ -217,7 +230,12 @@ export const LoginPage = () => {
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   >
                     {showPassword ? (
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -226,7 +244,12 @@ export const LoginPage = () => {
                         />
                       </svg>
                     ) : (
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -281,9 +304,12 @@ export const LoginPage = () => {
           )}
         </div>
 
-        <div className="mt-8 flex flex-col items-center gap-2 max-w-sm text-center px-2">
-          <p className="text-xs text-text-muted leading-relaxed">{t('auth.login.restrictedAccess')}</p>
-          <p className="text-[10px] text-text-dim">{t('footer.copyright')}</p>
+        <div className="mt-8 flex flex-col items-center gap-3 px-2">
+          <p className="winbit-disclaimer">
+            <ShieldIcon className="winbit-disclaimer__icon" />
+            <span>{t('auth.login.restrictedAccess')}</span>
+          </p>
+          <p className="login-copyright text-center">{t('footer.copyright')}</p>
         </div>
       </div>
     </div>

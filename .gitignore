@@ -30,6 +30,7 @@ dist-ssr
 
 # Testing
 coverage
+.vite
 
 # Firebase
 .firebase

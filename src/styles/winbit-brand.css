@@ -1,0 +1,166 @@
+/**
+ * Winbit brand tokens — alineados a piezas institucionales (presentación / slides).
+ * Usar estas variables en toda la migración de UI.
+ */
+:root {
+  --winbit-green: #5db09d;
+  --winbit-green-soft: #66b2a1;
+  --winbit-white: #ffffff;
+  --winbit-bg-deep: #0a0e12;
+  --winbit-bg-card: rgba(14, 22, 26, 0.88);
+  --winbit-text-body: rgba(255, 255, 255, 0.92);
+  --winbit-text-muted: rgba(255, 255, 255, 0.72);
+  --winbit-text-dim: rgba(255, 255, 255, 0.45);
+  --winbit-border: rgba(93, 176, 157, 0.28);
+  --winbit-font: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  --winbit-tracking-title: 0.08em;
+  --winbit-leading-title: 1.2;
+  --winbit-leading-body: 1.65;
+}
+
+@layer components {
+  /* Barra vertical sólida (margen izquierdo de títulos) */
+  .winbit-vline {
+    width: 2px;
+    flex-shrink: 0;
+    align-self: stretch;
+    background: var(--winbit-green);
+  }
+
+  /* Línea horizontal con punto al inicio (como slides de marca) */
+  .winbit-line-dot-h {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 20rem;
+    margin-top: 1rem;
+  }
+
+  .winbit-line-dot-h__point {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--winbit-green);
+    flex-shrink: 0;
+  }
+
+  .winbit-line-dot-h__stroke {
+    flex: 1;
+    height: 1px;
+    margin-left: 0;
+    background: var(--winbit-green);
+  }
+
+  /* Bloque de título institucional */
+  .winbit-headline-block {
+    display: flex;
+    align-items: stretch;
+    gap: 0.875rem;
+    text-align: left;
+    width: 100%;
+    max-width: 20rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .winbit-headline-block__line1 {
+    margin: 0;
+    font-family: var(--winbit-font);
+    font-weight: 700;
+    font-size: clamp(1.125rem, 4vw, 1.35rem);
+    letter-spacing: var(--winbit-tracking-title);
+    line-height: var(--winbit-leading-title);
+    text-transform: uppercase;
+    color: var(--winbit-green);
+  }
+
+  .winbit-headline-block__line2 {
+    margin: 0.2rem 0 0;
+    font-family: var(--winbit-font);
+    font-weight: 700;
+    font-size: clamp(1.125rem, 4vw, 1.35rem);
+    letter-spacing: var(--winbit-tracking-title);
+    line-height: var(--winbit-leading-title);
+    text-transform: uppercase;
+    color: var(--winbit-white);
+  }
+
+  .winbit-headline-block__subtitle {
+    margin: 0.875rem 0 0;
+    max-width: 20rem;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: var(--winbit-font);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: var(--winbit-leading-body);
+    color: var(--winbit-text-muted);
+    text-align: left;
+  }
+
+  .winbit-logo-tagline {
+    margin-top: 0.35rem;
+    font-family: var(--winbit-font);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--winbit-white);
+    text-align: center;
+  }
+
+  .winbit-card-glass {
+    background: var(--winbit-bg-card);
+    border: 1px solid var(--winbit-border);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+  }
+
+  .winbit-divider-h {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+  }
+
+  .winbit-divider-h::before,
+  .winbit-divider-h::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--winbit-green);
+    opacity: 0.4;
+  }
+
+  .winbit-divider-h__point {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--winbit-green);
+    flex-shrink: 0;
+    margin: 0 0.5rem;
+  }
+
+  .winbit-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    max-width: 22rem;
+    font-family: var(--winbit-font);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: var(--winbit-leading-body);
+    color: var(--winbit-text-muted);
+    text-align: left;
+  }
+
+  .winbit-disclaimer__icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    color: var(--winbit-green);
+  }
+}

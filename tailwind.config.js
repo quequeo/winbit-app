@@ -4,25 +4,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#65a7a5',
+        /* Migración gradual → verde institucional Winbit */
+        primary: '#5db09d',
         secondary: '#ffffff',
-        accent: '#65a7a5',
-        'accent-dim': 'rgba(101, 167, 165, 0.15)',
-        'accent-glow': 'rgba(101, 167, 165, 0.3)',
-        dark: {
-          bg: '#0B0F0E',
-          card: 'rgba(20, 20, 20, 0.6)',
-          section: 'rgba(20, 20, 20, 0.55)',
+        accent: '#5db09d',
+        'accent-dim': 'rgba(93, 176, 157, 0.15)',
+        'accent-glow': 'rgba(93, 176, 157, 0.25)',
+        winbit: {
+          green: '#5db09d',
+          white: '#ffffff',
+          bg: '#0a0e12',
         },
-        'text-primary': '#e8e8e8',
-        'text-muted': '#888888',
-        'text-dim': '#555555',
+        dark: {
+          bg: '#0a0e12',
+          card: 'rgba(14, 22, 26, 0.88)',
+          section: 'rgba(14, 22, 26, 0.75)',
+        },
+        'text-primary': '#ffffff',
+        'text-muted': 'rgba(255, 255, 255, 0.72)',
+        'text-dim': 'rgba(255, 255, 255, 0.45)',
         'border-dark': 'rgba(255, 255, 255, 0.08)',
-        'border-accent': 'rgba(101, 167, 165, 0.3)',
-        success: '#8dc8bf',
+        'border-accent': 'rgba(93, 176, 157, 0.28)',
+        success: '#5db09d',
         warning: '#c2aa72',
         error: '#c46b6b',
-        info: '#65a7a5',
+        info: '#5db09d',
       },
       fontFamily: {
         sans: ['Montserrat', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],

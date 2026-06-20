@@ -54,7 +54,9 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     expect(screen.getByRole('button', { name: 'Acceder con Google' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Ingresar con email y contraseña' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Ingresar con email y contraseña' }),
+    ).toBeInTheDocument();
     expect(screen.queryByLabelText('Correo electrónico')).not.toBeInTheDocument();
     expect(screen.getByText('PLATAFORMA')).toBeInTheDocument();
     expect(screen.getByText(/Acceso restringido/)).toBeInTheDocument();
