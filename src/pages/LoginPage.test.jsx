@@ -59,7 +59,11 @@ describe('LoginPage', () => {
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Correo electrónico')).not.toBeInTheDocument();
     expect(screen.getByText('PLATAFORMA')).toBeInTheDocument();
-    expect(screen.getByText(/Acceso restringido/)).toBeInTheDocument();
+    expect(screen.getByText('DE INVERSORES')).toBeInTheDocument();
+    expect(screen.getByText(/Acceso exclusivo para inversores registrados/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Tu información está protegida mediante protocolos de seguridad/),
+    ).toBeInTheDocument();
   });
 
   it('shows email/password form when choosing email access', () => {

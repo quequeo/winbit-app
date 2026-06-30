@@ -71,7 +71,7 @@
     letter-spacing: var(--winbit-tracking-title);
     line-height: var(--winbit-leading-title);
     text-transform: uppercase;
-    color: var(--winbit-green);
+    color: var(--winbit-white);
   }
 
   .winbit-headline-block__line2 {
@@ -82,7 +82,7 @@
     letter-spacing: var(--winbit-tracking-title);
     line-height: var(--winbit-leading-title);
     text-transform: uppercase;
-    color: var(--winbit-white);
+    color: var(--winbit-green);
   }
 
   .winbit-headline-block__subtitle {
@@ -100,7 +100,7 @@
   }
 
   .winbit-logo-tagline {
-    margin-top: 0.35rem;
+    margin-top: 0;
     font-family: var(--winbit-font);
     font-size: 0.625rem;
     font-weight: 600;
@@ -108,6 +108,25 @@
     text-transform: uppercase;
     color: var(--winbit-white);
     text-align: center;
+    white-space: nowrap;
+  }
+
+  .winbit-logo-tagline-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    margin-top: 0.5rem;
+    width: 100%;
+    max-width: 22rem;
+  }
+
+  .winbit-logo-tagline-row__line {
+    flex: 1;
+    max-width: 4.5rem;
+    height: 1px;
+    background: var(--winbit-green);
+    opacity: 0.65;
   }
 
   .winbit-card-glass {
@@ -134,10 +153,11 @@
   }
 
   .winbit-divider-h__point {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: var(--winbit-green);
+    background: transparent;
+    border: 1px solid var(--winbit-green);
     flex-shrink: 0;
     margin: 0 0.5rem;
   }

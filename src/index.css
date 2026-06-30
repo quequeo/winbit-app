@@ -537,6 +537,9 @@
   }
 
   .login-page {
+    --login-accent-green: #519c8e;
+
+    background-color: #040808;
     background-image: url('/images/login/hero-bg.png');
     background-size: cover;
     background-position: center;
@@ -545,78 +548,289 @@
   }
 
   .login-page__overlay {
-    background: linear-gradient(
-      180deg,
-      rgba(10, 14, 18, 0.75) 0%,
-      rgba(10, 14, 18, 0.9) 50%,
-      rgba(8, 12, 16, 0.94) 100%
-    );
+    background: linear-gradient(180deg, rgba(4, 8, 10, 0.78) 0%, rgba(2, 5, 6, 0.88) 100%);
   }
 
-  .login-google-btn {
-    background: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: var(--winbit-white);
-    font-family: var(--winbit-font);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    transition:
-      background 0.2s ease,
-      border-color 0.2s ease;
+  .login-page__content {
+    padding-inline: 0.25rem;
   }
 
-  .login-google-btn:hover:not(:disabled) {
-    background: #141414;
-    border-color: rgba(255, 255, 255, 0.22);
+  .login-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: clamp(2rem, 5vw, 2.75rem);
+    padding-top: 0.25rem;
   }
 
-  .login-submit-btn {
-    background: rgba(5, 12, 14, 0.9);
-    border: 1px solid var(--winbit-green);
-    color: var(--winbit-green);
-    font-family: var(--winbit-font);
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    transition:
-      background 0.2s ease,
-      border-color 0.2s ease,
-      color 0.2s ease;
+  .login-logo {
+    width: auto;
+    height: clamp(12.5rem, 30vw, 15.625rem);
+    max-width: min(95vw, 50rem);
+    object-fit: contain;
   }
 
-  .login-submit-btn:hover:not(:disabled) {
-    background: rgba(93, 176, 157, 0.12);
-    color: var(--winbit-white);
+  .login-card-stage {
+    position: relative;
+    width: 100%;
   }
 
-  .login-link-email {
-    color: var(--winbit-text-muted);
-    font-family: var(--winbit-font);
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    line-height: var(--winbit-leading-body);
-    transition: color 0.2s ease;
+  .login-card-stage::before {
+    content: '';
+    position: absolute;
+    inset: -1.25rem -1.5rem;
+    background: radial-gradient(ellipse at center, rgba(101, 167, 165, 0.07) 0%, transparent 68%);
+    pointer-events: none;
   }
 
-  .login-link-email:hover:not(:disabled) {
-    color: var(--winbit-green);
+  .login-panel.winbit-card {
+    position: relative;
+    z-index: 1;
+    padding: clamp(1.75rem, 4vw, 2.125rem) clamp(1.75rem, 4vw, 2.25rem);
+    border-radius: 22px;
+    border-color: rgba(101, 167, 165, 0.22);
+    box-shadow:
+      0 14px 44px rgba(0, 0, 0, 0.58),
+      0 0 28px rgba(101, 167, 165, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
-  .login-copyright {
-    font-family: var(--winbit-font);
-    font-size: 0.625rem;
-    letter-spacing: 0.06em;
-    line-height: 1.5;
-    color: var(--winbit-text-dim);
+  .login-panel.winbit-card:hover {
+    transform: none;
+    border-color: rgba(101, 167, 165, 0.22);
+    box-shadow:
+      0 14px 44px rgba(0, 0, 0, 0.58),
+      0 0 28px rgba(101, 167, 165, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .login-panel__headline {
+    margin-bottom: 0.625rem;
     text-align: center;
   }
 
+  .login-panel__line1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 4.2vw, 1.875rem);
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    line-height: 1.15;
+    text-transform: uppercase;
+    color: #f4f7f6;
+  }
+
+  .login-panel__line2 {
+    margin: 0.35rem 0 0;
+    font-size: clamp(1.125rem, 3.2vw, 1.375rem);
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--login-accent-green);
+  }
+
+  .login-panel__subtitle {
+    margin: 0.75rem 0 0;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .login-panel__accent {
+    display: block;
+    width: 2.75rem;
+    height: 2px;
+    margin-top: 0.875rem;
+    margin-bottom: 1.75rem;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 999px;
+    background: var(--winbit-green);
+  }
+
+  .login-panel__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.125rem;
+  }
+
+  .login-panel__error {
+    margin-top: 1rem;
+  }
+
+  .login-google-btn {
+    height: 3.25rem;
+    padding-inline: 1.125rem;
+    border-radius: 12px;
+    background: rgba(4, 10, 10, 0.92);
+    border: 1px solid rgba(101, 167, 165, 0.28);
+    color: #f4f7f6;
+    font-family: var(--winbit-font);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.015em;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .login-google-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  .login-google-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: rgba(244, 247, 246, 0.88);
+  }
+
+  .login-google-btn:hover:not(:disabled) {
+    background: rgba(8, 18, 18, 0.96);
+    border-color: rgba(101, 167, 165, 0.4);
+    box-shadow: 0 0 16px rgba(101, 167, 165, 0.08);
+  }
+
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    width: 100%;
+    margin-block: 0.125rem;
+  }
+
+  .login-divider__line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .login-divider__label {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: lowercase;
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .login-link-email {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    color: var(--login-accent-green);
+    font-family: var(--winbit-font);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.5;
+    transition: color 0.2s ease;
+  }
+
+  .login-link-email__chevron {
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-top: 1px;
+    color: var(--login-accent-green);
+  }
+
+  .login-link-email:hover:not(:disabled) {
+    color: #6bb3a5;
+  }
+
+  .login-security-panel {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin-top: 1.75rem;
+    padding: 0.875rem 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(101, 167, 165, 0.12);
+    border-radius: 10px;
+  }
+
+  .login-security-panel__icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+    color: var(--login-accent-green);
+  }
+
+  .login-security-panel__text {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.48);
+  }
+
+  .login-footer {
+    margin-top: clamp(1.75rem, 4vw, 2.25rem);
+    text-align: center;
+  }
+
+  .login-email-form__header {
+    margin-bottom: 0.25rem;
+  }
+
+  .login-email-form__title {
+    margin: 0 0 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .login-email-form__divider {
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .login-submit-btn {
+    background: rgba(4, 10, 10, 0.92);
+    border: 1px solid rgba(81, 156, 142, 0.35);
+    color: var(--login-accent-green);
+    font-family: var(--winbit-font);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-radius: 12px;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .login-submit-btn:hover:not(:disabled) {
+    background: rgba(8, 18, 18, 0.96);
+    border-color: var(--login-accent-green);
+    color: #f4f7f6;
+    box-shadow: 0 0 16px rgba(81, 156, 142, 0.1);
+  }
+
+  .login-copyright {
+    margin: 0;
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
   .login-page input {
-    border-color: var(--winbit-border);
-    color: var(--winbit-white);
+    border-color: rgba(101, 167, 165, 0.22);
+    color: #e6f4f3;
+    background: rgba(4, 10, 10, 0.92);
   }
 
   .login-page input:focus {
-    border-color: var(--winbit-green);
-    box-shadow: none;
+    border-color: rgba(101, 167, 165, 0.42);
+    box-shadow: 0 0 10px rgba(101, 167, 165, 0.1);
   }
 }
