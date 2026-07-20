@@ -30,6 +30,7 @@ const CATEGORY_TO_METHOD = {
   LEMON: 'LEMON_CASH',
   CRYPTO: 'CRYPTO',
   SWIFT: 'SWIFT',
+  CUSTOM: 'SWIFT',
 };
 
 export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {

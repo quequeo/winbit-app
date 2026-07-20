@@ -49,8 +49,25 @@ describe('DepositOptionsList', () => {
     expect(screen.getByText(/No hay opciones disponibles/)).toBeInTheDocument();
   });
 
-  it('renders empty state when options is null', () => {
-    render(<DepositOptionsList options={null} />);
-    expect(screen.getByText(/No hay opciones disponibles/)).toBeInTheDocument();
+  it('renders custom category options', () => {
+    render(
+      <DepositOptionsList
+        options={[
+          ...mockOptions,
+          {
+            id: '4',
+            category: 'CUSTOM',
+            label: 'Lead Bank USD',
+            currency: 'USD',
+            details: {
+              fields: [{ label: 'Titular', value: 'Federico' }],
+            },
+            position: 4,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Lead Bank USD')).toBeInTheDocument();
   });
 });

@@ -53,4 +53,25 @@ describe('DepositOptionCard', () => {
       expect(writeText).toHaveBeenCalledWith('0070000000');
     });
   });
+
+  it('renders custom fields array details', () => {
+    const customOption = {
+      id: '3',
+      category: 'CUSTOM',
+      label: 'Lead Bank',
+      currency: 'USD',
+      details: {
+        fields: [
+          { label: 'Titular', value: 'Federico Martín Zuccotti' },
+          { label: 'ABA / Routing number', value: '101019644' },
+        ],
+      },
+    };
+
+    render(<DepositOptionCard option={customOption} />);
+    expect(screen.getByText('Lead Bank')).toBeInTheDocument();
+    expect(screen.getByText('Titular')).toBeInTheDocument();
+    expect(screen.getByText('Federico Martín Zuccotti')).toBeInTheDocument();
+    expect(screen.getByText('101019644')).toBeInTheDocument();
+  });
 });

@@ -2,7 +2,7 @@ import { DepositOptionCard } from './DepositOptionCard';
 import { EmptyState } from '../../ui/EmptyState';
 import { useTranslation } from 'react-i18next';
 
-const CATEGORY_ORDER = ['CASH_USD', 'LEMON', 'CRYPTO', 'SWIFT'];
+const CATEGORY_ORDER = ['CASH_USD', 'LEMON', 'CRYPTO', 'SWIFT', 'CUSTOM'];
 
 export const DepositOptionsList = ({ options }) => {
   const { t } = useTranslation();

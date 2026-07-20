@@ -10,7 +10,30 @@ const COPYABLE_KEYS = [
   'swift_code',
   'account_number',
   'iban',
+  'routing_number',
 ];
+
+const buildDetailEntries = (details = {}) => {
+  if (Array.isArray(details.fields)) {
+    return details.fields
+      .filter((field) => field && (field.label || field.value))
+      .map((field, index) => ({
+        key: `custom-${index}`,
+        label: String(field.label || ''),
+        value: String(field.value ?? ''),
+        copyable: true,
+      }));
+  }
+
+  return Object.entries(details)
+    .filter(([, value]) => value != null && value !== '' && typeof value !== 'object')
+    .map(([key, value]) => ({
+      key,
+      labelKey: key,
+      value: String(value),
+      copyable: COPYABLE_KEYS.includes(key),
+    }));
+};
 
 export const DepositOptionCard = ({ option }) => {
   const [copiedKey, setCopiedKey] = useState(null);
@@ -26,8 +49,7 @@ export const DepositOptionCard = ({ option }) => {
     }
   };
 
-  const details = option.details || {};
-  const detailEntries = Object.entries(details).filter(([, v]) => v);
+  const detailEntries = buildDetailEntries(option.details || {});
 
   return (
     <Card variant="compact" className="transition-colors hover:border-[rgba(101,167,165,0.35)]">
@@ -40,21 +62,21 @@ export const DepositOptionCard = ({ option }) => {
         </div>
 
         <div className="space-y-2">
-          {detailEntries.map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between gap-2">
+          {detailEntries.map((entry) => (
+            <div key={entry.key} className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-[rgba(230,244,243,0.6)]">
-                  {t(`deposits.detailLabels.${key}`, key)}
+                  {entry.label || t(`deposits.detailLabels.${entry.labelKey}`, entry.labelKey)}
                 </p>
-                <p className="text-sm text-[#f3fbfb] font-mono break-all">{value}</p>
+                <p className="text-sm text-[#f3fbfb] font-mono break-all">{entry.value}</p>
               </div>
-              {COPYABLE_KEYS.includes(key) && (
+              {entry.copyable && (
                 <button
                   type="button"
-                  onClick={() => handleCopy(value, key)}
+                  onClick={() => handleCopy(entry.value, entry.key)}
                   className="btn-copy shrink-0 text-xs py-1.5 px-3"
                 >
-                  {copiedKey === key ? t('deposits.copied') : t('deposits.copy')}
+                  {copiedKey === entry.key ? t('deposits.copied') : t('deposits.copy')}
                 </button>
               )}
             </div>
