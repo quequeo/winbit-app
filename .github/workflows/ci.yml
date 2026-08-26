@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, redesign]
 
 jobs:
   lint:
@@ -76,8 +76,22 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to Firebase Hosting
+      # Producción: solo push a main
+      - name: Deploy to Firebase Hosting (production)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: npx firebase-tools deploy --only hosting --token "$FIREBASE_TOKEN"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      # Preview: push a redesign o PRs — no pisa app.winbit.com.ar
+      - name: Deploy Firebase Hosting preview channel
+        if: github.ref == 'refs/heads/redesign' || github.event_name == 'pull_request'
+        run: |
+          CHANNEL_ID="redesign"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANNEL_ID="pr-${{ github.event.pull_request.number }}"
+          fi
+          echo "Deploying preview channel: $CHANNEL_ID"
+          npx firebase-tools hosting:channel:deploy "$CHANNEL_ID" --expires 30d --token "$FIREBASE_TOKEN"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

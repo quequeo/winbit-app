@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "preview:hosting": "npm run build && npx firebase-tools hosting:channel:deploy redesign --expires 30d",
     "test": "vitest",
     "test:ci": "vitest run",
     "test:watch": "vitest --watch",
