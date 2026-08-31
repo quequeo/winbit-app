@@ -652,7 +652,7 @@
     inset: 0;
     z-index: 0;
     background: var(--login-cream);
-    clip-path: polygon(0 0, 88% 0, 0 46%);
+    clip-path: polygon(0 0, 62% 0, 0 32%);
   }
 
   @media (min-width: 640px) {
@@ -1330,6 +1330,10 @@
   }
 
   .withdrawal-submit-btn__text {
+    color: var(--wb-cream) !important;
+  }
+
+  .deposit-report-btn span {
     color: var(--wb-cream) !important;
   }
 
