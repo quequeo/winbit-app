@@ -7,6 +7,10 @@ vi.mock('./components/features/auth/AuthProvider', () => ({
   AuthProvider: ({ children }) => <div>{children}</div>,
 }));
 
+vi.mock('./components/features/requests/RequestNotificationsProvider', () => ({
+  RequestNotificationsProvider: ({ children }) => children,
+}));
+
 vi.mock('./components/layout/ProtectedRoute', () => ({
   ProtectedRoute: ({ children }) => <div>{children}</div>,
 }));
