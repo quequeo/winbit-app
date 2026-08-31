@@ -20,7 +20,7 @@ export const UnauthorizedPage = () => {
       <div className="max-w-md w-full">
         <Card className="text-center p-8">
           {/* Icon */}
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[rgba(239,83,80,0.15)] mb-6">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(201,108,103,0.16)]">
             <svg
               className="h-8 w-8 text-error"
               fill="none"
@@ -41,18 +41,23 @@ export const UnauthorizedPage = () => {
 
           {/* User email */}
           <p className="text-sm text-text-muted mb-4">
-            {t('unauthorized.currentAccount')}: <strong>{userEmail ?? user?.email}</strong>
+            {t('unauthorized.currentAccount')}:{' '}
+            <strong className="text-text-primary">{userEmail ?? user?.email}</strong>
           </p>
 
           {/* Message */}
-          <p className="text-text-primary mb-6 leading-relaxed">{t('unauthorized.message')}</p>
+          <p className="text-text-muted mb-6 leading-relaxed">{t('unauthorized.message')}</p>
 
           {/* Contact info */}
-          <div className="bg-dark-section rounded-lg p-4 mb-6">
+          <div className="mb-6 rounded-[14px] border border-[#28312D] bg-[#121514] p-4">
             <p className="text-sm font-medium text-text-primary mb-2">
               {t('unauthorized.contactTitle')}
             </p>
-            <p className="text-sm text-text-primary">📧 winbit.cfds@gmail.com</p>
+            <p className="text-sm text-text-muted">
+              <a href="mailto:winbit.cfds@gmail.com" className="text-primary hover:underline">
+                winbit.cfds@gmail.com
+              </a>
+            </p>
           </div>
 
           {/* Logout button */}

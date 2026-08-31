@@ -1,80 +1,82 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ClipboardList, LineChart, PieChart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorHistory } from '../hooks/useInvestorHistory';
-import { Spinner } from '../components/ui/Spinner';
+import { useStrategyOperations } from '../hooks/useStrategyOperations';
+import { HistoryListSkeleton } from '../components/ui/PageLoading';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { EmptyState } from '../components/ui/EmptyState';
-import { formatCurrency } from '../utils/formatCurrency';
+import { DisclaimerCard } from '../components/ui/DisclaimerCard';
+import { OperatingTradeCard } from '../components/features/operating/OperatingTradeCard';
+import { OperatingDetailView } from '../components/features/operating/OperatingDetailView';
+import { OperatingKpiMini } from '../components/features/operating/OperatingKpiMini';
+import { OperatingFilterSelect } from '../components/features/operating/OperatingFilterSelect';
 import { formatPercentage } from '../utils/formatPercentage';
+import { formatUsdSignedDisplay } from '../utils/formatUsdDisplay';
+import {
+  matchesOperatingFilters,
+  operatingDailyPercent,
+  getOperatingContractFilterOptions,
+  tradeOpenCloseLabels,
+  mergeOperatingWithStrategy,
+  filterPublishedOperatingResults,
+} from '../utils/operatingTrade';
+import {
+  isOperatingHistoryDemoEnabled,
+  getOperatingHistoryDemoData,
+} from '../config/operatingHistoryDemoData';
 
-const MONTH_ABBR = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-const operatingDateLabel = (dateValue) => {
-  const d = new Date(dateValue);
-  if (isNaN(d.getTime())) return String(dateValue ?? '');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mon = MONTH_ABBR[d.getMonth()];
-  const yyyy = d.getFullYear();
-  return `${dd} ${mon} ${yyyy} - 18:00 h`;
-};
+import { getOperatingCalendarRangeStartMs } from '../utils/operatingCalendarRange';
 
 const normalize = (value) =>
   String(value ?? '')
     .trim()
     .toLowerCase();
 
-const dailyPercent = (row) => {
-  const prev = Number(row?.previousBalance);
-  const amt = Number(row?.amount);
-  if (!Number.isFinite(prev) || prev <= 0) return null;
-  if (!Number.isFinite(amt)) return null;
-  return (amt / prev) * 100;
-};
+const dailyPercent = operatingDailyPercent;
 
-const movementText = (row, t) => {
-  const pct = dailyPercent(row);
-  const base = t('operating.movement.operatingResult');
-  return Number.isFinite(pct) ? `${base} ${formatPercentage(pct)}` : base;
-};
-
-const rowBgClass = (row) => {
-  const amt = Number(row?.amount);
-  if (Number.isFinite(amt) && amt > 0) return 'row-positive';
-  if (Number.isFinite(amt) && amt < 0) return 'row-negative';
-  return 'hover:bg-[rgba(101,167,165,0.08)]';
-};
-
-const mobileAmountColor = (row) => {
-  const amt = Number(row?.amount);
-  if (Number.isFinite(amt) && amt > 0) return 'text-success';
-  if (Number.isFinite(amt) && amt < 0) return 'text-error';
-  return 'text-text-primary';
-};
+const rowKey = (row, idx) => `${row?.code ?? 'op'}-${row?.date ?? idx}-${idx}`;
 
 export const OperatingPage = () => {
   const { t } = useTranslation();
+  const location = useLocation();
   const { userEmail } = useAuth();
   const { data, loading, error, refetch } = useInvestorHistory(userEmail);
+  const { strategyByDate } = useStrategyOperations(!loading && !error, data);
 
-  const MOBILE_PAGE_SIZE = 20;
-  const DESKTOP_PAGE_SIZE_OPTIONS = [10, 20, 50];
-  const [desktopPageSize, setDesktopPageSize] = useState(20);
-  const [mobilePage, setMobilePage] = useState(1);
-  const [desktopPage, setDesktopPage] = useState(1);
+  const [range, setRange] = useState('3M');
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [assetFilter, setAssetFilter] = useState('all');
+  const [directionFilter, setDirectionFilter] = useState('all');
+  const [resultFilter, setResultFilter] = useState('all');
+
+  const RANGE_OPTIONS = [
+    { key: '7D', label: t('operating.ranges.week') },
+    { key: '1M', label: t('operating.ranges.month') },
+    { key: '3M', label: t('operating.ranges.quarter') },
+  ];
+
+  const assetFilterOptions = useMemo(() => getOperatingContractFilterOptions(t), [t]);
+
+  const directionFilterOptions = useMemo(
+    () => [
+      { id: 'all', label: t('operating.filters.all') },
+      { id: 'LONG', label: t('operating.trade.long') },
+      { id: 'SHORT', label: t('operating.trade.short') },
+    ],
+    [t],
+  );
+
+  const resultFilterOptions = useMemo(
+    () => [
+      { id: 'all', label: t('operating.filters.all') },
+      { id: 'positive', label: t('operating.filters.positive') },
+      { id: 'negative', label: t('operating.filters.negative') },
+    ],
+    [t],
+  );
 
   const translatedError = (() => {
     if (!error) return null;
@@ -85,51 +87,75 @@ export const OperatingPage = () => {
     return error;
   })();
 
+  const allOps = useMemo(() => {
+    const fromApi = Array.isArray(data)
+      ? data.filter((r) => normalize(r?.movement) === 'operating_result')
+      : [];
+    const base =
+      fromApi.length > 0
+        ? fromApi
+        : isOperatingHistoryDemoEnabled()
+          ? getOperatingHistoryDemoData()
+          : [];
+    const strategyMap = strategyByDate;
+    return filterPublishedOperatingResults(mergeOperatingWithStrategy(base, strategyMap));
+  }, [data, strategyByDate]);
+
   const rows = useMemo(() => {
-    const raw = Array.isArray(data) ? data : [];
-    const ops = raw.filter((r) => normalize(r?.movement) === 'operating_result');
-    return ops.sort((a, b) => {
+    const startMs = getOperatingCalendarRangeStartMs(range);
+    const filtered = startMs
+      ? allOps.filter((r) => {
+          const tMs = r?.date ? new Date(r.date).getTime() : 0;
+          return tMs >= startMs;
+        })
+      : allOps;
+    return filtered.sort((a, b) => {
       const aT = a?.date ? new Date(a.date).getTime() : 0;
       const bT = b?.date ? new Date(b.date).getTime() : 0;
       return bT - aT;
     });
-  }, [data]);
+  }, [allOps, range]);
 
-  const mobileTotalPages = useMemo(() => {
-    const n = Math.ceil(rows.length / MOBILE_PAGE_SIZE);
-    return n > 0 ? n : 1;
-  }, [rows.length]);
+  const filteredRows = useMemo(
+    () =>
+      rows.filter((row) =>
+        matchesOperatingFilters(row, {
+          asset: assetFilter,
+          direction: directionFilter,
+          result: resultFilter,
+        }),
+      ),
+    [rows, assetFilter, directionFilter, resultFilter],
+  );
 
-  const desktopTotalPages = useMemo(() => {
-    const n = Math.ceil(rows.length / desktopPageSize);
-    return n > 0 ? n : 1;
-  }, [rows.length, desktopPageSize]);
+  const summary = useMemo(() => {
+    const totalAmount = filteredRows.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
+    const pcts = filteredRows.map((r) => dailyPercent(r)).filter((p) => Number.isFinite(p));
+    const totalResultPct = pcts.reduce((acc, pct) => acc + pct, 0);
+    return { totalAmount, totalResultPct, count: filteredRows.length };
+  }, [filteredRows]);
 
   useEffect(() => {
-    setMobilePage((p) => Math.min(Math.max(1, p), mobileTotalPages));
-  }, [mobileTotalPages]);
+    setSelectedRow(null);
+  }, [range, assetFilter, directionFilter, resultFilter]);
 
   useEffect(() => {
-    setDesktopPage((p) => Math.min(Math.max(1, p), desktopTotalPages));
-  }, [desktopTotalPages]);
+    const row = location.state?.operatingRow;
+    if (row) {
+      setSelectedRow(row);
+    }
+  }, [location.state]);
 
-  const mobileVisibleRows = useMemo(() => {
-    const start = (mobilePage - 1) * MOBILE_PAGE_SIZE;
-    return rows.slice(start, start + MOBILE_PAGE_SIZE);
-  }, [rows, mobilePage]);
-
-  const desktopVisibleRows = useMemo(() => {
-    const start = (desktopPage - 1) * desktopPageSize;
-    return rows.slice(start, start + desktopPageSize);
-  }, [rows, desktopPage, desktopPageSize]);
-
-  const shouldPaginateMobile = rows.length > MOBILE_PAGE_SIZE;
-  const shouldPaginateDesktop = rows.length > desktopPageSize;
+  const visibleRows = filteredRows;
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Spinner size="lg" />
+      <div className="winbit-page">
+        <div className="page-header">
+          <h1 className="page-title">{t('operating.title')}</h1>
+          <p className="section-subtitle">{t('operating.subtitle')}</p>
+        </div>
+        <HistoryListSkeleton rows={4} />
       </div>
     );
   }
@@ -138,213 +164,127 @@ export const OperatingPage = () => {
     return <ErrorMessage message={translatedError} onRetry={refetch} />;
   }
 
+  if (selectedRow) {
+    const { openLabel, closeLabel } = tradeOpenCloseLabels(selectedRow);
+    return (
+      <OperatingDetailView
+        row={selectedRow}
+        openLabel={openLabel}
+        closeLabel={closeLabel}
+        onBack={() => setSelectedRow(null)}
+      />
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-text-primary">{t('operating.title')}</h1>
-        <p className="section-subtitle mt-1 pb-2 border-b border-[rgba(101,167,165,0.15)]">
-          {t('operating.subtitle')}
-        </p>
+    <div className="winbit-page">
+      <div className="page-header">
+        <h1 className="page-title">{t('operating.title')}</h1>
+        <p className="section-subtitle">{t('operating.subtitle')}</p>
       </div>
 
-      {rows.length === 0 ? (
+      {allOps.length > 0 ? (
+        <>
+          <div className="grid grid-cols-3 gap-3">
+            <OperatingKpiMini
+              icon={LineChart}
+              label={t('operating.kpis.result')}
+              value={formatUsdSignedDisplay(summary.totalAmount)}
+              valueClassName={summary.totalAmount >= 0 ? 'text-success' : 'text-error'}
+            />
+            <OperatingKpiMini
+              icon={PieChart}
+              label={t('operating.kpis.resultPercent')}
+              value={formatPercentage(summary.totalResultPct)}
+              valueClassName={summary.totalResultPct >= 0 ? 'text-success' : 'text-error'}
+            />
+            <OperatingKpiMini
+              icon={ClipboardList}
+              label={t('operating.kpis.operationsCount')}
+              value={String(summary.count)}
+              valueClassName="text-primary-soft"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="segment-control w-full sm:w-auto">
+              {RANGE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setRange(opt.key)}
+                  className={`segment-control__btn flex-1 sm:flex-none ${range === opt.key ? 'segment-control__btn--active' : ''}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <OperatingFilterSelect
+                label={t('operating.filters.contract')}
+                value={assetFilter}
+                options={assetFilterOptions}
+                onChange={setAssetFilter}
+              />
+              <OperatingFilterSelect
+                label={t('operating.filters.direction')}
+                value={directionFilter}
+                options={directionFilterOptions}
+                onChange={setDirectionFilter}
+              />
+              <OperatingFilterSelect
+                label={t('operating.filters.result')}
+                value={resultFilter}
+                options={resultFilterOptions}
+                onChange={setResultFilter}
+              />
+            </div>
+          </div>
+        </>
+      ) : null}
+
+      {allOps.length === 0 ? (
         <EmptyState
-          icon="📈"
+          icon={LineChart}
           title={t('operating.emptyTitle')}
+          description={t('operating.emptyDescription')}
+        />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={LineChart}
+          title={t('operating.periodEmptyTitle')}
+          description={t('operating.periodEmptyDescription')}
+        />
+      ) : filteredRows.length === 0 ? (
+        <EmptyState
+          icon={LineChart}
+          title={t('operating.filterEmpty')}
           description={t('operating.emptyDescription')}
         />
       ) : (
         <>
-          {/* Mobile cards */}
-          <div data-testid="operating-mobile" className="md:hidden space-y-3">
-            {mobileVisibleRows.map((row, idx) => (
-              <div key={`${row.code}-${row.date}-${idx}`} className="winbit-card--compact">
-                <div className="flex items-start justify-between gap-3 mb-1">
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold text-text-primary whitespace-normal break-words">
-                      {operatingDateLabel(row.date)}
-                    </div>
-                    <div className="text-xs text-text-muted mt-1">{movementText(row, t)}</div>
-                  </div>
-
-                  <div className="shrink-0 text-right">
-                    <div className={`text-base font-bold ${mobileAmountColor(row)}`}>
-                      {Number(row.amount) > 0 ? '+' : ''}
-                      {formatCurrency(row.amount)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-2 text-[13px] text-text-muted flex items-center gap-2">
-                  <span>Balance:</span>
-                  <span className="font-medium text-text-primary">
-                    {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
-                  </span>
-                  <svg
-                    className="w-3 h-3 text-text-dim"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    />
-                  </svg>
-                  <span className="font-medium text-text-primary">
-                    {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {shouldPaginateMobile ? (
-            <div className="md:hidden flex items-center justify-between gap-3">
-              <div className="text-xs text-text-muted">
-                {t('common.pageOf', 'Página {{page}} de {{total}}', {
-                  page: mobilePage,
-                  total: mobileTotalPages,
-                })}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={() => setMobilePage((p) => Math.max(1, p - 1))}
-                  disabled={mobilePage <= 1}
-                >
-                  {t('common.previous', 'Anterior')}
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={() => setMobilePage((p) => Math.min(mobileTotalPages, p + 1))}
-                  disabled={mobilePage >= mobileTotalPages}
-                >
-                  {t('common.next', 'Siguiente')}
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-          {/* Desktop table */}
           <div
-            data-testid="operating-desktop"
-            className="hidden md:block overflow-hidden winbit-card !p-0"
+            data-testid="operating-list"
+            className="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-1 lg:space-y-3 lg:block"
           >
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-[rgba(255,255,255,0.08)]">
-                <thead className="bg-[rgba(20,20,20,0.55)]">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                      {t('operating.table.date')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                      {t('operating.table.movement')}
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
-                      {t('operating.table.amount')}
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
-                      {t('operating.table.previousBalance')}
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
-                      {t('operating.table.newBalance')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
-                  {desktopVisibleRows.map((row, idx) => (
-                    <tr
-                      key={`${row.code}-${row.date}-${idx}`}
-                      className={`${rowBgClass(row)} transition-colors duration-150 ${idx % 2 === 1 ? 'bg-[rgba(101,167,165,0.03)]' : ''}`}
-                    >
-                      <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
-                        {operatingDateLabel(row.date)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-primary whitespace-nowrap">
-                        {movementText(row, t)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
-                        {formatCurrency(row.amount)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
-                        {row.previousBalance !== null ? formatCurrency(row.previousBalance) : '-'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-text-primary text-right whitespace-nowrap">
-                        {row.newBalance !== null ? formatCurrency(row.newBalance) : '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {shouldPaginateDesktop ? (
-              <div className="flex items-center justify-between gap-4 px-4 py-3 border-t border-[rgba(255,255,255,0.08)]">
-                <div className="flex items-center gap-3">
-                  <div className="text-xs text-text-muted">
-                    {t('common.pageOf', 'Página {{page}} de {{total}}', {
-                      page: desktopPage,
-                      total: desktopTotalPages,
-                    })}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <label
-                      className="text-xs font-medium text-text-muted"
-                      htmlFor="operating-page-size-desktop"
-                    >
-                      {t('common.rowsPerPage', 'Filas por página')}
-                    </label>
-                    <select
-                      id="operating-page-size-desktop"
-                      className="text-xs rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(15,18,18,0.8)] px-2 py-1.5 text-text-primary"
-                      value={desktopPageSize}
-                      onChange={(e) => {
-                        const next = Number(e.target.value);
-                        if (Number.isFinite(next) && next > 0) {
-                          setDesktopPageSize(next);
-                          setDesktopPage(1);
-                        }
-                      }}
-                    >
-                      {DESKTOP_PAGE_SIZE_OPTIONS.map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => setDesktopPage((p) => Math.max(1, p - 1))}
-                    disabled={desktopPage <= 1}
-                  >
-                    {t('common.previous', 'Anterior')}
-                  </button>
-                  <button
-                    type="button"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.08)] text-text-primary hover:bg-[rgba(101,167,165,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => setDesktopPage((p) => Math.min(desktopTotalPages, p + 1))}
-                    disabled={desktopPage >= desktopTotalPages}
-                  >
-                    {t('common.next', 'Siguiente')}
-                  </button>
-                </div>
-              </div>
-            ) : null}
+            {visibleRows.map((row, idx) => {
+              const { openLabel, closeLabel } = tradeOpenCloseLabels(row);
+              return (
+                <OperatingTradeCard
+                  key={rowKey(row, idx)}
+                  row={row}
+                  openLabel={openLabel}
+                  closeLabel={closeLabel}
+                  onViewDetail={() => setSelectedRow(row)}
+                />
+              );
+            })}
           </div>
         </>
       )}
+
+      {allOps.length > 0 ? <DisclaimerCard>{t('deposits.disclaimer')}</DisclaimerCard> : null}
     </div>
   );
 };

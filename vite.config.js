@@ -1,101 +1,120 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig({
-  // Important: the app is served under the /app route (BrowserRouter basename),
-  // but static assets are served from the Hosting root (/assets, /manifest, /sw.js).
-  // Keeping Vite base as "/" avoids generating /app/assets/* URLs that would 404 and be rewritten to HTML.
-  base: '/',
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      // Workaround: avoid terser/minify issues during Workbox SW generation on some Node/tooling combos.
-      // This keeps SW readable and prevents "unfinished hook action(s) (terser) renderChunk" build failures.
-      minify: false,
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-      manifest: {
-        name: 'Winbit',
-        short_name: 'Winbit',
-        description: 'Portfolio Management for Investors',
-        theme_color: '#58b098',
-        background_color: '#ffffff',
-        display: 'standalone',
-        start_url: '/',
-        scope: '/',
-        icons: [
-          {
-            src: '/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-        ],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const apiProxyTarget = env.VITE_API_URL || 'http://localhost:3000';
+
+  return {
+    // Important: the app is served under the /app route (BrowserRouter basename),
+    // but static assets are served from the Hosting root (/assets, /manifest, /sw.js).
+    // Keeping Vite base as "/" avoids generating /app/assets/* URLs that would 404 and be rewritten to HTML.
+    base: '/',
+    server: {
+      host: true,
+      proxy: {
+        '/api': {
+          target: apiProxyTarget,
+          changeOrigin: true,
+          secure: true,
+        },
       },
-      workbox: {
-        // Make sure PWA clients pick up new deployments quickly (avoid stale UI/i18n bundles).
-        skipWaiting: true,
-        clientsClaim: true,
-        cleanupOutdatedCaches: true,
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/__\//],
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'google-fonts-stylesheets',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-              expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
-              },
-            },
-          },
-        ],
+      headers: {
+        // Required for Firebase Google Sign-In popup (same as firebase.json in production).
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
       },
-    }),
-  ],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.js',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      thresholds: {
-        lines: 97,
-        statements: 97,
-      },
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '*.config.js',
-        '.eslintrc.cjs',
-        '.prettierrc.cjs',
-        'dist/',
-        'src/main.jsx', // Entry point; tested via App integration
-        'src/services/firebase.js', // Firebase SDK init; tested via integration
-      ],
     },
-  },
+    plugins: [
+      react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        // Workaround: avoid terser/minify issues during Workbox SW generation on some Node/tooling combos.
+        // This keeps SW readable and prevents "unfinished hook action(s) (terser) renderChunk" build failures.
+        minify: false,
+        includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+        manifest: {
+          name: 'Winbit',
+          short_name: 'Winbit',
+          description: 'Portfolio Management for Investors',
+          theme_color: '#479785',
+          background_color: '#030807',
+          display: 'standalone',
+          start_url: '/',
+          scope: '/',
+          icons: [
+            {
+              src: '/icon-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+            },
+            {
+              src: '/icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+            },
+          ],
+        },
+        workbox: {
+          // Make sure PWA clients pick up new deployments quickly (avoid stale UI/i18n bundles).
+          skipWaiting: true,
+          clientsClaim: true,
+          cleanupOutdatedCaches: true,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/__\//],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'google-fonts-stylesheets',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365,
+                },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-webfonts',
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 60 * 60 * 24 * 365,
+                },
+              },
+            },
+          ],
+        },
+      }),
+    ],
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/test/setup.js',
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'json', 'html'],
+        thresholds: {
+          lines: 97,
+          statements: 97,
+        },
+        exclude: [
+          'node_modules/',
+          'src/test/',
+          '*.config.js',
+          '.eslintrc.cjs',
+          '.prettierrc.cjs',
+          'dist/',
+          'src/main.jsx', // Entry point; tested via App integration
+          'src/services/firebase.js', // Firebase SDK init; tested via integration
+        ],
+      },
+    },
+  };
 });

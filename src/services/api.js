@@ -3,11 +3,15 @@
  * Reemplaza el antiguo servicio de Google Sheets
  */
 
-const getApiUrl = () => {
-  // Obtener URL base de la API desde variables de entorno
-  const apiUrl = import.meta.env?.VITE_API_URL ?? globalThis?.process?.env?.VITE_API_URL;
+import { normalizeOperatingDirection } from '../utils/operatingTrade';
 
-  // Default para desarrollo local
+const getApiUrl = () => {
+  // En dev, usar rutas relativas: Vite proxya /api al backend (evita CORS si el puerto no es 5173).
+  if (import.meta.env.DEV) {
+    return '';
+  }
+
+  const apiUrl = import.meta.env?.VITE_API_URL ?? globalThis?.process?.env?.VITE_API_URL;
   return apiUrl || 'http://localhost:3000';
 };
 
@@ -143,26 +147,94 @@ export const getInvestorHistory = async (email) => {
     const result = await response.json();
 
     // Mapear la respuesta de la API al formato esperado por la aplicación
-    const mappedHistory = result.data.map((item) => ({
-      id: item.id,
-      code: item.investorId?.toString() ?? '',
-      date: item.date,
-      movement: item.event,
-      amount: item.amount,
-      previousBalance: item.previousBalance,
-      newBalance: item.newBalance,
-      status: item.status,
-      method: item.method ?? null,
-      tradingFeePeriodLabel: item.tradingFeePeriodLabel ?? null,
-      tradingFeePercentage: item.tradingFeePercentage ?? null,
-      tradingFeeSource: item.tradingFeeSource ?? null,
-      tradingFeeWithdrawalAmount: item.tradingFeeWithdrawalAmount ?? null,
-      attachmentUrl: item.attachmentUrl ?? null,
-    }));
+    const mappedHistory = result.data.map((item) => {
+      const strategyOp = item.strategyOperation ?? item.strategy_operation ?? null;
+      return {
+        id: item.id,
+        code: item.investorId?.toString() ?? '',
+        date: item.date,
+        movement: item.event,
+        amount: item.amount,
+        previousBalance: item.previousBalance ?? item.previous_balance ?? null,
+        newBalance: item.newBalance ?? item.new_balance ?? null,
+        status: item.status,
+        method: item.method ?? null,
+        tradingFeePeriodLabel: item.tradingFeePeriodLabel ?? null,
+        tradingFeePercentage: item.tradingFeePercentage ?? null,
+        tradingFeeSource: item.tradingFeeSource ?? null,
+        tradingFeeWithdrawalAmount: item.tradingFeeWithdrawalAmount ?? null,
+        attachmentUrl: item.attachmentUrl ?? null,
+        asset: item.asset ?? item.operatingAsset ?? item.tradeAsset ?? strategyOp?.asset ?? null,
+        contract:
+          item.contract ??
+          item.asset ??
+          item.operatingAsset ??
+          item.tradeAsset ??
+          strategyOp?.asset ??
+          null,
+        direction: normalizeOperatingDirection(item.direction ?? strategyOp?.direction ?? null),
+        openedAt:
+          item.openedAt ?? item.opened_at ?? strategyOp?.openedAt ?? strategyOp?.opened_at ?? null,
+        closedAt:
+          item.closedAt ?? item.closed_at ?? strategyOp?.closedAt ?? strategyOp?.closed_at ?? null,
+        ratio: item.ratio ?? strategyOp?.ratio ?? null,
+        timeframe: item.timeframe ?? strategyOp?.timeframe ?? null,
+        resultLabel: item.resultLabel ?? item.result_label ?? strategyOp?.resultLabel ?? null,
+        entryPrice: item.entryPrice ?? item.entry_price ?? strategyOp?.entryPrice ?? null,
+        exitPrice: item.exitPrice ?? item.exit_price ?? strategyOp?.exitPrice ?? null,
+        operatingResultPercent:
+          item.operatingResultPercent ?? item.operating_result_percent ?? null,
+        operatingResultPartial:
+          item.operatingResultPartial ?? item.operating_result_partial ?? null,
+        strategyOperation: strategyOp,
+      };
+    });
 
     return { data: mappedHistory, error: null };
   } catch (error) {
     return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Obtiene operaciones de estrategia (detalle diario cargado en admin).
+ * @returns {Promise<{data: array | null, error: string | null}>}
+ */
+export const getStrategyOperations = async ({ from, to } = {}) => {
+  try {
+    const params = new URLSearchParams();
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
+    const qs = params.toString();
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/strategy_operations${qs ? `?${qs}` : ''}`;
+    const response = await silentFetch(url);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return { data: [], error: null };
+      }
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const mapped = (result.data || []).map((item) => ({
+      id: item.id,
+      operationDate: item.operationDate ?? item.operation_date,
+      asset: item.asset,
+      contract: item.asset,
+      direction: item.direction ?? null,
+      openedAt: item.openedAt ?? item.opened_at ?? null,
+      closedAt: item.closedAt ?? item.closed_at ?? null,
+      ratio: item.ratio ?? null,
+      timeframe: item.timeframe ?? null,
+      resultLabel: item.resultLabel ?? item.result_label ?? null,
+      entryPrice: item.entryPrice ?? item.entry_price ?? null,
+      exitPrice: item.exitPrice ?? item.exit_price ?? null,
+    }));
+
+    return { data: mapped, error: null };
+  } catch (error) {
+    return { data: [], error: error.message };
   }
 };
 
@@ -396,5 +468,60 @@ export const validateInvestor = async (email) => {
       investor: null,
       error: error.message,
     };
+  }
+};
+
+const parseFilenameFromContentDisposition = (header) => {
+  if (!header) return null;
+  const utf8Match = /filename\*=(?:UTF-8''|utf-8'')([^;]+)/i.exec(header);
+  if (utf8Match?.[1]) {
+    try {
+      return decodeURIComponent(utf8Match[1].trim().replace(/^"|"$/g, ''));
+    } catch {
+      return utf8Match[1].trim();
+    }
+  }
+  const plainMatch = /filename="([^"]+)"|filename=([^;]+)/i.exec(header);
+  const raw = plainMatch?.[1] ?? plainMatch?.[2];
+  return raw ? raw.trim() : null;
+};
+
+/**
+ * Descarga el PDF de reporte mensual del inversor.
+ * Sin `month` el backend usa el último mes cerrado.
+ * @param {string} email
+ * @param {string} [month] - YYYY-MM opcional
+ * @returns {Promise<{data: {blob: Blob, filename: string} | null, error: string | null}>}
+ */
+export const downloadInvestorMonthlyReport = async (email, month) => {
+  try {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+
+    const encodedEmail = encodeURIComponent(email);
+    const query = month ? `?month=${encodeURIComponent(month)}` : '';
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/investor/${encodedEmail}/monthly_report${query}`;
+
+    const response = await silentFetch(url);
+
+    if (response.status === 404) {
+      return { data: null, error: 'REPORT_NOT_FOUND' };
+    }
+    if (response.status === 403) {
+      throw new Error('Investor account is not active');
+    }
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const filename =
+      parseFilenameFromContentDisposition(response.headers.get('content-disposition')) ||
+      (month ? `reporte-${month}.pdf` : 'reporte-mensual.pdf');
+
+    return { data: { blob, filename }, error: null };
+  } catch (error) {
+    return { data: null, error: error.message };
   }
 };

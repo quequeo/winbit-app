@@ -5,7 +5,6 @@ import { WithdrawalForm } from './WithdrawalForm';
 import { createInvestorRequest, getWithdrawalFeePreview } from '../../../services/api';
 import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { i18n } from '../../../i18n';
-import { ToastProvider } from '../../ui/ToastProvider';
 
 vi.mock('../../../services/api', () => ({
   createInvestorRequest: vi.fn(),
@@ -25,8 +24,15 @@ const MOCK_WITHDRAWAL_METHODS = [
     requiresWalletAddress: false,
   },
   {
-    code: 'CRYPTO',
-    name: 'Cripto USDT/USDC',
+    code: 'USDT',
+    name: 'USDT',
+    requiresNetwork: true,
+    requiresLemontag: false,
+    requiresWalletAddress: true,
+  },
+  {
+    code: 'USDC',
+    name: 'USDC',
     requiresNetwork: true,
     requiresLemontag: false,
     requiresWalletAddress: true,
@@ -42,11 +48,7 @@ const MOCK_WITHDRAWAL_METHODS = [
 
 const renderWithQuery = (ui) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>{ui}</ToastProvider>
-    </QueryClientProvider>,
-  );
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 };
 
 const defaultPreview = {
@@ -73,6 +75,11 @@ const previewWithFee = {
   error: null,
 };
 
+const selectWithdrawalMethod = (label) => {
+  fireEvent.click(screen.getByLabelText(/Método/i));
+  fireEvent.click(screen.getByRole('option', { name: label }));
+};
+
 describe('WithdrawalForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -93,7 +100,7 @@ describe('WithdrawalForm', () => {
     expect(screen.getByText('Withdrawal type')).toBeInTheDocument();
 
     const amountInput = screen.getByLabelText(/Amount/);
-    expect(amountInput).toHaveAttribute('placeholder', '1,000.00');
+    expect(amountInput).toHaveAttribute('placeholder', '1.000,00');
 
     expect(screen.getByRole('button', { name: 'Request withdrawal' })).toBeInTheDocument();
 
@@ -110,7 +117,7 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
     fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByText('Ingresá un monto válido')).toBeInTheDocument();
+    expect(await screen.findByText('Ingresa un monto válido')).toBeInTheDocument();
     expect(getWithdrawalFeePreview).not.toHaveBeenCalled();
   });
 
@@ -122,7 +129,9 @@ describe('WithdrawalForm', () => {
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '200' } });
     fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByText('El monto supera el saldo actual')).toBeInTheDocument();
+    expect(
+      await screen.findByText('El monto supera el capital disponible para retiro'),
+    ).toBeInTheDocument();
     expect(getWithdrawalFeePreview).not.toHaveBeenCalled();
   });
 
@@ -133,6 +142,8 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
 
+    selectWithdrawalMethod(/Efectivo USD/i);
+
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '50' } });
     fireEvent.submit(container.querySelector('form'));
@@ -142,9 +153,9 @@ describe('WithdrawalForm', () => {
     });
 
     expect(
-      screen.getByText('No hay comisión de trading aplicable a este retiro.'),
+      screen.getByText('No hay comisión de gestión aplicable a este retiro.'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Confirmar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Confirmar solicitud' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument();
   });
 
@@ -155,6 +166,8 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
 
+    selectWithdrawalMethod(/Efectivo USD/i);
+
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '50' } });
     fireEvent.submit(container.querySelector('form'));
@@ -163,7 +176,7 @@ describe('WithdrawalForm', () => {
       expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Comisión de trading \(30%\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Comisión de gestión \(30%\)/)).toBeInTheDocument();
     expect(screen.getByText('Total debitado del portfolio')).toBeInTheDocument();
   });
 
@@ -173,6 +186,8 @@ describe('WithdrawalForm', () => {
     const { container } = renderWithQuery(
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
+
+    selectWithdrawalMethod(/Efectivo USD/i);
 
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '50' } });
@@ -199,6 +214,8 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
 
+    selectWithdrawalMethod(/Efectivo USD/i);
+
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '50' } });
     fireEvent.submit(container.querySelector('form'));
@@ -207,7 +224,7 @@ describe('WithdrawalForm', () => {
       expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar solicitud' }));
 
     await waitFor(() => {
       expect(createInvestorRequest).toHaveBeenCalledWith({
@@ -221,8 +238,8 @@ describe('WithdrawalForm', () => {
       });
     });
 
-    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Ver mi solicitud/i })).toBeInTheDocument();
+    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
   });
 
   it('submits full withdrawal after confirm', async () => {
@@ -233,7 +250,8 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
 
-    fireEvent.click(screen.getByLabelText('Total'));
+    selectWithdrawalMethod(/Efectivo USD/i);
+    fireEvent.click(screen.getByRole('button', { name: 'Total' }));
     expect(screen.queryByLabelText(/Monto/)).not.toBeInTheDocument();
 
     fireEvent.submit(container.querySelector('form'));
@@ -242,13 +260,13 @@ describe('WithdrawalForm', () => {
       expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar solicitud' }));
 
     await waitFor(() => {
       expect(createInvestorRequest).toHaveBeenCalled();
     });
 
-    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
+    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
   });
 
   it('shows error when createInvestorRequest fails (after confirm)', async () => {
@@ -259,6 +277,8 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
 
+    selectWithdrawalMethod(/Efectivo USD/i);
+
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '10' } });
     fireEvent.submit(container.querySelector('form'));
@@ -267,7 +287,7 @@ describe('WithdrawalForm', () => {
       expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar solicitud' }));
 
     expect(await screen.findByText('Nope')).toBeInTheDocument();
   });
@@ -279,6 +299,8 @@ describe('WithdrawalForm', () => {
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
 
+    selectWithdrawalMethod(/Efectivo USD/i);
+
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '10' } });
     fireEvent.submit(container.querySelector('form'));
@@ -287,47 +309,34 @@ describe('WithdrawalForm', () => {
     expect(screen.queryByText('Confirmar retiro')).not.toBeInTheDocument();
   });
 
-  it('shows network and wallet fields when CRYPTO is selected', async () => {
+  it('shows network and wallet fields when USDT is selected', async () => {
     renderWithQuery(<WithdrawalForm userEmail="t@e.com" currentBalance={100} />);
-
-    const methodButton = screen.getByLabelText(/Método/);
-    fireEvent.click(methodButton);
-    const cryptoOption = screen.getByRole('option', { name: /Cripto/i });
-    fireEvent.click(cryptoOption);
 
     expect(screen.getByText('Red')).toBeInTheDocument();
     expect(screen.getByText('Dirección de wallet')).toBeInTheDocument();
     expect(
-      screen.getByText(/Verificá siempre la dirección y la red antes de confirmar/),
+      screen.getByText(/Verifica siempre la dirección y la red antes de confirmar/),
     ).toBeInTheDocument();
   });
 
-  it('validates missing network when method is CRYPTO', async () => {
+  it('validates missing network when method is USDT', async () => {
     const { container } = renderWithQuery(
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
-
-    const methodButton = screen.getByLabelText(/Método/);
-    fireEvent.click(methodButton);
-    fireEvent.click(screen.getByRole('option', { name: /Cripto/i }));
 
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '50' } });
     fireEvent.submit(container.querySelector('form'));
 
     const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent('Seleccioná una red');
+    expect(alert).toHaveTextContent('Selecciona una red');
     expect(getWithdrawalFeePreview).not.toHaveBeenCalled();
   });
 
-  it('validates missing wallet address when method is CRYPTO', async () => {
+  it('validates missing wallet address when method is USDT', async () => {
     const { container } = renderWithQuery(
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
-
-    const methodButton = screen.getByLabelText(/Método/);
-    fireEvent.click(methodButton);
-    fireEvent.click(screen.getByRole('option', { name: /Cripto/i }));
 
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '50' } });
@@ -338,21 +347,17 @@ describe('WithdrawalForm', () => {
 
     fireEvent.submit(container.querySelector('form'));
 
-    expect(await screen.findByText('Ingresá la dirección de wallet')).toBeInTheDocument();
+    expect(await screen.findByText('Ingresa la dirección de wallet')).toBeInTheDocument();
     expect(getWithdrawalFeePreview).not.toHaveBeenCalled();
   });
 
-  it('submits crypto withdrawal with network and walletAddress', async () => {
+  it('submits USDT withdrawal with network and walletAddress', async () => {
     getWithdrawalFeePreview.mockResolvedValueOnce(defaultPreview);
     createInvestorRequest.mockResolvedValueOnce({ data: { id: 1 }, error: null });
 
     const { container } = renderWithQuery(
       <WithdrawalForm userEmail="t@e.com" currentBalance={100} />,
     );
-
-    const methodButton = screen.getByLabelText(/Método/);
-    fireEvent.click(methodButton);
-    fireEvent.click(screen.getByRole('option', { name: /Cripto/i }));
 
     const amountInput = screen.getByLabelText(/Monto/);
     fireEvent.change(amountInput, { target: { value: '50' } });
@@ -370,21 +375,53 @@ describe('WithdrawalForm', () => {
       expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar solicitud' }));
 
     await waitFor(() => {
       expect(createInvestorRequest).toHaveBeenCalledWith({
         email: 't@e.com',
         type: 'WITHDRAWAL',
         amount: 50,
-        method: 'CRYPTO',
+        method: 'USDT',
         network: 'TRC20',
         walletAddress: 'TXyz123abc456def',
         lemontag: null,
       });
     });
 
-    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
+    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
+  });
+
+  it('expands CRYPTO into USDT and USDC options', async () => {
+    usePaymentMethods.mockReturnValue({
+      paymentMethods: [
+        {
+          code: 'CRYPTO',
+          name: 'Criptomonedas',
+          requiresNetwork: true,
+          requiresLemontag: false,
+          requiresWalletAddress: true,
+        },
+        {
+          code: 'CASH_USD',
+          name: 'Efectivo USD',
+          requiresNetwork: false,
+          requiresLemontag: false,
+          requiresWalletAddress: false,
+        },
+      ],
+      loading: false,
+      error: null,
+    });
+
+    renderWithQuery(<WithdrawalForm userEmail="t@e.com" currentBalance={100} />);
+
+    const methodButton = screen.getByLabelText(/Método/);
+    fireEvent.click(methodButton);
+
+    expect(screen.getByRole('option', { name: 'USDT' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'USDC' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Cripto/i })).not.toBeInTheDocument();
   });
 
   it('shows lemontag field when LEMON_CASH is selected', async () => {
@@ -435,7 +472,7 @@ describe('WithdrawalForm', () => {
       expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar solicitud' }));
 
     await waitFor(() => {
       expect(createInvestorRequest).toHaveBeenCalledWith({
@@ -449,6 +486,6 @@ describe('WithdrawalForm', () => {
       });
     });
 
-    expect(await screen.findByRole('heading', { name: 'Retiro solicitado' })).toBeInTheDocument();
+    expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
   });
 });

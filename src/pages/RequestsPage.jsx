@@ -1,200 +1,184 @@
-import { useMemo, useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Check, Clock, Grid3x3, X, ArrowDownToLine } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
 import { useInvestorHistory } from '../hooks/useInvestorHistory';
 import { WithdrawalForm } from '../components/features/requests/WithdrawalForm';
-import { Spinner } from '../components/ui/Spinner';
-import { formatCurrency } from '../utils/formatCurrency';
-import { formatDate } from '../utils/formatDate';
+import { PageTabs } from '../components/ui/PageTabs';
+import { FilterChips } from '../components/ui/FilterChips';
+import { AvailableBalanceCard } from '../components/ui/AvailableBalanceCard';
+import { TransactionHistoryCard } from '../components/ui/TransactionHistoryCard';
+import { EmptyState } from '../components/ui/EmptyState';
+import { FormSkeleton, HistoryListSkeleton } from '../components/ui/PageLoading';
 import { useTranslation } from 'react-i18next';
+import {
+  getMethodLabel,
+  getStatusConfig,
+  getStatusLabel,
+  buildPaymentMethodOption,
+} from '../utils/transactionHelpers';
+import { getActivityBalanceImpact } from '../utils/accountActivity';
+import { computeWithdrawableBalance } from '../utils/computeWithdrawableBalance';
+import {
+  isWithdrawalHistoryDemoEnabled,
+  withdrawalHistoryDemoData,
+} from '../config/withdrawalHistoryDemoData';
 
-const METHOD_LABELS = {
-  CASH_USD: 'Efectivo USD',
-  SWIFT: 'SWIFT',
-  CRYPTO: 'Cripto',
-  USDT: 'USDT',
-  USDC: 'USDC',
-  LEMON_CASH: 'Lemon Cash',
+const statusIcon = (status) => {
+  const key = String(status ?? '').toUpperCase();
+  if (key === 'COMPLETED') return Check;
+  if (key === 'REJECTED') return X;
+  return Clock;
 };
-
-const STATUS_CONFIG = {
-  COMPLETED: {
-    label: 'Completado',
-    cls: 'bg-[#8dc8bf]/10 text-[#8dc8bf] border border-[#8dc8bf]/20',
-  },
-  PENDING: {
-    label: 'Pendiente',
-    cls: 'bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20',
-  },
-  REJECTED: {
-    label: 'Rechazado',
-    cls: 'bg-red-500/10 text-red-400 border border-red-500/20',
-  },
-  CANCELLED: {
-    label: 'Cancelado',
-    cls: 'bg-gray-500/10 text-gray-400 border border-gray-500/20',
-  },
-};
-
-const statusConfig = (status) =>
-  STATUS_CONFIG[String(status ?? '').toUpperCase()] ?? {
-    label: status ?? '—',
-    cls: 'bg-gray-500/10 text-gray-400 border border-gray-500/20',
-  };
 
 export const RequestsPage = () => {
-  const location = useLocation();
   const { user, userEmail } = useAuth();
   const { data, loading } = useInvestorData(userEmail);
   const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
   const { t } = useTranslation();
-  const [tab, setTab] = useState(() => location.state?.tab ?? 'form');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(() =>
+    searchParams.get('tab') === 'history' ? 'history' : 'form',
+  );
+  const [historyFilter, setHistoryFilter] = useState('all');
 
   useEffect(() => {
-    if (location.state?.tab) {
-      setTab(location.state.tab);
-    }
-  }, [location.state?.tab]);
+    if (searchParams.get('tab') === 'history') setTab('history');
+  }, [searchParams]);
 
   const withdrawals = useMemo(() => {
-    if (!Array.isArray(history)) return [];
-    return history
+    const apiRows = (Array.isArray(history) ? history : [])
       .filter((r) => String(r?.movement ?? '').toUpperCase() === 'WITHDRAWAL')
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    if (apiRows.length > 0) return apiRows;
+
+    if (!isWithdrawalHistoryDemoEnabled()) return [];
+
+    return [...withdrawalHistoryDemoData].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
   }, [history]);
+
+  const filteredWithdrawals = useMemo(() => {
+    if (historyFilter === 'all') return withdrawals;
+    const statusMap = {
+      completed: 'COMPLETED',
+      pending: 'PENDING',
+      rejected: 'REJECTED',
+    };
+    const target = statusMap[historyFilter];
+    return withdrawals.filter((r) => String(r?.status ?? '').toUpperCase() === target);
+  }, [withdrawals, historyFilter]);
+
+  const tabs = [
+    { id: 'form', label: t('withdrawals.tabs.newRequest') },
+    { id: 'history', label: t('withdrawals.tabs.history') },
+  ];
+
+  const historyFilters = [
+    { id: 'all', label: t('withdrawals.filters.all'), icon: Grid3x3 },
+    { id: 'completed', label: t('withdrawals.filters.completed'), icon: Check, iconCircled: true },
+    { id: 'pending', label: t('withdrawals.filters.pending'), icon: Clock },
+    { id: 'rejected', label: t('withdrawals.filters.rejected'), icon: X, iconCircled: true },
+  ];
+
+  const balanceBreakdown = useMemo(
+    () =>
+      computeWithdrawableBalance({
+        portfolioBalance: data?.balance ?? 0,
+        history: history ?? [],
+      }),
+    [data?.balance, history],
+  );
 
   if (loading && tab === 'form') {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Spinner size="lg" />
+      <div className="winbit-page max-w-3xl mx-auto lg:max-w-none">
+        <header className="page-header">
+          <h1 className="page-title">{t('withdrawals.title')}</h1>
+          <p className="section-subtitle">{t('withdrawals.subtitle')}</p>
+        </header>
+        <FormSkeleton />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-text-primary">{t('withdrawals.title')}</h1>
-        <p className="section-subtitle mt-1">{t('withdrawals.subtitle')}</p>
-      </div>
+    <div className="winbit-page max-w-3xl mx-auto lg:max-w-none">
+      <header className="page-header">
+        <h1 className="page-title">{t('withdrawals.title')}</h1>
+        <p className="section-subtitle">{t('withdrawals.subtitle')}</p>
+      </header>
 
-      <div className="border-b border-[rgba(255,255,255,0.08)]">
-        <nav className="-mb-px flex gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
-          {[
-            { id: 'form', label: t('withdrawals.tabs.newRequest') },
-            { id: 'history', label: t('withdrawals.tabs.history') },
-          ].map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap px-1 ${
-                tab === id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-text-muted hover:text-text-primary'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <PageTabs tabs={tabs} activeId={tab} onChange={setTab} />
 
       {tab === 'form' && (
-        <WithdrawalForm
-          userName={data?.name || user?.displayName || 'Investor'}
-          userEmail={userEmail}
-          currentBalance={data?.balance || 0}
-          onSuccess={() => setTab('history')}
-        />
+        <div className="winbit-page__stack withdrawal-request">
+          <AvailableBalanceCard
+            availableForWithdrawal={balanceBreakdown.availableForWithdrawal}
+            portfolioBalance={balanceBreakdown.portfolioBalance}
+            pendingWithdrawals={balanceBreakdown.pendingWithdrawals}
+            pendingFees={balanceBreakdown.pendingFees}
+            pendingAdjustments={balanceBreakdown.pendingAdjustments}
+          />
+          <WithdrawalForm
+            userName={data?.name || user?.displayName || 'Investor'}
+            userEmail={userEmail}
+            currentBalance={data?.balance || 0}
+            availableBalance={balanceBreakdown.availableForWithdrawal}
+          />
+        </div>
       )}
 
       {tab === 'history' && (
-        <div>
-          {historyLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Spinner size="lg" />
-            </div>
-          ) : withdrawals.length === 0 ? (
-            <div className="winbit-card text-center text-sm text-text-muted">
-              No hay retiros registrados aún.
-            </div>
-          ) : (
-            <>
-              <div className="space-y-3 md:hidden">
-                {withdrawals.map((r) => {
-                  const sc = statusConfig(r.status);
-                  return (
-                    <div key={r.id} className="winbit-card--compact">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-text-primary">
-                            {formatCurrency(Number(r.amount))}
-                          </p>
-                          <p className="mt-0.5 text-xs text-text-muted">
-                            {r.method ? (METHOD_LABELS[r.method] ?? r.method) : '—'}
-                          </p>
-                        </div>
-                        <span
-                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${sc.cls}`}
-                        >
-                          {sc.label}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-xs text-[rgba(230,244,243,0.55)]">
-                        {formatDate(r.date, { hourSuffix: true })}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
+        <div className="transaction-history">
+          <FilterChips
+            filters={historyFilters}
+            activeId={historyFilter}
+            onChange={setHistoryFilter}
+          />
 
-              <div className="hidden overflow-x-auto winbit-card !p-0 md:block">
-                <table className="min-w-full divide-y divide-[rgba(255,255,255,0.08)] text-sm">
-                  <thead className="bg-[rgba(20,20,20,0.55)]">
-                    <tr>
-                      {['Fecha', 'Monto', 'Método', 'Estado'].map((h) => (
-                        <th
-                          key={h}
-                          className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider text-text-muted ${h === 'Monto' ? 'text-right' : 'text-left'}`}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[rgba(255,255,255,0.05)]">
-                    {withdrawals.map((r, idx) => {
-                      const sc = statusConfig(r.status);
-                      return (
-                        <tr
-                          key={r.id}
-                          className={`hover:bg-[rgba(101,167,165,0.08)] transition-colors duration-150 ${idx % 2 === 1 ? 'bg-[rgba(101,167,165,0.03)]' : ''}`}
-                        >
-                          <td className="px-5 py-3 text-text-primary">
-                            {formatDate(r.date, { hourSuffix: true })}
-                          </td>
-                          <td className="px-5 py-3 text-right font-mono font-semibold text-text-primary">
-                            {formatCurrency(Number(r.amount))}
-                          </td>
-                          <td className="px-5 py-3 text-text-muted">
-                            {r.method ? (METHOD_LABELS[r.method] ?? r.method) : '—'}
-                          </td>
-                          <td className="px-5 py-3">
-                            <span
-                              className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${sc.cls}`}
-                            >
-                              {sc.label}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </>
+          {historyLoading ? (
+            <HistoryListSkeleton rows={4} />
+          ) : withdrawals.length === 0 ? (
+            <EmptyState
+              icon={ArrowDownToLine}
+              title={t('withdrawals.empty.title')}
+              description={t('withdrawals.empty.description')}
+              actionLabel={t('withdrawals.empty.action')}
+              onAction={() => setTab('form')}
+            />
+          ) : filteredWithdrawals.length === 0 ? (
+            <EmptyState
+              icon={ArrowDownToLine}
+              title={t('withdrawals.filterEmpty')}
+              description={t('withdrawals.empty.description')}
+            />
+          ) : (
+            <div className="transaction-history__list">
+              {filteredWithdrawals.map((r) => {
+                const sc = getStatusConfig(r.status);
+                const StatusIcon = statusIcon(r.status);
+                return (
+                  <TransactionHistoryCard
+                    key={r.id}
+                    amount={-Math.abs(Number(r.amount) || 0)}
+                    conceptLabel={t('history.movement.withdrawal')}
+                    methodLabel={getMethodLabel(r.method)}
+                    methodOption={buildPaymentMethodOption(r.method)}
+                    date={r.date}
+                    status={r.status}
+                    statusLabel={getStatusLabel(sc, t)}
+                    statusIcon={StatusIcon}
+                    previousBalance={r.previousBalance}
+                    newBalance={r.newBalance}
+                    balanceImpactLabel={getActivityBalanceImpact(r, t)}
+                  />
+                );
+              })}
+            </div>
           )}
         </div>
       )}

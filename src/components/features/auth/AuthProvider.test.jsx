@@ -41,8 +41,14 @@ const ContextConsumer = () => {
 
 describe('AuthProvider', () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.clearAllMocks();
     globalThis.localStorage?.clear();
+    validateInvestor.mockResolvedValue({ valid: true });
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
   });
 
   it('sets user from onAuthStateChanged and stops loading', async () => {
@@ -150,7 +156,7 @@ describe('AuthProvider', () => {
     });
   });
 
-  it('restores user from stored session on mount', async () => {
+  it('restores user from stored session on mount after validation', async () => {
     const session = { email: 'stored@example.com', name: 'Stored', authMethod: 'email' };
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(session));
     onAuthStateChanged.mockImplementation((_auth, cb) => {
@@ -164,8 +170,37 @@ describe('AuthProvider', () => {
       </AuthProvider>,
     );
 
-    expect(await screen.findByText('stored@example.com')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('stored@example.com')).toBeInTheDocument();
+    });
+    expect(validateInvestor).toHaveBeenCalledWith('stored@example.com');
     expect(screen.getByText('ready')).toBeInTheDocument();
+  });
+
+  it('clears stored session when investor is inactive on refresh', async () => {
+    validateInvestor.mockResolvedValueOnce({
+      valid: false,
+      error: 'Investor account is not active',
+    });
+    const session = { email: 'inactive@example.com', name: 'Inactive', authMethod: 'email' };
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(JSON.stringify(session));
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null);
+      return () => {};
+    });
+
+    render(
+      <AuthProvider>
+        <ContextConsumer />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('validation-error')).toHaveTextContent(
+        /Tu cuenta de inversor no está activa/,
+      );
+    });
+    expect(screen.getByText('no-user')).toBeInTheDocument();
   });
 
   it('loginWithGoogle sets validationError when investor not found', async () => {

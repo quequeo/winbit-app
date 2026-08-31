@@ -1,15 +1,22 @@
+import { formatAmountArParts, formatUsdDisplay, formatUsdSignedDisplay } from './formatUsdDisplay';
+
+/**
+ * Unified USD display for the whole app.
+ * USD 1.000,00 | +USD 1.000,00 | -USD 500,00
+ */
 export const formatCurrency = (amount, showSign = false) => {
-  if (amount === null || amount === undefined) {
-    return '$0.00';
+  if (amount === null || amount === undefined || !Number.isFinite(Number(amount))) {
+    return showSign ? formatUsdSignedDisplay(0) : formatUsdDisplay(0);
   }
 
-  const abs = Math.abs(amount);
-  const fixed = abs.toFixed(2);
-  const parts = fixed.split('.');
-  const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  const formatted = `${integerPart}.${parts[1]}`;
+  if (showSign) {
+    return formatUsdSignedDisplay(amount);
+  }
 
-  const sign = showSign && amount > 0 ? '+' : amount < 0 ? '-' : '';
+  const num = Number(amount);
+  if (num < 0) {
+    return `-USD ${formatAmountArParts(num)}`;
+  }
 
-  return `${sign}$${formatted}`;
+  return formatUsdDisplay(num);
 };

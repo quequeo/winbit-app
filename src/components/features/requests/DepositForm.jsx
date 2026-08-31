@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
 import { Card } from '../../ui/Card';
@@ -9,59 +9,49 @@ import { Modal } from '../../ui/Modal';
 import { Spinner } from '../../ui/Spinner';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
+import {
+  buildDepositFormMethodOptions,
+  resolveDefaultDepositFormMethodId,
+} from '../../../utils/depositFormMethods';
 import { useTranslation } from 'react-i18next';
 import { ReceiptAttachment } from '../attachments/ReceiptAttachment';
-import { useToast } from '../../../hooks/useToast';
-import { pendingHistoryId } from '../../../utils/requestHistory';
-import { formatCurrency } from '../../../utils/formatCurrency';
-
-const CASH_METHODS = ['CASH_USD'];
 
 const FALLBACK_METHODS = [
-  { value: 'CASH_USD', labelKey: 'requests.method.cash_usd' },
-  { value: 'SWIFT', labelKey: 'requests.method.swift' },
-  { value: 'CRYPTO', labelKey: 'requests.method.crypto' },
+  { value: 'CASH_USD', labelKey: 'requests.method.cash_usd', apiMethod: 'CASH_USD', isCash: true },
+  { value: 'SWIFT', labelKey: 'requests.method.swift', apiMethod: 'SWIFT', isCash: false },
+  { value: 'CRYPTO', labelKey: 'requests.method.crypto', apiMethod: 'CRYPTO', isCash: false },
 ];
 
-const CATEGORY_TO_METHOD = {
-  CASH_USD: 'CASH_USD',
-  CASH_ARS: 'CASH_ARS',
-  BANK_ARS: 'TRANSFER_ARS',
-  LEMON: 'LEMON_CASH',
-  CRYPTO: 'CRYPTO',
-  SWIFT: 'SWIFT',
-};
-
-export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
+export const DepositForm = ({
+  userEmail,
+  depositOptions = [],
+  hideTitle = false,
+  selectedOptionId = null,
+}) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { showToast } = useToast();
 
   const methodOptions = useMemo(() => {
-    if (!depositOptions || depositOptions.length === 0) {
-      return FALLBACK_METHODS.map((m) => ({ value: m.value, label: t(m.labelKey) }));
-    }
+    const fromOptions = buildDepositFormMethodOptions(depositOptions);
+    if (fromOptions.length) return fromOptions;
 
-    const seen = new Set();
-    const methods = [];
-    for (const opt of depositOptions) {
-      const method = CATEGORY_TO_METHOD[opt.category] || opt.category;
-      if (!seen.has(method)) {
-        seen.add(method);
-        methods.push({
-          value: method,
-          label: t(`deposits.categories.${opt.category}`, opt.category),
-        });
-      }
-    }
-    return methods;
+    return FALLBACK_METHODS.map((method) => ({
+      value: method.value,
+      label: t(method.labelKey),
+      apiMethod: method.apiMethod,
+      isCash: method.isCash,
+      option: null,
+    }));
   }, [depositOptions, t]);
 
-  const defaultMethod = methodOptions[0]?.value || 'CASH_USD';
+  const defaultMethodId = useMemo(
+    () => resolveDefaultDepositFormMethodId(methodOptions, selectedOptionId),
+    [methodOptions, selectedOptionId],
+  );
 
   const [formData, setFormData] = useState({
     amount: '',
-    method: defaultMethod,
+    method: defaultMethodId,
   });
   const [attachment, setAttachment] = useState(null);
   const fileInputRef = useRef(null);
@@ -70,26 +60,20 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
 
-  const isCash = CASH_METHODS.includes(formData.method);
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      method: resolveDefaultDepositFormMethodId(methodOptions, selectedOptionId),
+    }));
+  }, [methodOptions, selectedOptionId]);
+
+  const selectedMethod = useMemo(
+    () => methodOptions.find((opt) => opt.value === formData.method) ?? methodOptions[0] ?? null,
+    [methodOptions, formData.method],
+  );
+
+  const isCash = selectedMethod?.isCash ?? false;
   const attachmentRequired = !isCash;
-
-  const depositSuccessMessage = (method) => {
-    if (method === 'CASH_USD') return t('requests.registered.cash');
-    if (method === 'SWIFT') return t('requests.registered.international');
-    return t('requests.registered.crypto');
-  };
-
-  const methodLabel = (method) => {
-    const opt = methodOptions.find((o) => o.value === method);
-    return opt?.label ?? method;
-  };
-
-  const invalidateAfterRequest = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['investor', userEmail] }),
-      queryClient.invalidateQueries({ queryKey: ['investor', userEmail, 'history'] }),
-    ]);
-  };
 
   const handleChange = (e) => {
     setFormData({
@@ -153,7 +137,7 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
       email: userEmail,
       type: 'DEPOSIT',
       amount: parseFloat(formData.amount),
-      method: formData.method,
+      method: selectedMethod?.apiMethod ?? formData.method,
       network: null,
       transactionHash: null,
       attachmentUrl,
@@ -163,31 +147,13 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
     setLoadingPhase(null);
 
     if (apiResult.data) {
-      await invalidateAfterRequest();
-
-      const requestId = apiResult.data?.id;
-      const amount = parseFloat(formData.amount);
-      const method = formData.method;
-
+      queryClient.invalidateQueries({ queryKey: ['investor'] });
       setModal({
         type: 'success',
         title: t('requests.registered.title'),
-        message: depositSuccessMessage(method),
-        requestId,
-        amount,
-        methodLabel: methodLabel(method),
+        message: t('requests.registered.crypto'),
       });
-
-      showToast({
-        title: t('requests.registered.title'),
-        message: t('requests.notifications.submittedToastDeposit', {
-          amount: formatCurrency(amount),
-        }),
-        type: 'success',
-        duration: 7000,
-      });
-
-      setFormData((s) => ({ ...s, amount: '' }));
+      setFormData((state) => ({ ...state, amount: '' }));
       clearAttachment();
     } else {
       setMessage({
@@ -203,41 +169,10 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
         isOpen={modal !== null}
         onClose={() => setModal(null)}
         title={modal?.title}
+        message={modal?.message}
         type={modal?.type}
-        primaryActionLabel={t('requests.notifications.viewRequest')}
-        onPrimaryAction={() => {
-          setModal(null);
-          onSuccess?.();
-        }}
-      >
-        {modal ? (
-          <div className="space-y-3 text-left w-full">
-            <p className="text-base text-text-muted whitespace-pre-line">{modal.message}</p>
-            {modal.requestId != null ? (
-              <div className="rounded-lg border border-[rgba(101,167,165,0.22)] bg-[rgba(101,167,165,0.06)] px-3 py-2 text-sm space-y-1">
-                <p className="text-text-muted">{t('requests.registered.reference')}</p>
-                <p className="font-mono font-semibold text-text-primary">
-                  {pendingHistoryId(modal.requestId)}
-                </p>
-              </div>
-            ) : null}
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <p className="text-text-muted">{t('requests.method.label')}</p>
-                <p className="font-medium text-text-primary">{modal.methodLabel}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-text-muted">{t('deposits.requestForm.amount.label')}</p>
-                <p className="font-medium text-text-primary">{formatCurrency(modal.amount)}</p>
-              </div>
-            </div>
-            <p className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20">
-              {t('history.status.pending')}
-            </p>
-          </div>
-        ) : null}
-      </Modal>
-      <Card title={t('deposits.requestForm.title')} className="border-t-0">
+      />
+      <Card title={hideTitle ? undefined : t('deposits.requestForm.title')} className="border-t-0">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="amount" className="mb-2 block text-sm font-medium text-text-primary">
@@ -251,7 +186,7 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
               min="0"
               value={formData.amount}
               onChange={handleChange}
-              placeholder="1,000.00"
+              placeholder="1.000,00"
               required
             />
           </div>
@@ -266,13 +201,11 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
               value={formData.method}
               onChange={handleChange}
               required
-            >
-              {methodOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
+              options={methodOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+              }))}
+            />
           </div>
 
           <div>
@@ -291,22 +224,20 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
               ref={fileInputRef}
               accept="image/jpeg,image/png,image/webp,application/pdf"
               onChange={handleFileChange}
-              className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgba(101,167,165,0.10)] file:text-[#8dc8bf] hover:file:bg-[rgba(101,167,165,0.18)] cursor-pointer"
+              className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgba(57, 131, 109,0.10)] file:text-[#8dc8bf] hover:file:bg-[rgba(57, 131, 109,0.18)] cursor-pointer"
             />
             {attachment ? <ReceiptAttachment file={attachment} onRemove={clearAttachment} /> : null}
           </div>
 
-          <div className="info-box text-sm text-text-primary">
-            <p className="font-medium mb-1 flex items-center gap-2">
-              <Clock
-                className="w-4 h-4 shrink-0 text-[#8dc8bf]"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-              {t('deposits.processingHoursTitle')}
-            </p>
-            <p>• {t('deposits.processingHoursLine1')}</p>
-            <p>• {t('deposits.processingHoursLine2')}</p>
+          <div className="deposit-notice">
+            <Clock className="deposit-notice__icon" strokeWidth={1.75} aria-hidden />
+            <div className="min-w-0">
+              <p className="deposit-notice__title">{t('deposits.processingHoursTitle')}</p>
+              <ul className="deposit-notice__list">
+                <li>{t('deposits.processingHoursLine1')}</li>
+                <li>{t('deposits.processingHoursLine2')}</li>
+              </ul>
+            </div>
           </div>
 
           {message && (
@@ -327,7 +258,7 @@ export const DepositForm = ({ userEmail, depositOptions = [], onSuccess }) => {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2"
+            className="deposit-submit-btn w-full flex items-center justify-center gap-2"
           >
             {loading && <Spinner size="sm" />}
             {loading

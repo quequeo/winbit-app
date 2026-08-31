@@ -58,12 +58,12 @@ describe('LoginPage', () => {
       screen.getByRole('button', { name: 'Ingresar con email y contraseña' }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText('Correo electrónico')).not.toBeInTheDocument();
-    expect(screen.getByText('PLATAFORMA')).toBeInTheDocument();
-    expect(screen.getByText('DE INVERSORES')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Iniciar sesión' })).toBeInTheDocument();
     expect(screen.getByText(/Acceso exclusivo para inversores registrados/)).toBeInTheDocument();
     expect(
-      screen.getByText(/Tu información está protegida mediante protocolos de seguridad/),
+      screen.getByText(/Tu información está protegida con protocolos de seguridad avanzados/),
     ).toBeInTheDocument();
+    expect(screen.getByText(/© 2026 Winbit/)).toBeInTheDocument();
   });
 
   it('shows email/password form when choosing email access', () => {

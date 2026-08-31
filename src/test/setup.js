@@ -3,6 +3,11 @@ import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '../i18n';
 
+// Never use local auth bypass during tests (may be enabled in developer .env).
+if (import.meta.env) {
+  import.meta.env.VITE_DEV_BYPASS_AUTH = 'false';
+}
+
 afterEach(() => {
   cleanup();
 });

@@ -31,6 +31,7 @@ export const formatDate = (dateString, opts = { time: true }) => {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
+    timeZone: 'America/Argentina/Buenos_Aires',
   };
 
   const formatter = new Intl.DateTimeFormat('en-US', formatterOpts);

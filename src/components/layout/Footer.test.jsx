@@ -11,8 +11,9 @@ describe('Footer', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders processing hours info', () => {
+  it('does not render support contact', () => {
     render(<Footer />);
-    expect(screen.getByText(/Las actualizaciones del portafolio/)).toBeInTheDocument();
+    expect(screen.queryByText(/winbit\.cfds@gmail\.com/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Las actualizaciones del portafolio/)).not.toBeInTheDocument();
   });
 });

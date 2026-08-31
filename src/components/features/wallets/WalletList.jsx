@@ -1,5 +1,6 @@
 import { WalletCard } from './WalletCard';
 import { EmptyState } from '../../ui/EmptyState';
+import { Wallet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const WalletList = ({ wallets }) => {
@@ -8,7 +9,7 @@ export const WalletList = ({ wallets }) => {
   if (!wallets || wallets.length === 0) {
     return (
       <EmptyState
-        icon="💰"
+        icon={Wallet}
         title={t('deposits.noWalletsTitle')}
         description={t('deposits.noWalletsMessage')}
       />

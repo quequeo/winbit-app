@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../hooks/useAuth';
 import { useInvestorHistory } from '../../../hooks/useInvestorHistory';
-import { useToast } from '../../../hooks/useToast';
+import { useToast } from '../../ui/ToastProvider';
 import { detectRequestTransitions, getPendingRequests } from '../../../utils/requestHistory';
 import { formatCurrency } from '../../../utils/formatCurrency';
 

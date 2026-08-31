@@ -5,15 +5,10 @@ import { DepositForm } from './DepositForm';
 import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import { i18n } from '../../../i18n';
-import { ToastProvider } from '../../ui/ToastProvider';
 
 const renderWithQuery = (ui) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>{ui}</ToastProvider>
-    </QueryClientProvider>,
-  );
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 };
 
 vi.mock('../../../services/api', () => ({
@@ -52,11 +47,11 @@ describe('DepositForm', () => {
     });
     renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />);
 
-    expect(screen.getByText('Register deposit')).toBeInTheDocument();
+    expect(screen.getByText('Submit for validation')).toBeInTheDocument();
 
     const amountInput = screen.getByLabelText(/Amount/);
-    expect(amountInput).toHaveAttribute('placeholder', '1,000.00');
-    expect(screen.getByRole('button', { name: 'Register deposit' })).toBeInTheDocument();
+    expect(amountInput).toHaveAttribute('placeholder', '1.000,00');
+    expect(screen.getByRole('button', { name: 'Submit for validation' })).toBeInTheDocument();
 
     await act(async () => {
       await i18n.changeLanguage('es');
@@ -71,7 +66,7 @@ describe('DepositForm', () => {
       <DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} />,
     );
     fireEvent.submit(container.querySelector('form'));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Ingresá un monto válido');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Ingresa un monto válido');
   });
 
   it('submits successfully', async () => {
@@ -101,8 +96,8 @@ describe('DepositForm', () => {
       );
     });
 
-    expect(await screen.findByRole('heading', { name: 'Depósito informado' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Ver mi solicitud/i })).toBeInTheDocument();
+    expect(await screen.findByText('Depósito informado')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Aceptar/i })).toBeInTheDocument();
   });
 
   it('shows service error', async () => {
@@ -295,6 +290,17 @@ describe('DepositForm', () => {
     const selectButton = screen.getByLabelText(/Método/);
     expect(selectButton).toBeInTheDocument();
     expect(selectButton.textContent).toContain('Efectivo USD');
+    fireEvent.click(selectButton);
+    expect(screen.getByRole('option', { name: 'Transferencia internacional' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'USDT TRC20' })).toBeInTheDocument();
+  });
+
+  it('prefills selected deposit option in method field', async () => {
+    renderWithQuery(
+      <DepositForm userEmail="t@e.com" depositOptions={mockDepositOptions} selectedOptionId="3" />,
+    );
+
+    expect(screen.getByLabelText(/Método/)).toHaveTextContent('USDT TRC20');
   });
 
   it('falls back to hardcoded methods when no deposit options', () => {

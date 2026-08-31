@@ -64,4 +64,18 @@ export default [
       },
     },
   },
+  {
+    files: ['scripts/**/*.mjs', 'vite.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  {
+    files: ['src/components/ui/ToastProvider.jsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ];

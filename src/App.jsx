@@ -1,13 +1,13 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './components/features/auth/AuthProvider';
-import { ToastProvider } from './components/ui/ToastProvider';
-import { RequestNotificationsProvider } from './components/features/requests/RequestNotificationsProvider';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Spinner } from './components/ui/Spinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ToastProvider } from './components/ui/ToastProvider';
+import { RequestNotificationsProvider } from './components/features/requests/RequestNotificationsProvider';
 
 const LoginPage = lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() =>
@@ -41,7 +41,7 @@ export const App = () => {
       <AuthProvider>
         <ToastProvider>
           <RequestNotificationsProvider>
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col bg-[#0D0F0E] text-text-primary">
               <Suspense fallback={<PageFallback />}>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
@@ -50,7 +50,7 @@ export const App = () => {
                     element={
                       <ProtectedRoute>
                         <Header />
-                        <main className="flex-1 container mx-auto px-4 py-8">
+                        <main className="app-main flex-1 container mx-auto px-4 py-4 md:px-8 md:py-8">
                           <Suspense fallback={<PageFallback />}>
                             <Routes>
                               <Route path="/dashboard" element={<DashboardPage />} />

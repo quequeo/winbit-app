@@ -10,6 +10,7 @@ import {
   validateInvestor,
   changeInvestorPassword,
   loginWithEmailPassword,
+  downloadInvestorMonthlyReport,
 } from './api';
 
 // Mock fetch globally
@@ -621,6 +622,39 @@ describe('api service', () => {
     });
   });
 
+  describe('downloadInvestorMonthlyReport', () => {
+    it('returns pdf blob and filename from content-disposition', async () => {
+      const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: {
+          get: (name) =>
+            name.toLowerCase() === 'content-disposition'
+              ? 'attachment; filename="Reporte julio - LUIS.pdf"'
+              : null,
+        },
+        blob: async () => new Blob([pdfBytes], { type: 'application/pdf' }),
+      });
+
+      const result = await downloadInvestorMonthlyReport('luismc90@gmail.com');
+      expect(result.error).toBeNull();
+      expect(result.data.filename).toBe('Reporte julio - LUIS.pdf');
+      expect(result.data.blob).toBeInstanceOf(Blob);
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/investor/luismc90%40gmail.com/monthly_report'),
+        expect.any(Object),
+      );
+    });
+
+    it('returns REPORT_NOT_FOUND on 404', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 404 });
+      const result = await downloadInvestorMonthlyReport('luismc90@gmail.com', '2026-08');
+      expect(result.data).toBeNull();
+      expect(result.error).toBe('REPORT_NOT_FOUND');
+    });
+  });
+
   describe('API_BASE_URL', () => {
     it('should use environment variable if available', () => {
       expect(getInvestorData).toBeDefined();
@@ -631,6 +665,7 @@ describe('api service', () => {
       expect(getWithdrawalFeePreview).toBeDefined();
       expect(createInvestorRequest).toBeDefined();
       expect(validateInvestor).toBeDefined();
+      expect(downloadInvestorMonthlyReport).toBeDefined();
     });
   });
 

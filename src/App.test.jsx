@@ -7,10 +7,6 @@ vi.mock('./components/features/auth/AuthProvider', () => ({
   AuthProvider: ({ children }) => <div>{children}</div>,
 }));
 
-vi.mock('./components/ui/ToastProvider', () => ({
-  ToastProvider: ({ children }) => children,
-}));
-
 vi.mock('./components/features/requests/RequestNotificationsProvider', () => ({
   RequestNotificationsProvider: ({ children }) => children,
 }));
