@@ -703,16 +703,15 @@
     z-index: 0;
     width: 76px;
     height: 132px;
-    background:
-      linear-gradient(
-        90deg,
-        transparent 0 12px,
-        rgba(71, 151, 133, 0.42) 12px 24px,
-        transparent 24px 32px,
-        rgba(71, 151, 133, 0.32) 32px 46px,
-        transparent 46px 54px,
-        rgba(71, 151, 133, 0.22) 54px 72px
-      );
+    background: linear-gradient(
+      90deg,
+      transparent 0 12px,
+      rgba(71, 151, 133, 0.42) 12px 24px,
+      transparent 24px 32px,
+      rgba(71, 151, 133, 0.32) 32px 46px,
+      transparent 46px 54px,
+      rgba(71, 151, 133, 0.22) 54px 72px
+    );
     clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
     opacity: 0.65;
     pointer-events: none;
@@ -923,12 +922,7 @@
     background: var(--login-green);
     color: #ffffff;
     /* Costura diagonal 45° (paralela al chaflán) */
-    clip-path: polygon(
-      0 0,
-      100% 0,
-      calc(100% - var(--login-cta-h)) 100%,
-      0 100%
-    );
+    clip-path: polygon(0 0, 100% 0, calc(100% - var(--login-cta-h)) 100%, 0 100%);
     margin-right: calc(var(--login-cta-h) * -0.42);
   }
 

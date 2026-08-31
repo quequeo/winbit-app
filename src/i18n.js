@@ -113,8 +113,7 @@ const resources = {
           backToGoogle: 'Volver a acceso con Google',
           tagline: 'Gestión activa en USD',
           securityTitle: 'Acceso seguro para inversores registrados.',
-          securityDetail:
-            'Tu información está protegida con protocolos de seguridad avanzados.',
+          securityDetail: 'Tu información está protegida con protocolos de seguridad avanzados.',
           restrictedAccess:
             'Acceso restringido a inversores registrados. La información se encuentra protegida mediante protocolos de seguridad.',
           devModeHint: 'Modo desarrollo local activo',
@@ -778,7 +777,8 @@ const resources = {
         title: 'Notifications',
         subtitle: 'Recent deposit and withdrawal activity',
         empty: 'No recent notifications',
-        emptyHint: 'Your latest deposits and withdrawals, including completed ones, will show up here.',
+        emptyHint:
+          'Your latest deposits and withdrawals, including completed ones, will show up here.',
         viewHistory: 'View history',
         items: {
           requestUpdate: 'Request update',

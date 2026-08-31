@@ -370,8 +370,7 @@ export const mergeOperatingWithStrategy = (rows, strategyByDate) => {
 
 /** Datos visibles de activo y dirección para cards de historial operativo. */
 export const resolveOperatingTradeDisplay = (row) => {
-  const rawAsset =
-    row?.contract ?? row?.asset ?? row?.operatingAsset ?? row?.tradeAsset ?? null;
+  const rawAsset = row?.contract ?? row?.asset ?? row?.operatingAsset ?? row?.tradeAsset ?? null;
   const assetKey = resolveOperatingContract(row);
   const badgeKey = toAssetBadgeKey(rawAsset ?? assetKey);
   const assetLabel =
