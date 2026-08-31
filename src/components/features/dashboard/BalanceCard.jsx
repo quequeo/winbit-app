@@ -4,7 +4,7 @@ import { formatPercentage } from '../../../utils/formatPercentage';
 
 export const BalanceCard = ({ balance, totalInvested, returns }) => {
   return (
-    <Card className="bg-gradient-to-br from-primary to-primary/80 text-white">
+    <Card className="bg-gradient-to-br from-primary to-primary/80 text-text-primary">
       <div className="space-y-4">
         <div>
           <p className="text-sm opacity-90">Current Balance</p>

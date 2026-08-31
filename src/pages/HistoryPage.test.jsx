@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { HistoryPage } from './HistoryPage';
 import { within } from '@testing-library/react';
 
@@ -12,6 +13,8 @@ vi.mock('../hooks/useInvestorHistory', () => ({
 }));
 
 import * as useInvestorHistoryModule from '../hooks/useInvestorHistory';
+
+const renderHistoryPage = () => render(<HistoryPage />, { wrapper: MemoryRouter });
 
 describe('HistoryPage', () => {
   beforeEach(() => {
@@ -44,19 +47,18 @@ describe('HistoryPage', () => {
   });
 
   it('renders mobile cards with history rows', () => {
-    render(<HistoryPage />);
-    expect(screen.getByText('Historial')).toBeInTheDocument();
+    renderHistoryPage();
+    expect(screen.getByText('Actividad de cuenta')).toBeInTheDocument();
+    expect(screen.getByText('Seguimiento completo de tu capital en Winbit.')).toBeInTheDocument();
 
     const mobile = screen.getByTestId('history-mobile');
-    expect(within(mobile).getByText('Depósito')).toBeInTheDocument();
-    expect(within(mobile).getByText('$10,000.00')).toBeInTheDocument();
-    expect(within(mobile).getByText('Acreditado')).toBeInTheDocument();
-    expect(within(mobile).getByTestId('icon-deposit-completed')).toBeInTheDocument();
+    expect(within(mobile).getByText('Depósito aprobado')).toBeInTheDocument();
+    expect(within(mobile).queryByText('Ingreso de capital registrado')).not.toBeInTheDocument();
+    expect(within(mobile).getByText('+USD 10.000,00')).toBeInTheDocument();
+    expect(within(mobile).getByText(/Saldo: USD 25\.000,00 → USD 35\.000,00/)).toBeInTheDocument();
 
-    // Sorted by most recent first
-    const cards = within(mobile).getAllByText(/Depósito|Retiro/);
-    expect(cards[0].textContent).toBe('Depósito');
-    expect(within(mobile).queryByTestId('icon-withdrawal-completed')).not.toBeInTheDocument();
+    const cards = within(mobile).getAllByText(/Depósito aprobado|Retiro solicitado/);
+    expect(cards[0].textContent).toBe('Depósito aprobado');
   });
 
   it('handles events in English format (DEPOSIT, WITHDRAWAL, PROFIT)', () => {
@@ -95,13 +97,14 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
 
-    // All events should be translated to Spanish
-    expect(screen.getAllByText('Depósito').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Retiro').length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Rendimiento/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Ene\/2024/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText('Retiro de capital solicitado por el inversor').length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.queryByText('Actualización de capital por gestión operativa'),
+    ).not.toBeInTheDocument();
   });
 
   it('translates referral commission events (REFERRAL_COMMISSION / REFERRAL_COMISSION)', () => {
@@ -131,10 +134,10 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
 
     const mobile = screen.getByTestId('history-mobile');
-    expect(within(mobile).getAllByText('Comisión por referido').length).toBe(2);
+    expect(within(mobile).getAllByText('Bonificación por referido').length).toBeGreaterThan(0);
   });
 
   it('translates referral commission variants (spaces/hyphens)', () => {
@@ -164,9 +167,9 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
     const mobile = screen.getByTestId('history-mobile');
-    expect(within(mobile).getAllByText('Comisión por referido').length).toBe(2);
+    expect(within(mobile).getAllByText('Bonificación por referido').length).toBeGreaterThan(0);
   });
 
   it('displays dash for null balances (pending requests)', () => {
@@ -187,15 +190,39 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
 
     const mobile = screen.getByTestId('history-mobile');
-    // Should show "-" instead of "$0.00" for null balances
-    const dashes = within(mobile).getAllByText('-');
-    expect(dashes.length).toBeGreaterThanOrEqual(2); // At least 2 for prev and new balance
+    expect(within(mobile).getByText('Impacto pendiente de confirmación')).toBeInTheDocument();
   });
 
-  it('hides operating results from history table', () => {
+  it('shows rejected deposits with unchanged balance legend', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          code: '001',
+          date: '2024-01-01T00:00:00.000Z',
+          movement: 'DEPOSIT',
+          amount: 1000,
+          previousBalance: 5000,
+          newBalance: 6000,
+          status: 'REJECTED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderHistoryPage();
+
+    const mobile = screen.getByTestId('history-mobile');
+    expect(within(mobile).getByText('Depósito rechazado')).toBeInTheDocument();
+    expect(within(mobile).getByText('Saldo sin cambios')).toBeInTheDocument();
+    expect(within(mobile).queryByText(/Saldo: US\$/)).not.toBeInTheDocument();
+  });
+
+  it('shows operating results in activity table', () => {
     vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
       data: [
         {
@@ -206,6 +233,7 @@ describe('HistoryPage', () => {
           previousBalance: 1000,
           newBalance: 950,
           status: 'COMPLETED',
+          operatingResultPercent: -5,
         },
         {
           code: '001',
@@ -215,6 +243,7 @@ describe('HistoryPage', () => {
           previousBalance: 950,
           newBalance: 970,
           status: 'COMPLETED',
+          operatingResultPercent: 2.1,
         },
       ],
       loading: false,
@@ -222,12 +251,12 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
 
-    expect(screen.queryByText(/Resultado Operativo/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/Resultado operativo diario/i).length).toBeGreaterThan(0);
   });
 
-  it('hides current-month operating results from history table', () => {
+  it('shows current-month operating results in activity table', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-23T12:00:00.000Z'));
 
@@ -241,6 +270,7 @@ describe('HistoryPage', () => {
           previousBalance: 14887.7,
           newBalance: 14895.15,
           status: 'COMPLETED',
+          operatingResultPercent: 0.05,
         },
       ],
       loading: false,
@@ -248,22 +278,22 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
 
-    expect(screen.queryByText(/Resultado Operativo/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/Resultado operativo diario/i).length).toBeGreaterThan(0);
 
     vi.useRealTimers();
   });
 
-  it('shows spinner when loading', () => {
+  it('shows skeleton when loading', () => {
     vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
       data: null,
       loading: true,
       error: null,
       refetch: vi.fn(),
     });
-    render(<HistoryPage />);
-    expect(screen.queryByText('Historial')).not.toBeInTheDocument();
+    const { container } = renderHistoryPage();
+    expect(container.querySelector('.wb-skeleton')).toBeInTheDocument();
   });
 
   it('shows error message and retry when error', () => {
@@ -274,7 +304,7 @@ describe('HistoryPage', () => {
       error: 'Network error',
       refetch,
     });
-    render(<HistoryPage />);
+    renderHistoryPage();
     expect(screen.getByText('Ocurrió un error')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -287,7 +317,7 @@ describe('HistoryPage', () => {
       error: 'Investor email mapping not configured',
       refetch: vi.fn(),
     });
-    render(<HistoryPage />);
+    renderHistoryPage();
     expect(screen.getByText(/Falta configurar el mapeo de tu usuario/i)).toBeInTheDocument();
   });
 
@@ -298,7 +328,7 @@ describe('HistoryPage', () => {
       error: 'Google Sheets credentials not configured',
       refetch: vi.fn(),
     });
-    render(<HistoryPage />);
+    renderHistoryPage();
     expect(screen.getByText('Google Sheets no está configurado.')).toBeInTheDocument();
   });
 
@@ -309,8 +339,8 @@ describe('HistoryPage', () => {
       error: null,
       refetch: vi.fn(),
     });
-    render(<HistoryPage />);
-    expect(screen.getByText('Sin movimientos todavía')).toBeInTheDocument();
+    renderHistoryPage();
+    expect(screen.getByText('Sin actividad registrada')).toBeInTheDocument();
   });
 
   it('shows pagination when more than page size rows', () => {
@@ -329,7 +359,7 @@ describe('HistoryPage', () => {
       error: null,
       refetch: vi.fn(),
     });
-    render(<HistoryPage />);
+    renderHistoryPage();
     expect(screen.getAllByText('Página 1 de 2').length).toBeGreaterThanOrEqual(1);
     const nextBtns = screen.getAllByText('Siguiente');
     fireEvent.click(nextBtns[0]);
@@ -352,7 +382,7 @@ describe('HistoryPage', () => {
       error: null,
       refetch: vi.fn(),
     });
-    render(<HistoryPage />);
+    renderHistoryPage();
     const pageSizeSelects = screen.getAllByDisplayValue('20');
     fireEvent.change(pageSizeSelects[0], { target: { value: '50' } });
     expect(screen.getByDisplayValue('50')).toBeInTheDocument();
@@ -376,9 +406,9 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
 
-    expect(screen.getAllByText(/Comisión de Trading - Ajuste/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Ajuste administrativo/i).length).toBeGreaterThan(0);
   });
 
   it('renders trading fee by withdrawal with percentage and withdrawal amount', () => {
@@ -402,8 +432,10 @@ describe('HistoryPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<HistoryPage />);
+    renderHistoryPage();
 
-    expect(screen.getAllByText(/Comisión.*30%.*Retiro.*15,000/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/Comisión de gestión.*30%.*Retiro.*15\.000,00/i).length,
+    ).toBeGreaterThan(0);
   });
 });

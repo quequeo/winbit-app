@@ -14,18 +14,20 @@ vi.mock('../components/features/requests/WithdrawalForm', () => ({
   WithdrawalForm: () => <div>WithdrawalForm</div>,
 }));
 
-const renderPage = () =>
+const renderPage = (ui) =>
   render(
-    <MemoryRouter>
-      <RequestsPage />
+    <MemoryRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
+      {ui}
     </MemoryRouter>,
   );
 
 describe('RequestsPage', () => {
-  const mockAuth = {
-    user: { email: 'test@example.com', displayName: 'Juan' },
-    userEmail: 'test@example.com',
-  };
+  const mockAuth = { user: { email: 'test@example.com', displayName: 'Juan' } };
   const mockData = {
     data: { name: 'Juan', balance: 1000 },
     loading: false,
@@ -34,19 +36,19 @@ describe('RequestsPage', () => {
   };
   const mockHistory = { data: [], loading: false, error: null, refetch: vi.fn() };
 
-  it('shows spinner while investor data is loading', () => {
+  it('shows skeleton while investor data is loading', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue({ ...mockData, loading: true });
     useInvestorHistory.mockReturnValue(mockHistory);
-    renderPage();
-    expect(screen.queryByText('Nueva solicitud')).not.toBeInTheDocument();
+    const { container } = renderPage(<RequestsPage />);
+    expect(container.querySelector('.wb-skeleton')).toBeInTheDocument();
   });
 
   it('renders tabs when loaded', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue(mockHistory);
-    renderPage();
+    renderPage(<RequestsPage />);
     expect(screen.getByText('Nueva solicitud')).toBeInTheDocument();
     expect(screen.getByText('Historial de retiros')).toBeInTheDocument();
   });
@@ -55,30 +57,30 @@ describe('RequestsPage', () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue(mockHistory);
-    renderPage();
+    renderPage(<RequestsPage />);
     expect(screen.getByText('WithdrawalForm')).toBeInTheDocument();
   });
 
-  it('shows loading spinner when history tab is loading', async () => {
+  it('shows loading skeleton when history tab is loading', async () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue({ ...mockHistory, loading: true });
-    const { container } = renderPage();
+    const { container } = renderPage(<RequestsPage />);
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });
-    expect(container.querySelector('.animate-spin')).toBeInTheDocument();
+    expect(container.querySelector('.wb-skeleton')).toBeInTheDocument();
   });
 
   it('shows empty state when no withdrawals in history', async () => {
     useAuth.mockReturnValue(mockAuth);
     useInvestorData.mockReturnValue(mockData);
     useInvestorHistory.mockReturnValue(mockHistory);
-    renderPage();
+    renderPage(<RequestsPage />);
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });
-    expect(screen.getByText('No hay retiros registrados aún.')).toBeInTheDocument();
+    expect(screen.getByText('Sin retiros todavía')).toBeInTheDocument();
   });
 
   it('shows withdrawal rows filtered from history', async () => {
@@ -114,7 +116,7 @@ describe('RequestsPage', () => {
       loading: false,
       error: null,
     });
-    renderPage();
+    renderPage(<RequestsPage />);
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });
@@ -140,7 +142,7 @@ describe('RequestsPage', () => {
       loading: false,
       error: null,
     });
-    renderPage();
+    renderPage(<RequestsPage />);
     await act(async () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });

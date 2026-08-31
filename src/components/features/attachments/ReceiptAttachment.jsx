@@ -41,7 +41,7 @@ export const ReceiptAttachment = ({ file = null, url = null, onRemove = null }) 
   const label = file?.name ?? t('deposits.requestForm.attachment.previewTitle', 'Comprobante');
 
   return (
-    <div className="mt-3 space-y-2 rounded-lg border border-[rgba(101,167,165,0.25)] bg-[rgba(20,20,20,0.45)] p-3">
+    <div className="mt-3 space-y-2 rounded-lg border border-[#28312D] bg-[#141716] p-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-medium text-text-primary">
@@ -100,7 +100,7 @@ export const ReceiptAttachment = ({ file = null, url = null, onRemove = null }) 
         <button
           type="button"
           onClick={() => openInNewTab(openUrl)}
-          className="rounded-lg border border-[rgba(101,167,165,0.35)] px-3 py-1.5 text-xs font-semibold text-primary hover:bg-[rgba(101,167,165,0.12)]"
+          className="rounded-lg border border-[#28312D] px-3 py-1.5 text-xs font-semibold text-primary hover:bg-[#171a18]"
         >
           {t('deposits.requestForm.attachment.openFull', 'Ver en tamaño completo')}
         </button>
@@ -108,7 +108,7 @@ export const ReceiptAttachment = ({ file = null, url = null, onRemove = null }) 
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="rounded-lg border border-[rgba(255,255,255,0.08)] px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-[rgba(101,167,165,0.08)]"
+            className="rounded-lg border border-[#28312D] px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-[#171a18]"
           >
             {expanded
               ? t('deposits.requestForm.attachment.collapse', 'Reducir')

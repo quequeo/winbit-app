@@ -10,30 +10,32 @@ const COPYABLE_KEYS = [
   'swift_code',
   'account_number',
   'iban',
-  'routing_number',
 ];
 
-const buildDetailEntries = (details = {}) => {
-  if (Array.isArray(details.fields)) {
-    return details.fields
-      .filter((field) => field && (field.label || field.value))
-      .map((field, index) => ({
-        key: `custom-${index}`,
-        label: String(field.label || ''),
-        value: String(field.value ?? ''),
-        copyable: true,
-      }));
-  }
+const parseFreeformFields = (details) => {
+  const fields = details?.fields;
+  if (!Array.isArray(fields)) return [];
 
-  return Object.entries(details)
-    .filter(([, value]) => value != null && value !== '' && typeof value !== 'object')
+  return fields
+    .filter((field) => field && typeof field === 'object')
+    .map((field) => ({
+      key: String(field.label || ''),
+      label: String(field.label || ''),
+      value: String(field.value || ''),
+      copyable: true,
+    }))
+    .filter((field) => field.label && field.value);
+};
+
+const parseLegacyFields = (details) =>
+  Object.entries(details)
+    .filter(([key, value]) => key !== 'fields' && value)
     .map(([key, value]) => ({
       key,
-      labelKey: key,
+      label: key,
       value: String(value),
       copyable: COPYABLE_KEYS.includes(key),
     }));
-};
 
 export const DepositOptionCard = ({ option }) => {
   const [copiedKey, setCopiedKey] = useState(null);
@@ -49,14 +51,16 @@ export const DepositOptionCard = ({ option }) => {
     }
   };
 
-  const detailEntries = buildDetailEntries(option.details || {});
+  const details = option.details || {};
+  const detailEntries =
+    option.category === 'CUSTOM' ? parseFreeformFields(details) : parseLegacyFields(details);
 
   return (
-    <Card variant="compact" className="transition-colors hover:border-[rgba(101,167,165,0.35)]">
+    <Card variant="compact" className="transition-colors hover:border-[rgba(57, 131, 109,0.35)]">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="font-semibold text-text-primary">{option.label}</h4>
-          <span className="text-xs font-medium text-white bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-full px-2 py-0.5">
+          <span className="text-xs font-medium text-text-primary bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-full px-2 py-0.5">
             {option.currency}
           </span>
         </div>
@@ -66,7 +70,9 @@ export const DepositOptionCard = ({ option }) => {
             <div key={entry.key} className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-[rgba(230,244,243,0.6)]">
-                  {entry.label || t(`deposits.detailLabels.${entry.labelKey}`, entry.labelKey)}
+                  {option.category === 'CUSTOM'
+                    ? entry.label
+                    : t(`deposits.detailLabels.${entry.key}`, entry.key)}
                 </p>
                 <p className="text-sm text-[#f3fbfb] font-mono break-all">{entry.value}</p>
               </div>

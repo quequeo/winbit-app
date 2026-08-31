@@ -4,16 +4,18 @@ import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { WalletsPage } from './WalletsPage';
-import { ToastProvider } from '../components/ui/ToastProvider';
 
 const renderWithQuery = (ui) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <MemoryRouter>{ui}</MemoryRouter>
-      </ToastProvider>
-    </QueryClientProvider>,
+    <MemoryRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </MemoryRouter>,
   );
 };
 
@@ -68,23 +70,31 @@ vi.mock('../hooks/useInvestorHistory', () => ({
   useInvestorHistory: (...args) => mockUseInvestorHistory(...args),
 }));
 
+vi.mock('../hooks/useInvestorData', () => ({
+  useInvestorData: () => ({
+    data: { balance: 10000, lastUpdated: '2026-01-01T12:00:00Z' },
+    loading: false,
+    error: null,
+  }),
+}));
+
 describe('WalletsPage', () => {
   it('renders heading and tabs', () => {
     renderWithQuery(<WalletsPage />);
     expect(screen.getByText('Depósitos')).toBeInTheDocument();
-    expect(screen.getAllByText('Métodos de depósito').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Informar depósito').length).toBeGreaterThan(0);
+    expect(screen.getByText('Depositar')).toBeInTheDocument();
     expect(screen.getByText('Historial')).toBeInTheDocument();
   });
 
   it('renders deposit option cards in default tab', () => {
     renderWithQuery(<WalletsPage />);
-    expect(screen.getByText('USDT TRC20')).toBeInTheDocument();
+    expect(screen.getAllByText('USDT TRC20').length).toBeGreaterThan(0);
   });
 
-  it('renders grouped by category in default tab', () => {
+  it('renders deposit details and report button in default tab', () => {
     renderWithQuery(<WalletsPage />);
-    expect(screen.getAllByText('Cripto').length).toBeGreaterThan(0);
+    expect(screen.getByText('TF7j33wo')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Informar depósito/i })).toBeInTheDocument();
   });
 
   it('shows empty state in history tab when no deposits', async () => {
@@ -92,16 +102,16 @@ describe('WalletsPage', () => {
     await act(async () => {
       await userEvent.click(screen.getByText('Historial'));
     });
-    expect(screen.getByText('No hay depósitos registrados aún.')).toBeInTheDocument();
+    expect(screen.getByText('Sin depósitos todavía')).toBeInTheDocument();
   });
 
-  it('shows deposit form when Informar Depósito tab is selected', async () => {
+  it('shows deposit form when Informar depósito button is clicked', async () => {
     renderWithQuery(<WalletsPage />);
     await act(async () => {
-      const matches = screen.getAllByText('Informar depósito');
-      await userEvent.click(matches[0]);
+      await userEvent.click(screen.getByRole('button', { name: /Informar depósito/i }));
     });
-    expect(screen.getAllByText(/Informar depósito/).length).toBeGreaterThan(0);
+    expect(screen.getByLabelText(/Monto/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Método/i)).toHaveTextContent('USDT TRC20');
   });
 
   it('shows view receipt button when deposit has attachmentUrl', async () => {
@@ -127,7 +137,7 @@ describe('WalletsPage', () => {
       await userEvent.click(screen.getByText('Historial'));
     });
 
-    expect(screen.getAllByRole('button', { name: /Ver comprobante/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /Ver detalle/i }).length).toBeGreaterThan(0);
   });
 
   it('shows deposit rows in history when deposits exist', async () => {
@@ -152,7 +162,7 @@ describe('WalletsPage', () => {
     await act(async () => {
       await userEvent.click(screen.getByText('Historial'));
     });
-    expect(screen.getAllByText('$1,000.00').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('USD 1.000,00').length).toBeGreaterThan(0);
 
     mockUseInvestorHistory.mockReturnValue({
       data: [],

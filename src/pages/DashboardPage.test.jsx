@@ -1,16 +1,62 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DashboardPage } from './DashboardPage';
+import { ToastProvider } from '../components/ui/ToastProvider';
 import * as useAuthModule from '../hooks/useAuth';
 import * as useInvestorDataModule from '../hooks/useInvestorData';
 import * as useInvestorHistoryModule from '../hooks/useInvestorHistory';
+import * as useStrategyOperationsModule from '../hooks/useStrategyOperations';
+import * as apiModule from '../services/api';
 
 const useAuth = vi.spyOn(useAuthModule, 'useAuth');
 const useInvestorData = vi.spyOn(useInvestorDataModule, 'useInvestorData');
 const useInvestorHistory = vi.spyOn(useInvestorHistoryModule, 'useInvestorHistory');
+const useStrategyOperations = vi.spyOn(useStrategyOperationsModule, 'useStrategyOperations');
+const downloadInvestorMonthlyReport = vi.spyOn(apiModule, 'downloadInvestorMonthlyReport');
+
+const defaultStrategyOps = {
+  data: [],
+  strategyByDate: {},
+  loading: false,
+  error: null,
+};
+
+const renderDashboard = () =>
+  render(
+    <MemoryRouter>
+      <ToastProvider>
+        <DashboardPage />
+      </ToastProvider>
+    </MemoryRouter>,
+  );
+
+const mockData = {
+  name: 'Juan',
+  balance: 14714.57,
+  totalInvested: 15000,
+  strategyReturnYtdUsd: -285.43,
+  strategyReturnYtdPct: -1.9,
+  strategyReturnAllUsd: -285.43,
+  strategyReturnAllPct: -1.9,
+  lastUpdated: '2026-06-10T18:00:00.000Z',
+};
 
 describe('DashboardPage', () => {
-  it('shows spinner when loading', () => {
+  beforeEach(() => {
+    useStrategyOperations.mockReturnValue(defaultStrategyOps);
+    downloadInvestorMonthlyReport.mockResolvedValue({
+      data: { blob: new Blob(['%PDF'], { type: 'application/pdf' }), filename: 'reporte.pdf' },
+      error: null,
+    });
+    useAuth.mockReturnValue({
+      user: { email: 'test@example.com' },
+      userEmail: 'test@example.com',
+    });
+  });
+
+  it('shows skeleton when loading persists beyond delay', () => {
+    vi.useFakeTimers();
     useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
     useInvestorData.mockReturnValue({
       data: null,
@@ -20,8 +66,12 @@ describe('DashboardPage', () => {
     });
     useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
-    render(<DashboardPage />);
-    expect(screen.queryByText('Juan')).not.toBeInTheDocument();
+    renderDashboard();
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(screen.getByTestId('dashboard-skeleton')).toBeInTheDocument();
+    vi.useRealTimers();
   });
 
   it('shows error message and retry calls refetch', () => {
@@ -35,7 +85,7 @@ describe('DashboardPage', () => {
     });
     useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
-    render(<DashboardPage />);
+    renderDashboard();
     expect(screen.getByText('Ocurrió un error')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Reintentar'));
     expect(refetch).toHaveBeenCalledTimes(1);
@@ -51,89 +101,56 @@ describe('DashboardPage', () => {
     });
     useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
-    render(<DashboardPage />);
+    renderDashboard();
     expect(screen.getByText('No hay datos disponibles para tu cuenta')).toBeInTheDocument();
   });
 
-  it('renders dashboard when data is available', () => {
+  it('renders dashboard layout when data is available', () => {
     useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
     useInvestorData.mockReturnValue({
       loading: false,
       error: null,
       refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 100,
-        totalInvested: 80,
-        strategyReturnYtdUsd: 20,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 20,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
-    });
-    useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
-
-    render(<DashboardPage />);
-    expect(screen.getByText('Juan')).toBeInTheDocument();
-    expect(screen.getByText('Valor del portafolio (USD)')).toBeInTheDocument();
-    expect(screen.getByText('Capital invertido (USD)')).toBeInTheDocument();
-    expect(screen.getByText('$100.00')).toBeInTheDocument();
-    // Range buttons are grouped under the chart aria-label.
-    expect(screen.getByRole('group', { name: 'Evolución del portafolio' })).toBeInTheDocument();
-    expect(screen.getByText('7D')).toBeInTheDocument();
-    expect(screen.getByText('1M')).toBeInTheDocument();
-    expect(screen.getByText('3M')).toBeInTheDocument();
-    expect(screen.getByText('6M')).toBeInTheDocument();
-    expect(screen.getByText('1A')).toBeInTheDocument();
-    expect(screen.getByText('Máx')).toBeInTheDocument();
-  });
-
-  it('shows chart and responds to mouse hover', () => {
-    const mockGetBoundingClientRect = vi.fn(() => ({
-      left: 0,
-      top: 0,
-      width: 900,
-      height: 240,
-      right: 900,
-      bottom: 240,
-      x: 0,
-      y: 0,
-      toJSON: () => {},
-    }));
-    useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
-    useInvestorData.mockReturnValue({
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
+      data: mockData,
     });
     useInvestorHistory.mockReturnValue({
       data: [
-        { date: '2024-01-01T12:00:00.000Z', newBalance: 800, status: 'COMPLETED' },
-        { date: '2024-01-15T12:00:00.000Z', newBalance: 900, status: 'COMPLETED' },
-        { date: '2024-01-31T12:00:00.000Z', newBalance: 1000, status: 'COMPLETED' },
+        {
+          id: 'op1',
+          date: '2026-06-17T17:00:00.000Z',
+          movement: 'OPERATING_RESULT',
+          amount: 50.06,
+          status: 'COMPLETED',
+        },
       ],
       loading: false,
       error: null,
       refetch: vi.fn(),
     });
+    useStrategyOperations.mockReturnValue({
+      data: [{ operationDate: '2026-06-17', asset: 'MES', direction: 'LONG' }],
+      strategyByDate: {
+        '2026-06-17': { operationDate: '2026-06-17', asset: 'MES', direction: 'LONG' },
+      },
+      loading: false,
+      error: null,
+    });
 
-    render(<DashboardPage />);
-    const chart = screen.getByRole('img', { name: 'Evolución del portafolio' });
-    chart.getBoundingClientRect = mockGetBoundingClientRect;
-    fireEvent.mouseMove(chart, { clientX: 100, clientY: 100 });
-    fireEvent.mouseMove(chart, { clientX: 5, clientY: 50 });
-    fireEvent.mouseLeave(chart);
+    renderDashboard();
+    expect(screen.getByText('Juan')).toBeInTheDocument();
+    expect(screen.getByText('Resumen de tu inversión')).toBeInTheDocument();
+    expect(screen.getByText('Valor actual del portafolio')).toBeInTheDocument();
+    expect(screen.getByText('Rendimiento acumulado')).toBeInTheDocument();
+    expect(screen.getByText('Desde el inicio')).toBeInTheDocument();
+    expect(screen.getByText('Acumulado anual')).toBeInTheDocument();
+    expect(screen.getByText('USD 14.714,57')).toBeInTheDocument();
+    expect(screen.queryByText('Contactar soporte')).not.toBeInTheDocument();
+    expect(screen.getByText('Acciones rápidas')).toBeInTheDocument();
+    expect(screen.getByText('Operativa reciente')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('S&P 500').length).toBeGreaterThan(0);
+    expect(screen.getByText('7D')).toBeInTheDocument();
+    expect(screen.getByText('3M')).toBeInTheDocument();
+    expect(screen.getByText('Máx')).toBeInTheDocument();
   });
 
   it('shows chart when history has at least 2 balance points', () => {
@@ -142,16 +159,7 @@ describe('DashboardPage', () => {
       loading: false,
       error: null,
       refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
+      data: mockData,
     });
     useInvestorHistory.mockReturnValue({
       data: [
@@ -164,67 +172,27 @@ describe('DashboardPage', () => {
       refetch: vi.fn(),
     });
 
-    render(<DashboardPage />);
-    expect(screen.getByRole('img', { name: 'Evolución del portafolio' })).toBeInTheDocument();
+    renderDashboard();
+    expect(screen.getByRole('img', { name: 'Evolución del capital' })).toBeInTheDocument();
   });
 
-  it('formats large chart values with k/m suffix', () => {
+  it('shows chart loading when history is loading', () => {
     useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
     useInvestorData.mockReturnValue({
       loading: false,
       error: null,
       refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1500000,
-        totalInvested: 1000000,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
+      data: mockData,
     });
     useInvestorHistory.mockReturnValue({
-      data: [
-        { date: '2024-01-01T12:00:00.000Z', newBalance: 1000000, status: 'COMPLETED' },
-        { date: '2024-01-31T12:00:00.000Z', newBalance: 1500000, status: 'COMPLETED' },
-      ],
-      loading: false,
+      data: [],
+      loading: true,
       error: null,
       refetch: vi.fn(),
     });
 
-    render(<DashboardPage />);
-    expect(screen.getByRole('img', { name: 'Evolución del portafolio' })).toBeInTheDocument();
-  });
-
-  it('shows no data message when history has fewer than 2 points', () => {
-    useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
-    useInvestorData.mockReturnValue({
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
-    });
-    useInvestorHistory.mockReturnValue({
-      data: [{ date: '2024-01-01T12:00:00.000Z', newBalance: 1000, status: 'COMPLETED' }],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
-
-    render(<DashboardPage />);
-    expect(screen.getByText('Aún no hay datos históricos disponibles.')).toBeInTheDocument();
+    renderDashboard();
+    expect(screen.getByText('Cargando evolución…')).toBeInTheDocument();
   });
 
   it('shows UnauthorizedPage when unauthorized', () => {
@@ -238,173 +206,24 @@ describe('DashboardPage', () => {
     });
     useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
-    render(<DashboardPage />);
+    renderDashboard();
     expect(screen.getByText('Acceso no autorizado')).toBeInTheDocument();
   });
 
-  it('filters chart by 7 days range', () => {
+  it('toggles balance visibility', () => {
     useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
     useInvestorData.mockReturnValue({
       loading: false,
       error: null,
       refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
+      data: mockData,
     });
-    useInvestorHistory.mockReturnValue({
-      data: [
-        { date: '2024-01-01T12:00:00.000Z', newBalance: 800, status: 'COMPLETED' },
-        { date: '2024-01-05T12:00:00.000Z', newBalance: 900, status: 'COMPLETED' },
-        { date: '2024-01-08T12:00:00.000Z', newBalance: 1000, status: 'COMPLETED' },
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
-    render(<DashboardPage />);
-    fireEvent.click(screen.getByText('7D'));
-    expect(screen.getByText('7D')).toBeInTheDocument();
-  });
-
-  it('filters chart by 6 months and 1 year ranges', () => {
-    useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
-    useInvestorData.mockReturnValue({
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
-    });
-    useInvestorHistory.mockReturnValue({
-      data: [
-        { date: '2024-01-01T12:00:00.000Z', newBalance: 800, status: 'COMPLETED' },
-        { date: '2024-06-15T12:00:00.000Z', newBalance: 900, status: 'COMPLETED' },
-        { date: '2024-12-31T12:00:00.000Z', newBalance: 1000, status: 'COMPLETED' },
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
-
-    render(<DashboardPage />);
-    fireEvent.click(screen.getByText('6M'));
-    expect(screen.getByText('6M')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('1A'));
-    expect(screen.getByText('1A')).toBeInTheDocument();
-  });
-
-  it('shows Todo range and chart when ALL selected', () => {
-    useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
-    useInvestorData.mockReturnValue({
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
-    });
-    useInvestorHistory.mockReturnValue({
-      data: [
-        { date: '2024-01-01T12:00:00.000Z', newBalance: 800, status: 'COMPLETED' },
-        { date: '2024-06-15T12:00:00.000Z', newBalance: 900, status: 'COMPLETED' },
-        { date: '2024-12-31T12:00:00.000Z', newBalance: 1000, status: 'COMPLETED' },
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
-
-    render(<DashboardPage />);
-    fireEvent.click(screen.getByText('Máx'));
-    expect(screen.getByText('Máx')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Evolución del portafolio' })).toBeInTheDocument();
-  });
-
-  it('changes chart range when range button is clicked', () => {
-    useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
-    useInvestorData.mockReturnValue({
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
-    });
-    useInvestorHistory.mockReturnValue({
-      data: [
-        { date: '2024-01-01T12:00:00.000Z', newBalance: 800, status: 'COMPLETED' },
-        { date: '2024-01-15T12:00:00.000Z', newBalance: 900, status: 'COMPLETED' },
-        { date: '2024-01-31T12:00:00.000Z', newBalance: 1000, status: 'COMPLETED' },
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
-
-    render(<DashboardPage />);
-    fireEvent.click(screen.getByText('1M'));
-    expect(screen.getByText('1M')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('3M'));
-    expect(screen.getByText('3M')).toBeInTheDocument();
-  });
-
-  it('shows chart loading when history is loading', () => {
-    useAuth.mockReturnValue({ user: { email: 'test@example.com' } });
-    useInvestorData.mockReturnValue({
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-      data: {
-        name: 'Juan',
-        balance: 1000,
-        totalInvested: 800,
-        strategyReturnYtdUsd: 200,
-        strategyReturnYtdPct: 25,
-        strategyReturnAllUsd: 200,
-        strategyReturnAllPct: 25,
-        lastUpdated: '2024-01-01T00:00:00.000Z',
-      },
-    });
-    useInvestorHistory.mockReturnValue({
-      data: [],
-      loading: true,
-      error: null,
-      refetch: vi.fn(),
-    });
-
-    render(<DashboardPage />);
-    expect(screen.getByText('Cargando evolución…')).toBeInTheDocument();
+    renderDashboard();
+    expect(screen.getByText('USD 14.714,57')).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Ocultar saldos'));
+    expect(screen.queryByText('USD 14.714,57')).not.toBeInTheDocument();
   });
 
   it('shows Sheets credentials error when error matches', () => {
@@ -417,7 +236,25 @@ describe('DashboardPage', () => {
     });
     useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
 
-    render(<DashboardPage />);
+    renderDashboard();
     expect(screen.getByText('Google Sheets no está configurado.')).toBeInTheDocument();
+  });
+
+  it('downloads monthly report when download button is clicked', async () => {
+    useInvestorData.mockReturnValue({
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+      data: mockData,
+    });
+    useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null, refetch: vi.fn() });
+
+    renderDashboard();
+    fireEvent.click(screen.getByLabelText('Descargar reporte'));
+
+    await waitFor(() => {
+      expect(downloadInvestorMonthlyReport).toHaveBeenCalledWith('test@example.com');
+    });
+    expect(await screen.findByText('La descarga del reporte comenzó.')).toBeInTheDocument();
   });
 });

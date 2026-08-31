@@ -1,18 +1,19 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { Clock, AlertTriangle } from 'lucide-react';
+import { Clock, ArrowRight, Mail, DollarSign } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
+import { PaymentMethodIcon } from '../../ui/PaymentMethodIcon';
+import { resolvePaymentMethodVariant } from '../../../utils/paymentMethodVariant';
+import { normalizeWithdrawalPaymentMethods } from '../../../utils/normalizeWithdrawalPaymentMethods';
 import { Button } from '../../ui/Button';
 import { Modal } from '../../ui/Modal';
 import { ConfirmModal } from '../../ui/ConfirmModal';
+import { DisclaimerCard } from '../../ui/DisclaimerCard';
 import { createInvestorRequest, getWithdrawalFeePreview } from '../../../services/api';
 import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../../../hooks/useToast';
-import { pendingHistoryId } from '../../../utils/requestHistory';
 
 const CRYPTO_NETWORKS = [
   { value: 'BEP20', label: 'BEP20 (BSC)' },
@@ -21,34 +22,10 @@ const CRYPTO_NETWORKS = [
   { value: 'TRC20', label: 'TRC20 (Tron)' },
 ];
 
-/** Fallback si el endpoint de métodos no responde (alineado con seed de payment_methods en prod). */
-const FALLBACK_WITHDRAWAL_METHODS = [
-  {
-    code: 'CASH_USD',
-    name: 'Efectivo USD',
-    requiresNetwork: false,
-    requiresLemontag: false,
-    requiresWalletAddress: false,
-  },
-  {
-    code: 'CRYPTO',
-    name: 'Criptomonedas',
-    requiresNetwork: true,
-    requiresLemontag: false,
-    requiresWalletAddress: true,
-  },
-  {
-    code: 'LEMON_CASH',
-    name: 'Lemon Cash',
-    requiresNetwork: false,
-    requiresLemontag: true,
-    requiresWalletAddress: false,
-  },
-];
-
-export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
+export const WithdrawalForm = ({ userEmail, currentBalance, availableBalance }) => {
+  const withdrawable = availableBalance ?? currentBalance;
   const [type, setType] = useState('partial');
-  const [method, setMethod] = useState('CASH_USD');
+  const [method, setMethod] = useState('USDT');
   const [lemontag, setLemontag] = useState('');
   const [network, setNetwork] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
@@ -58,18 +35,13 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
   const [modal, setModal] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
   const {
     paymentMethods: apiMethods,
     loading: methodsLoading,
     error: methodsError,
   } = usePaymentMethods('withdrawal');
 
-  const paymentMethods = useMemo(() => {
-    if (apiMethods.length > 0) return apiMethods;
-    return FALLBACK_WITHDRAWAL_METHODS;
-  }, [apiMethods]);
+  const paymentMethods = useMemo(() => normalizeWithdrawalPaymentMethods(apiMethods), [apiMethods]);
 
   const selectedMethod = useMemo(
     () => paymentMethods.find((m) => m.code === method) ?? null,
@@ -97,7 +69,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
     ...CRYPTO_NETWORKS,
   ];
 
-  const withdrawalAmount = type === 'full' ? currentBalance : parseFloat(amount);
+  const withdrawalAmount = type === 'full' ? withdrawable : parseFloat(amount);
 
   const handleMethodChange = (e) => {
     const next = e.target.value;
@@ -113,7 +85,7 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.invalidAmount') });
       return false;
     }
-    if (withdrawalAmount > currentBalance) {
+    if (withdrawalAmount > withdrawable) {
       setMessage({ type: 'error', text: t('withdrawals.form.validation.exceedsBalance') });
       return false;
     }
@@ -149,32 +121,11 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
     setConfirmModal(null);
 
     if (apiResult.data) {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['investor', userEmail] }),
-        queryClient.invalidateQueries({ queryKey: ['investor', userEmail, 'history'] }),
-      ]);
-
-      const requestId = apiResult.data?.id;
-      const methodName = selectedMethod?.name || method;
-
       setModal({
         type: 'success',
         title: t('requests.registered.withdrawalTitle'),
         message: t('requests.registered.withdrawal'),
-        requestId,
-        amount: withdrawalAmount,
-        methodLabel: methodName,
       });
-
-      showToast({
-        title: t('requests.registered.withdrawalTitle'),
-        message: t('requests.notifications.submittedToastWithdrawal', {
-          amount: formatCurrency(withdrawalAmount),
-        }),
-        type: 'success',
-        duration: 7000,
-      });
-
       setAmount('');
       setType('partial');
       setNetwork('');
@@ -210,34 +161,39 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
   const showCryptoFields = selectedMethod?.requiresNetwork || selectedMethod?.requiresWalletAddress;
   const showLemontagField = selectedMethod?.requiresLemontag;
 
+  const fieldControlClass = 'withdrawal-field-control';
+
+  const methodIconVariant = resolvePaymentMethodVariant(
+    selectedMethod ?? { code: method, name: methodOptions.find((o) => o.value === method)?.label },
+  );
+
   return (
     <>
       <ConfirmModal
         isOpen={confirmModal !== null}
-        title="Confirmar retiro"
+        title={t('withdrawals.confirm.title')}
         onConfirm={submitRequest}
         onCancel={() => setConfirmModal(null)}
         loading={loading}
+        confirmLabel={t('withdrawals.confirm.confirmLabel')}
       >
         {confirmModal && (
           <div className="w-full space-y-3 text-sm text-text-primary">
             <div className="flex justify-between">
-              <span>Monto de retiro</span>
+              <span>{t('withdrawals.confirm.amount')}</span>
               <span className="font-semibold">{formatCurrency(confirmModal.withdrawalAmount)}</span>
             </div>
             {confirmModal.hasFee ? (
               <div className="flex justify-between text-primary">
-                <span>Comisión de trading ({confirmModal.feePercentage}%)</span>
+                <span>{t('withdrawals.confirm.fee', { pct: confirmModal.feePercentage })}</span>
                 <span className="font-semibold">{formatCurrency(confirmModal.feeAmount)}</span>
               </div>
             ) : (
-              <p className="text-text-muted text-xs">
-                No hay comisión de trading aplicable a este retiro.
-              </p>
+              <p className="text-text-muted text-xs">{t('withdrawals.confirm.noFee')}</p>
             )}
             {confirmModal.hasFee && (
               <div className="border-t border-[rgba(255,255,255,0.08)] pt-3 flex justify-between font-semibold text-text-primary">
-                <span>Total debitado del portfolio</span>
+                <span>{t('withdrawals.confirm.totalDebited')}</span>
                 <span>
                   {formatCurrency(confirmModal.withdrawalAmount + confirmModal.feeAmount)}
                 </span>
@@ -251,43 +207,12 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
         isOpen={modal !== null}
         onClose={() => setModal(null)}
         title={modal?.title}
+        message={modal?.message}
         type={modal?.type}
-        primaryActionLabel={t('requests.notifications.viewRequest')}
-        onPrimaryAction={() => {
-          setModal(null);
-          onSuccess?.();
-        }}
-      >
-        {modal ? (
-          <div className="space-y-3 text-left w-full">
-            <p className="text-base text-text-muted whitespace-pre-line">{modal.message}</p>
-            {modal.requestId != null ? (
-              <div className="rounded-lg border border-[rgba(101,167,165,0.22)] bg-[rgba(101,167,165,0.06)] px-3 py-2 text-sm space-y-1">
-                <p className="text-text-muted">{t('requests.registered.reference')}</p>
-                <p className="font-mono font-semibold text-text-primary">
-                  {pendingHistoryId(modal.requestId)}
-                </p>
-              </div>
-            ) : null}
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <p className="text-text-muted">{t('requests.method.label')}</p>
-                <p className="font-medium text-text-primary">{modal.methodLabel}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-text-muted">{t('withdrawals.form.amount.label')}</p>
-                <p className="font-medium text-text-primary">{formatCurrency(modal.amount)}</p>
-              </div>
-            </div>
-            <p className="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20">
-              {t('history.status.pending')}
-            </p>
-          </div>
-        ) : null}
-      </Modal>
+      />
 
-      <Card title={t('withdrawals.formTitle')}>
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <Card title={t('withdrawals.formTitle')} className="withdrawal-form-card">
+        <form onSubmit={handleSubmit} className="withdrawal-form space-y-6">
           {methodsError && (
             <p className="text-xs text-text-muted" role="status">
               {t('withdrawals.form.methodsLoadWarning')}
@@ -303,6 +228,8 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
             options={methodOptions}
             disabled={loading || methodsLoading}
             required
+            leadingAdornment={<PaymentMethodIcon variant={methodIconVariant} compact />}
+            controlClassName={fieldControlClass}
           />
 
           {showLemontagField && (
@@ -345,44 +272,31 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
                 placeholder={t('withdrawals.form.walletAddress.placeholder')}
               />
 
-              <div className="info-box text-sm text-text-primary flex items-start gap-3">
-                <AlertTriangle
-                  className="w-5 h-5 shrink-0 text-warning mt-0.5"
-                  strokeWidth={1.75}
-                  aria-hidden="true"
-                />
-                <p>{t('withdrawals.form.walletWarning')}</p>
-              </div>
+              <DisclaimerCard title={t('common.important')}>
+                {t('withdrawals.form.walletWarning')}
+              </DisclaimerCard>
             </>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-3">
+            <label className="withdrawal-field-label">
               {t('withdrawals.form.type.label')} <span className="text-error">*</span>
             </label>
-            <div className="flex gap-5">
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <input
-                  type="radio"
-                  name="type"
-                  value="partial"
-                  checked={type === 'partial'}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-5 h-5 text-primary accent-[#65a7a5]"
-                />
-                <span>{t('withdrawals.form.type.partial')}</span>
-              </label>
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <input
-                  type="radio"
-                  name="type"
-                  value="full"
-                  checked={type === 'full'}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-5 h-5 text-primary accent-[#65a7a5]"
-                />
-                <span>{t('withdrawals.form.type.full')}</span>
-              </label>
+            <div className="withdrawal-type-toggle">
+              <button
+                type="button"
+                onClick={() => setType('partial')}
+                className={`withdrawal-type-option ${type === 'partial' ? 'withdrawal-type-option--active' : ''}`}
+              >
+                {t('withdrawals.form.type.partial')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setType('full')}
+                className={`withdrawal-type-option ${type === 'full' ? 'withdrawal-type-option--active' : ''}`}
+              >
+                {t('withdrawals.form.type.full')}
+              </button>
             </div>
           </div>
 
@@ -399,21 +313,49 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
               min="0.01"
               step="0.01"
               placeholder={t('withdrawals.form.amount.placeholder')}
+              icon={DollarSign}
+              controlClassName={fieldControlClass}
             />
           )}
 
-          <div className="info-box text-sm text-text-primary">
-            <p className="font-medium mb-1 flex items-center gap-2">
-              <Clock
-                className="w-4 h-4 shrink-0 text-[#8dc8bf]"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-              {t('withdrawals.processingHoursTitle')}
-            </p>
-            <p>• {t('withdrawals.processingHoursLine1')}</p>
-            <p>• {t('withdrawals.processingHoursLine2')}</p>
-            <p>• {t('withdrawals.processingHoursLine3')}</p>
+          <div className="withdrawal-processing-card">
+            <div className="withdrawal-processing-card__header">
+              <div className="withdrawal-processing-card__header-icon" aria-hidden>
+                <Clock strokeWidth={1.75} />
+              </div>
+              <p className="withdrawal-processing-card__title">
+                {t('withdrawals.processingHoursTitle')}
+              </p>
+            </div>
+            <div className="withdrawal-processing-card__grid">
+              <div className="withdrawal-processing-card__col">
+                <div className="withdrawal-processing-card__col-head">
+                  <Clock strokeWidth={2} aria-hidden />
+                  <span>{t('withdrawals.processingHoursUntil')}</span>
+                </div>
+                <p className="withdrawal-processing-card__col-detail">
+                  {t('withdrawals.processingHoursUntilDetail')}
+                </p>
+              </div>
+              <div className="withdrawal-processing-card__col">
+                <div className="withdrawal-processing-card__col-head">
+                  <Clock strokeWidth={2} aria-hidden />
+                  <span>{t('withdrawals.processingHoursAfter')}</span>
+                </div>
+                <p className="withdrawal-processing-card__col-detail">
+                  {t('withdrawals.processingHoursAfterDetail')}
+                </p>
+              </div>
+              <div className="withdrawal-processing-card__col">
+                <div className="withdrawal-processing-card__col-head">
+                  <Mail strokeWidth={2} aria-hidden />
+                  <span>{t('withdrawals.processingHoursReceipt')}</span>
+                </div>
+                <p className="withdrawal-processing-card__col-detail">
+                  {t('withdrawals.processingHoursReceiptDetail')}
+                </p>
+              </div>
+            </div>
           </div>
 
           {message && (
@@ -427,8 +369,17 @@ export const WithdrawalForm = ({ userEmail, currentBalance, onSuccess }) => {
             </div>
           )}
 
-          <Button type="submit" disabled={loading || methodsLoading} className="w-full">
-            {loading ? t('common.sending') : t('common.sendRequest')}
+          <Button
+            type="submit"
+            disabled={loading || methodsLoading}
+            className="w-full withdrawal-submit-btn"
+          >
+            <span className="withdrawal-submit-btn__text">
+              {loading ? t('common.sending') : t('common.sendRequest')}
+            </span>
+            {!loading ? (
+              <ArrowRight className="withdrawal-submit-btn__arrow" strokeWidth={1.75} aria-hidden />
+            ) : null}
           </Button>
         </form>
       </Card>

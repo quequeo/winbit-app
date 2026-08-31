@@ -18,25 +18,25 @@ describe('Button', () => {
   it('applies primary variant styles by default', () => {
     render(<Button>Primary</Button>);
     const button = screen.getByText('Primary');
-    expect(button).toHaveClass('focus:ring-primary');
+    expect(button).toHaveClass('primary-button');
   });
 
   it('applies secondary variant styles', () => {
     render(<Button variant="secondary">Secondary</Button>);
     const button = screen.getByText('Secondary');
-    expect(button).toHaveClass('focus:ring-primary');
+    expect(button.className).toMatch(/text-primary/);
   });
 
   it('applies danger variant styles', () => {
     render(<Button variant="danger">Danger</Button>);
     const button = screen.getByText('Danger');
-    expect(button).toHaveClass('focus:ring-error');
+    expect(button.className).toMatch(/text-error/);
   });
 
   it('applies outline variant styles', () => {
     render(<Button variant="outline">Outline</Button>);
     const button = screen.getByText('Outline');
-    expect(button).toHaveClass('focus:ring-primary');
+    expect(button.className).toMatch(/border-border-cream/);
   });
 
   it('disables button when disabled prop is true', () => {

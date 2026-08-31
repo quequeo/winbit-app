@@ -29,6 +29,9 @@ export const Select = ({
   disabled = false,
   error,
   className = '',
+  icon: Icon,
+  leadingAdornment,
+  controlClassName = '',
 }) => {
   const containerRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -77,15 +80,36 @@ export const Select = ({
     });
   };
 
+  const layoutStyles =
+    'w-full flex items-center justify-between gap-3 text-left transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+
+  const baseControl = controlClassName
+    ? `${layoutStyles} ${controlClassName}`
+    : `${layoutStyles} min-h-[52px] bg-[#121514] px-4 py-3.5 border rounded-[12px] focus:ring-2 focus:ring-[rgba(57,131,109,0.35)] focus:border-[#39836D] border-[#28312D] text-text-primary`;
+
+  const hasLeading = Boolean(Icon || leadingAdornment);
+  const triggerCls = `${baseControl} ${hasLeading ? 'pl-12' : ''} ${error ? 'border-error' : ''}`;
+
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-text-primary mb-2">
+        <label htmlFor={id} className="block text-sm font-semibold text-text-primary mb-2">
           {label}
           {required && <span className="text-error ml-1">*</span>}
         </label>
       )}
       <div ref={containerRef} className="relative">
+        {leadingAdornment ? (
+          <span className="pointer-events-none absolute left-4 top-1/2 z-[1] flex h-5 w-5 -translate-y-1/2 items-center justify-center">
+            {leadingAdornment}
+          </span>
+        ) : Icon ? (
+          <Icon
+            className="pointer-events-none absolute left-4 top-1/2 z-[1] h-[18px] w-[18px] -translate-y-1/2 text-primary"
+            strokeWidth={1.75}
+            aria-hidden
+          />
+        ) : null}
         <button
           id={id}
           name={name}
@@ -96,17 +120,19 @@ export const Select = ({
           onClick={() => {
             if (!disabled) setOpen((v) => !v);
           }}
-          className={`w-full flex items-center justify-between gap-3 bg-dark-section px-4 py-3 border rounded-lg text-left focus:ring-2 focus:ring-primary focus:border-border-accent transition-colors duration-200 disabled:bg-dark-bg disabled:cursor-not-allowed disabled:text-text-dim ${
-            error ? 'border-error' : 'border-border-dark'
-          }`}
+          className={triggerCls}
         >
-          <span className={`truncate ${selected ? 'text-text-primary' : 'text-text-dim'}`}>
+          <span
+            className={`min-w-0 flex-1 truncate text-left leading-none ${
+              selected ? 'text-text-primary' : 'text-text-dim'
+            }`}
+          >
             {selected ? normalizeLabel(selected.label) : normalizeLabel(items?.[0]?.label)}
           </span>
           <svg
             viewBox="0 0 20 20"
             fill="currentColor"
-            className={`h-4 w-4 shrink-0 ${disabled ? 'text-text-dim' : 'text-text-muted'}`}
+            className={`ml-2 h-4 w-4 shrink-0 ${disabled ? 'text-text-dim' : 'text-text-muted'}`}
             aria-hidden="true"
           >
             <path
@@ -121,8 +147,7 @@ export const Select = ({
           <div
             role="listbox"
             aria-labelledby={id}
-            className="absolute left-0 right-0 mt-2 max-h-64 overflow-auto rounded-lg border border-[rgba(101,167,165,0.22)] bg-[#15191b] z-50"
-            style={{ boxShadow: '0 12px 30px rgba(0, 0, 0, 0.35)' }}
+            className="absolute left-0 right-0 mt-2 max-h-64 overflow-auto rounded-[12px] border border-[#28312D] bg-[#141716] z-50 shadow-none"
           >
             {items.map((opt) => {
               const isSelected = String(opt?.value) === String(value);
@@ -133,10 +158,10 @@ export const Select = ({
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => selectValue(opt?.value)}
-                  className={`w-full px-4 py-2.5 text-sm text-left transition-colors hover:bg-[rgba(101,167,165,0.10)] hover:text-white ${
+                  className={`w-full px-4 py-2.5 text-sm text-left transition-colors hover:bg-[rgba(71, 151, 133,0.10)] hover:text-text-primary ${
                     isSelected
-                      ? 'bg-[rgba(101,167,165,0.10)] text-text-primary font-semibold'
-                      : 'text-white/[0.88]'
+                      ? 'bg-[rgba(71, 151, 133,0.10)] text-text-primary font-semibold'
+                      : 'text-text-primary/[0.88]'
                   }`}
                 >
                   {normalizeLabel(opt?.label)}

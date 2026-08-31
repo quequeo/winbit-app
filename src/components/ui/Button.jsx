@@ -7,18 +7,18 @@ export const Button = ({
   className = '',
 }) => {
   const baseStyles =
-    'px-6 py-3 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg disabled:opacity-50 disabled:cursor-not-allowed';
+    'inline-flex items-center justify-center px-6 py-3 rounded-[14px] font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0D0F0E] disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]';
 
   const variants = {
     primary:
-      'bg-[rgba(101,167,165,0.25)] text-white border border-[rgba(101,167,165,0.45)] hover:bg-[rgba(101,167,165,0.35)] hover:border-[rgba(101,167,165,0.65)] hover:-translate-y-0.5 hover:shadow-[0_0_14px_rgba(101,167,165,0.15)] focus:ring-primary',
+      'primary-button text-[#0D0F0E] hover:brightness-110 focus:ring-[rgba(57,131,109,0.45)]',
     secondary:
-      'bg-[rgba(101,167,165,0.1)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.2)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
+      'bg-[rgba(57,131,109,0.1)] text-primary border border-[#28312D] hover:bg-[rgba(57,131,109,0.16)] focus:ring-[rgba(57,131,109,0.35)]',
     danger:
-      'bg-[rgba(196,107,107,0.14)] text-[#c46b6b] border border-[rgba(196,107,107,0.18)] hover:bg-[rgba(196,107,107,0.22)] focus:ring-error',
+      'bg-[rgba(201,108,103,0.14)] text-error border border-[rgba(201,108,103,0.28)] hover:bg-[rgba(201,108,103,0.22)] focus:ring-[rgba(201,108,103,0.35)]',
     outline:
-      'bg-[rgba(101,167,165,0.1)] text-[#8dc8bf] border border-[rgba(101,167,165,0.35)] hover:bg-[rgba(101,167,165,0.2)] hover:border-[rgba(101,167,165,0.55)] focus:ring-primary',
-    copy: 'btn-copy text-xs focus:ring-primary',
+      'bg-transparent text-cream border border-border-cream hover:border-border-cream-strong hover:bg-cream/5 focus:ring-[rgba(236,228,213,0.25)]',
+    copy: 'btn-copy text-xs min-h-0 rounded-lg focus:ring-[rgba(57,131,109,0.35)]',
   };
 
   return (

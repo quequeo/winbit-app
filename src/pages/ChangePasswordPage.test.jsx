@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChangePasswordPage } from './ChangePasswordPage';
+import { ToastProvider } from '../components/ui/ToastProvider';
 import * as useAuthModule from '../hooks/useAuth';
 import * as apiModule from '../services/api';
 
@@ -9,6 +10,13 @@ vi.mock('../services/api');
 
 const useAuth = vi.spyOn(useAuthModule, 'useAuth');
 const changeInvestorPassword = vi.spyOn(apiModule, 'changeInvestorPassword');
+
+const renderPage = () =>
+  render(
+    <ToastProvider>
+      <ChangePasswordPage />
+    </ToastProvider>,
+  );
 
 describe('ChangePasswordPage', () => {
   beforeEach(() => {
@@ -20,7 +28,7 @@ describe('ChangePasswordPage', () => {
   });
 
   it('renders form with all fields', () => {
-    render(<ChangePasswordPage />);
+    renderPage();
     expect(screen.getByRole('heading', { name: 'Cambiar contraseña' })).toBeInTheDocument();
     expect(screen.getByLabelText('Contraseña actual')).toBeInTheDocument();
     expect(screen.getByLabelText('Nueva contraseña')).toBeInTheDocument();
@@ -28,22 +36,23 @@ describe('ChangePasswordPage', () => {
     expect(screen.getByRole('button', { name: 'Cambiar contraseña' })).toBeInTheDocument();
   });
 
-  it('shows google info banner when user signed in with Google', () => {
+  it('shows google info and hides form when user signed in with Google', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com', authMethod: 'google' },
       userEmail: 'test@example.com',
     });
-    render(<ChangePasswordPage />);
+    renderPage();
     expect(screen.getByText(/Iniciaste sesión con Google/)).toBeInTheDocument();
+    expect(screen.queryByLabelText('Contraseña actual')).not.toBeInTheDocument();
   });
 
   it('does not show google info banner for email users', () => {
-    render(<ChangePasswordPage />);
+    renderPage();
     expect(screen.queryByText(/Iniciaste sesión con Google/)).not.toBeInTheDocument();
   });
 
   it('shows mismatch error when passwords do not match', async () => {
-    render(<ChangePasswordPage />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('Contraseña actual'), {
       target: { value: 'oldpass123' },
     });
@@ -62,7 +71,7 @@ describe('ChangePasswordPage', () => {
   });
 
   it('shows too short error when new password is less than 6 chars', async () => {
-    render(<ChangePasswordPage />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('Contraseña actual'), {
       target: { value: 'oldpass123' },
     });
@@ -82,10 +91,10 @@ describe('ChangePasswordPage', () => {
     expect(changeInvestorPassword).not.toHaveBeenCalled();
   });
 
-  it('calls changeInvestorPassword and shows success on submit', async () => {
+  it('calls changeInvestorPassword and shows success toast on submit', async () => {
     changeInvestorPassword.mockResolvedValue({ success: true, error: null });
 
-    render(<ChangePasswordPage />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('Contraseña actual'), {
       target: { value: 'oldpass123' },
     });
@@ -115,7 +124,7 @@ describe('ChangePasswordPage', () => {
       error: 'Contraseña actual incorrecta',
     });
 
-    render(<ChangePasswordPage />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('Contraseña actual'), {
       target: { value: 'wrong' },
     });
@@ -141,7 +150,7 @@ describe('ChangePasswordPage', () => {
         }),
     );
 
-    render(<ChangePasswordPage />);
+    renderPage();
     fireEvent.change(screen.getByLabelText('Contraseña actual'), {
       target: { value: 'oldpass123' },
     });

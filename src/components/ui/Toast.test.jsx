@@ -18,13 +18,13 @@ describe('Toast', () => {
     const { rerender, container } = render(
       <Toast message="Ok" type="success" onClose={() => {}} />,
     );
-    expect(container.querySelector('.bg-success')).toBeInTheDocument();
+    expect(container.querySelector('.winbit-toast--success')).toBeInTheDocument();
 
     rerender(<Toast message="Err" type="error" onClose={() => {}} />);
-    expect(container.querySelector('.bg-error')).toBeInTheDocument();
+    expect(container.querySelector('.winbit-toast--error')).toBeInTheDocument();
 
     rerender(<Toast message="Info" type="info" onClose={() => {}} />);
-    expect(container.querySelector('.bg-primary')).toBeInTheDocument();
+    expect(container.querySelector('.winbit-toast--info')).toBeInTheDocument();
   });
 
   it('calls onClose when close button is clicked', () => {

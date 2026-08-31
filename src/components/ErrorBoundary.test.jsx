@@ -30,7 +30,7 @@ describe('ErrorBoundary', () => {
         <ThrowError />
       </ErrorBoundary>,
     );
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
-    expect(screen.getByText('Refresh Page')).toBeInTheDocument();
+    expect(screen.getByText('Algo salió mal')).toBeInTheDocument();
+    expect(screen.getByText('Recargar página')).toBeInTheDocument();
   });
 });

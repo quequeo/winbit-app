@@ -35,6 +35,28 @@ describe('DepositOptionCard', () => {
     expect(screen.getByText('TRC20')).toBeInTheDocument();
   });
 
+  it('renders custom freeform fields with their labels', () => {
+    const customOption = {
+      id: '3',
+      category: 'CUSTOM',
+      label: 'Cuenta USD EE.UU.',
+      currency: 'USD',
+      details: {
+        fields: [
+          { label: 'Banco', value: 'Mercury' },
+          { label: 'Dirección del banco', value: '33 Whitehall St' },
+        ],
+      },
+    };
+
+    render(<DepositOptionCard option={customOption} />);
+    expect(screen.getByText('Cuenta USD EE.UU.')).toBeInTheDocument();
+    expect(screen.getByText('Banco')).toBeInTheDocument();
+    expect(screen.getByText('Mercury')).toBeInTheDocument();
+    expect(screen.getByText('Dirección del banco')).toBeInTheDocument();
+    expect(screen.getByText('33 Whitehall St')).toBeInTheDocument();
+  });
+
   it('has copy buttons for copyable fields', () => {
     render(<DepositOptionCard option={bankOption} />);
     const copyButtons = screen.getAllByRole('button', { name: /Copiar/i });
@@ -52,26 +74,5 @@ describe('DepositOptionCard', () => {
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith('0070000000');
     });
-  });
-
-  it('renders custom fields array details', () => {
-    const customOption = {
-      id: '3',
-      category: 'CUSTOM',
-      label: 'Lead Bank',
-      currency: 'USD',
-      details: {
-        fields: [
-          { label: 'Titular', value: 'Federico Martín Zuccotti' },
-          { label: 'ABA / Routing number', value: '101019644' },
-        ],
-      },
-    };
-
-    render(<DepositOptionCard option={customOption} />);
-    expect(screen.getByText('Lead Bank')).toBeInTheDocument();
-    expect(screen.getByText('Titular')).toBeInTheDocument();
-    expect(screen.getByText('Federico Martín Zuccotti')).toBeInTheDocument();
-    expect(screen.getByText('101019644')).toBeInTheDocument();
   });
 });

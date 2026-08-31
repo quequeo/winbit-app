@@ -1,22 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { Header } from './Header';
 import { useAuth } from '../../hooks/useAuth';
-import { beforeEach } from 'vitest';
+import { useInvestorHistory } from '../../hooks/useInvestorHistory';
 
 vi.mock('../../hooks/useAuth');
-vi.mock('../../hooks/useInvestorHistory', () => ({
-  useInvestorHistory: vi.fn(() => ({
-    data: [],
-    loading: false,
-    error: null,
-    refetch: vi.fn(),
-  })),
-}));
+vi.mock('../../hooks/useInvestorHistory');
 
-const renderWithRouter = (component) => {
-  return render(
+const renderWithRouter = (component) =>
+  render(
     <BrowserRouter
       future={{
         v7_startTransition: true,
@@ -26,20 +19,15 @@ const renderWithRouter = (component) => {
       {component}
     </BrowserRouter>,
   );
-};
 
 describe('Header', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useInvestorHistory.mockReturnValue({ data: [], loading: false, error: null });
   });
 
   it('renders logo', () => {
-    useAuth.mockReturnValue({
-      user: null,
-      userEmail: null,
-      isValidated: false,
-      logout: vi.fn(),
-    });
+    useAuth.mockReturnValue({ user: null, logout: vi.fn() });
     renderWithRouter(<Header />);
     expect(screen.getByAltText('Winbit')).toBeInTheDocument();
   });
@@ -48,38 +36,34 @@ describe('Header', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
       userEmail: 'test@example.com',
-      isValidated: true,
       logout: vi.fn(),
     });
 
     renderWithRouter(<Header />);
-    expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Inicio').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Depósitos').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Retiros').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Historial').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Movimientos').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Reportes')).not.toBeInTheDocument();
   });
 
   it('does not render navigation when user is not logged in', () => {
-    useAuth.mockReturnValue({
-      user: null,
-      userEmail: null,
-      isValidated: false,
-      logout: vi.fn(),
-    });
+    useAuth.mockReturnValue({ user: null, logout: vi.fn() });
     renderWithRouter(<Header />);
-    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
+    expect(screen.queryByText('Inicio')).not.toBeInTheDocument();
   });
 
-  it('calls logout when logout button is clicked', () => {
+  it('opens account menu and logs out', () => {
     const mockLogout = vi.fn();
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
+      userEmail: 'test@example.com',
       logout: mockLogout,
     });
 
     renderWithRouter(<Header />);
-    const logoutButtons = screen.getAllByRole('button', { name: 'Salir' });
-    fireEvent.click(logoutButtons[0]);
+    fireEvent.click(screen.getByLabelText('Menú de cuenta'));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Salir' })[0]);
     expect(mockLogout).toHaveBeenCalled();
   });
 
@@ -87,7 +71,6 @@ describe('Header', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
       userEmail: 'test@example.com',
-      isValidated: true,
       logout: vi.fn(),
     });
 
@@ -106,7 +89,6 @@ describe('Header', () => {
     useAuth.mockReturnValue({
       user: { email: 'test@example.com' },
       userEmail: 'test@example.com',
-      isValidated: true,
       logout: vi.fn(),
     });
 

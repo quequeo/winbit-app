@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../../../services/firebase';
 import { validateInvestor, loginWithEmailPassword as apiLoginEmail } from '../../../services/api';
+import { getDevBypassUser, isDevBypassEnabled } from '../../../config/devAuth';
+import { i18n } from '../../../i18n';
 
 import { AuthContext } from './AuthContext';
 
@@ -39,16 +41,16 @@ const validateAndReject = async (email) => {
   const validation = await validateInvestor(email);
   if (validation.valid) return null;
 
-  let errorMessage = 'No estás autorizado para acceder a este portal.';
   if (validation.error === 'Investor not found in database') {
-    errorMessage = 'No estás registrado como inversor. Por favor contacta a winbit.cfds@gmail.com';
-  } else if (validation.error === 'Investor account is not active') {
-    errorMessage =
-      'Tu cuenta de inversor no está activa. Por favor contacta a winbit.cfds@gmail.com';
-  } else if (validation.error) {
-    errorMessage = `Error de validación: ${validation.error}. Contacta a winbit.cfds@gmail.com`;
+    return i18n.t('auth.validation.notRegistered');
   }
-  return errorMessage;
+  if (validation.error === 'Investor account is not active') {
+    return i18n.t('auth.validation.inactive');
+  }
+  if (validation.error) {
+    return i18n.t('auth.validation.generic', { error: validation.error });
+  }
+  return i18n.t('auth.validation.unauthorized');
 };
 
 export const AuthProvider = ({ children }) => {
@@ -58,15 +60,45 @@ export const AuthProvider = ({ children }) => {
   const [isValidated, setIsValidated] = useState(false);
 
   useEffect(() => {
-    const storedSession = getStoredSession();
-
-    if (storedSession) {
-      setUser({ email: storedSession.email, displayName: storedSession.name, authMethod: 'email' });
+    if (isDevBypassEnabled()) {
+      setUser(getDevBypassUser());
       setIsValidated(true);
       setLoading(false);
+      return undefined;
     }
 
+    let cancelled = false;
+
+    const bootstrapStoredSession = async () => {
+      const storedSession = getStoredSession();
+      if (!storedSession) return;
+
+      const errorMessage = await validateAndReject(storedSession.email);
+      if (cancelled) return;
+
+      if (errorMessage) {
+        clearStoredSession();
+        setUser(null);
+        setValidationError(errorMessage);
+        setIsValidated(true);
+        setLoading(false);
+        return;
+      }
+
+      setUser({
+        email: storedSession.email,
+        displayName: storedSession.name,
+        authMethod: 'email',
+      });
+      setIsValidated(true);
+      setLoading(false);
+    };
+
+    bootstrapStoredSession();
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (cancelled) return;
+
       if (currentUser) {
         const session = getStoredSession();
         if (!session || session.authMethod !== 'email') {
@@ -79,11 +111,17 @@ export const AuthProvider = ({ children }) => {
           return null;
         });
       }
-      setLoading(false);
-      setIsValidated(true);
+
+      if (!cancelled) {
+        setLoading(false);
+        setIsValidated(true);
+      }
     });
 
-    return unsubscribe;
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   const loginWithGoogle = async () => {
@@ -99,6 +137,7 @@ export const AuthProvider = ({ children }) => {
         await signOut(auth);
         return { user: null, error: { code: 'auth/unauthorized', message: errorMessage } };
       }
+      setUser(result.user);
       setIsValidated(true);
       return { user: result.user, error: null };
     } catch (error) {
@@ -141,6 +180,17 @@ export const AuthProvider = ({ children }) => {
     return { user: investorUser, error: null };
   };
 
+  const loginWithDevBypass = useCallback(() => {
+    if (!isDevBypassEnabled()) {
+      return { user: null, error: { message: 'Dev bypass not available' } };
+    }
+    const devUser = getDevBypassUser();
+    setUser(devUser);
+    setValidationError(null);
+    setIsValidated(true);
+    return { user: devUser, error: null };
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       clearStoredSession();
@@ -163,6 +213,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     loginWithGoogle,
     loginWithEmail,
+    loginWithDevBypass,
     logout,
     validationError,
     clearValidationError: () => setValidationError(null),

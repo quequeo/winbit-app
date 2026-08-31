@@ -1,13 +1,12 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './components/features/auth/AuthProvider';
-import { ToastProvider } from './components/ui/ToastProvider';
-import { RequestNotificationsProvider } from './components/features/requests/RequestNotificationsProvider';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Spinner } from './components/ui/Spinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ToastProvider } from './components/ui/ToastProvider';
 
 const LoginPage = lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() =>
@@ -40,38 +39,36 @@ export const App = () => {
     <ErrorBoundary>
       <AuthProvider>
         <ToastProvider>
-          <RequestNotificationsProvider>
-            <div className="min-h-screen flex flex-col">
-              <Suspense fallback={<PageFallback />}>
-                <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route
-                    path="/*"
-                    element={
-                      <ProtectedRoute>
-                        <Header />
-                        <main className="flex-1 container mx-auto px-4 py-8">
-                          <Suspense fallback={<PageFallback />}>
-                            <Routes>
-                              <Route path="/dashboard" element={<DashboardPage />} />
-                              <Route path="/wallets" element={<WalletsPage />} />
-                              <Route path="/requests" element={<RequestsPage />} />
-                              <Route path="/history" element={<HistoryPage />} />
-                              <Route path="/operational" element={<OperatingPage />} />
-                              <Route path="/change-password" element={<ChangePasswordPage />} />
-                              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                            </Routes>
-                          </Suspense>
-                        </main>
-                        <Footer />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </Suspense>
-            </div>
-          </RequestNotificationsProvider>
+          <div className="min-h-screen flex flex-col bg-[#0D0F0E] text-text-primary">
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route
+                  path="/*"
+                  element={
+                    <ProtectedRoute>
+                      <Header />
+                      <main className="app-main flex-1 container mx-auto px-4 py-4 md:px-8 md:py-8">
+                        <Suspense fallback={<PageFallback />}>
+                          <Routes>
+                            <Route path="/dashboard" element={<DashboardPage />} />
+                            <Route path="/wallets" element={<WalletsPage />} />
+                            <Route path="/requests" element={<RequestsPage />} />
+                            <Route path="/history" element={<HistoryPage />} />
+                            <Route path="/operational" element={<OperatingPage />} />
+                            <Route path="/change-password" element={<ChangePasswordPage />} />
+                            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                          </Routes>
+                        </Suspense>
+                      </main>
+                      <Footer />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Suspense>
+          </div>
         </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>

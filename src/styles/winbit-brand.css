@@ -1,33 +1,133 @@
 /**
- * Winbit brand tokens — alineados a piezas institucionales (presentación / slides).
- * Usar estas variables en toda la migración de UI.
+ * Winbit design tokens — official palette (Aug 2026).
  */
 :root {
-  --winbit-green: #5db09d;
-  --winbit-green-soft: #66b2a1;
-  --winbit-white: #ffffff;
-  --winbit-bg-deep: #0a0e12;
-  --winbit-bg-card: rgba(14, 22, 26, 0.88);
-  --winbit-text-body: rgba(255, 255, 255, 0.92);
-  --winbit-text-muted: rgba(255, 255, 255, 0.72);
-  --winbit-text-dim: rgba(255, 255, 255, 0.45);
-  --winbit-border: rgba(93, 176, 157, 0.28);
-  --winbit-font: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-  --winbit-tracking-title: 0.08em;
+  /* Surfaces */
+  --wb-bg: #0d0f0e;
+  --wb-bg-soft: #0d0f0e;
+  --wb-surface: #141716;
+  --wb-surface-elevated: #171a18;
+  --wb-surface-soft: #121514;
+  --wb-card: #141716;
+  --wb-border-solid: #28312d;
+
+  /* Brand */
+  --wb-primary: #479785;
+  --wb-primary-deep: #39836d;
+  --wb-primary-soft: #8fb9ad;
+  --wb-cream: #ece4d5;
+  --wb-border: #28312d;
+  --wb-border-active: rgba(57, 131, 109, 0.55);
+  /* Cream as hierarchical accent (borders/chips), not dominant fill */
+  --wb-border-cream: rgba(236, 228, 213, 0.32);
+  --wb-border-cream-strong: rgba(236, 228, 213, 0.55);
+  --wb-cream-soft: rgba(236, 228, 213, 0.08);
+  --wb-radius-card: 14px;
+  --wb-radius-chip: 8px;
+
+  /* Text */
+  --wb-text-primary: #ece4d5;
+  --wb-text-secondary: #a7aaa2;
+  --wb-text-muted: #a7aaa2;
+  --wb-icon-secondary: #a7aaa2;
+
+  /* Semantic */
+  --wb-negative: #c96c67;
+  --wb-negative-soft: rgba(201, 108, 103, 0.16);
+  --wb-warning: #e0b44b;
+  --wb-warning-soft: rgba(224, 180, 75, 0.14);
+  --wb-success: #479785;
+  --wb-success-soft: rgba(71, 151, 133, 0.14);
+  --wb-info-soft: rgba(236, 228, 213, 0.12);
+
+  /* Typography */
+  --wb-font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --wb-font-display: 'IBM Plex Sans Condensed', 'IBM Plex Sans', sans-serif;
+
+  /* Layout */
+  --wb-header-height: 3.5rem;
+
+  /* Skeleton */
+  --wb-skeleton-base: #121514;
+  --wb-skeleton-block: #1a1f1d;
+  --wb-skeleton-shine: rgba(71, 151, 133, 0.1);
+
+  /* Legacy aliases */
+  --winbit-green: var(--wb-primary);
+  --winbit-green-soft: var(--wb-primary-soft);
+  --winbit-white: var(--wb-cream);
+  --winbit-bg-deep: var(--wb-bg);
+  --winbit-bg-card: var(--wb-card);
+  --winbit-text-body: var(--wb-text-primary);
+  --winbit-text-muted: var(--wb-text-secondary);
+  --winbit-text-dim: var(--wb-text-muted);
+  --winbit-border: var(--wb-border);
+  --winbit-font: var(--wb-font);
+  --winbit-tracking-title: 0.02em;
   --winbit-leading-title: 1.2;
-  --winbit-leading-body: 1.65;
+  --winbit-leading-body: 1.55;
+}
+
+@keyframes wb-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @layer components {
-  /* Barra vertical sólida (margen izquierdo de títulos) */
   .winbit-vline {
     width: 2px;
     flex-shrink: 0;
     align-self: stretch;
-    background: var(--winbit-green);
+    background: var(--wb-primary-deep);
   }
 
-  /* Línea horizontal con punto al inicio (como slides de marca) */
+  .winbit-headline-block {
+    display: flex;
+    align-items: stretch;
+    gap: 0.875rem;
+    text-align: left;
+    width: 100%;
+    max-width: 20rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .winbit-headline-block__line1,
+  .winbit-headline-block__line2 {
+    margin: 0;
+    font-family: var(--wb-font-display);
+    font-weight: 700;
+    font-size: clamp(1.125rem, 4vw, 1.35rem);
+    letter-spacing: var(--winbit-tracking-title);
+    line-height: var(--winbit-leading-title);
+    text-transform: uppercase;
+  }
+
+  .winbit-headline-block__line1 {
+    color: var(--wb-primary-deep);
+  }
+
+  .winbit-headline-block__line2 {
+    margin-top: 0.2rem;
+    color: var(--wb-cream);
+  }
+
+  .winbit-headline-block__subtitle {
+    margin: 0.875rem 0 0;
+    max-width: 20rem;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: var(--winbit-leading-body);
+    color: var(--wb-text-secondary);
+    text-align: left;
+  }
+
   .winbit-line-dot-h {
     display: flex;
     align-items: center;
@@ -40,126 +140,21 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: var(--winbit-green);
+    background: var(--wb-primary-deep);
     flex-shrink: 0;
   }
 
   .winbit-line-dot-h__stroke {
     flex: 1;
     height: 1px;
-    margin-left: 0;
-    background: var(--winbit-green);
-  }
-
-  /* Bloque de título institucional */
-  .winbit-headline-block {
-    display: flex;
-    align-items: stretch;
-    gap: 0.875rem;
-    text-align: left;
-    width: 100%;
-    max-width: 20rem;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .winbit-headline-block__line1 {
-    margin: 0;
-    font-family: var(--winbit-font);
-    font-weight: 700;
-    font-size: clamp(1.125rem, 4vw, 1.35rem);
-    letter-spacing: var(--winbit-tracking-title);
-    line-height: var(--winbit-leading-title);
-    text-transform: uppercase;
-    color: var(--winbit-white);
-  }
-
-  .winbit-headline-block__line2 {
-    margin: 0.2rem 0 0;
-    font-family: var(--winbit-font);
-    font-weight: 700;
-    font-size: clamp(1.125rem, 4vw, 1.35rem);
-    letter-spacing: var(--winbit-tracking-title);
-    line-height: var(--winbit-leading-title);
-    text-transform: uppercase;
-    color: var(--winbit-green);
-  }
-
-  .winbit-headline-block__subtitle {
-    margin: 0.875rem 0 0;
-    max-width: 20rem;
-    margin-left: auto;
-    margin-right: auto;
-    font-family: var(--winbit-font);
-    font-size: 0.8125rem;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    line-height: var(--winbit-leading-body);
-    color: var(--winbit-text-muted);
-    text-align: left;
-  }
-
-  .winbit-logo-tagline {
-    margin-top: 0;
-    font-family: var(--winbit-font);
-    font-size: 0.625rem;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--winbit-white);
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .winbit-logo-tagline-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.875rem;
-    margin-top: 0.5rem;
-    width: 100%;
-    max-width: 22rem;
-  }
-
-  .winbit-logo-tagline-row__line {
-    flex: 1;
-    max-width: 4.5rem;
-    height: 1px;
-    background: var(--winbit-green);
-    opacity: 0.65;
+    background: var(--wb-border-solid);
   }
 
   .winbit-card-glass {
-    background: var(--winbit-bg-card);
-    border: 1px solid var(--winbit-border);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(12px);
-  }
-
-  .winbit-divider-h {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    width: 100%;
-  }
-
-  .winbit-divider-h::before,
-  .winbit-divider-h::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--winbit-green);
-    opacity: 0.4;
-  }
-
-  .winbit-divider-h__point {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: transparent;
-    border: 1px solid var(--winbit-green);
-    flex-shrink: 0;
-    margin: 0 0.5rem;
+    background: var(--wb-card);
+    border: 1px solid var(--wb-border-solid);
+    box-shadow: none;
+    backdrop-filter: none;
   }
 
   .winbit-disclaimer {
@@ -167,12 +162,9 @@
     align-items: flex-start;
     gap: 0.5rem;
     max-width: 22rem;
-    font-family: var(--winbit-font);
     font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0.02em;
     line-height: var(--winbit-leading-body);
-    color: var(--winbit-text-muted);
+    color: var(--wb-text-secondary);
     text-align: left;
   }
 
@@ -181,6 +173,6 @@
     height: 1rem;
     flex-shrink: 0;
     margin-top: 0.15rem;
-    color: var(--winbit-green);
+    color: var(--wb-primary-deep);
   }
 }

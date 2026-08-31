@@ -15,27 +15,28 @@ Si algo no está claro o hay más de una opción válida, el agente DEBE pregunt
 
 - **Framework:** React 18 + Vite 5.
 - **Lenguaje:** JavaScript (no TypeScript). Decisión pragmática; la arquitectura facilita migración futura.
-- **Estilos:** Tailwind CSS 3 (config en `tailwind.config.js`). Color primario: `#65a7a5`. Font: Montserrat.
+- **Estilos:** Tailwind CSS 3 (config en `tailwind.config.js`). Color primario: `#39836D` / `#479785`. Font: IBM Plex Sans + IBM Plex Mono (números).
 
 ### Diseño visual (referencia para cambios CSS)
 
-**Paleta de colores:**
+**Paleta de colores (institucional):**
 
-| Token           | Valor                       | Uso                       |
-| --------------- | --------------------------- | ------------------------- |
-| `primary`       | `#65a7a5`                   | Acento principal, botones |
-| `dark.bg`       | `#0B0F0E`                   | Fondo base                |
-| `dark.card`     | `rgba(20, 20, 20, 0.6)`     | Fondo de cards            |
-| `text.primary`  | `#e8e8e8`                   | Texto principal           |
-| `text.muted`    | `#888888`                   | Texto secundario          |
-| `text.dim`      | `#555555`                   | Texto terciario           |
-| `border.dark`   | `rgba(255, 255, 255, 0.08)` | Bordes default            |
-| `border.accent` | `rgba(101, 167, 165, 0.3)`  | Bordes activos/cards      |
-| `success`       | `#9dd4cb`                   | Estado completado         |
-| `warning`       | `#d4bf82`                   | Estado pendiente          |
-| `error`         | `#d48080`                   | Estado rechazado          |
+| Token           | Valor                     | Uso                       |
+| --------------- | ------------------------- | ------------------------- |
+| `primary`       | `#39836D` / `#479785`     | Acento principal, botones |
+| `dark.bg`       | `#0D0F0E`                 | Fondo base                |
+| `dark.card`     | `#141716`                 | Fondo de cards            |
+| `cream`         | `#ECE4D5`                 | Texto / acentos claros    |
+| `text.primary`  | `#ECE4D5` / `#e8e8e8`     | Texto principal           |
+| `text.muted`    | `#888888`                 | Texto secundario          |
+| `text.dim`      | `#555555`                 | Texto terciario           |
+| `border.dark`   | `#28312D`                 | Bordes default            |
+| `border.accent` | `rgba(71, 151, 133, 0.3)` | Bordes activos/cards      |
+| `success`       | `#9dd4cb`                 | Estado completado         |
+| `warning`       | `#d4bf82`                 | Estado pendiente          |
+| `error`         | `#d48080`                 | Estado rechazado          |
 
-**Fondo global (body):** Radial gradient sutil con dos elipses verdes sobre `#0B0F0E`. Definido en `src/index.css`. NO usar `bg-dark-bg` en contenedores — el gradiente viene del `body`.
+**Fondo global (body):** Radial gradient sutil con dos elipses verdes sobre `#0D0F0E`. Definido en `src/index.css`. NO usar `bg-dark-bg` en contenedores — el gradiente viene del `body`.
 
 **Clases CSS propias (definidas en `src/index.css`):**
 
@@ -126,11 +127,13 @@ winbit-app/
 
 ## 4) Flujo de autenticación
 
-1. Usuario hace Sign-In con Google (Firebase Auth popup, fallback a redirect).
-2. `AuthProvider` valida email contra `GET /api/public/investor/:email`.
-3. Si no existe o está inactivo → logout automático + mensaje de error.
+1. Usuario inicia sesión con **Google** (Firebase Auth popup) **o email/contraseña** (API + sesión `winbit_session`).
+2. `AuthProvider` valida el email contra `GET /api/public/investor/:email` (o validación equivalente vía login email).
+3. Si no existe o está inactivo → logout automático + mensaje de error i18n.
 4. Si está activo → acceso permitido, datos del inversor disponibles.
 5. `ProtectedRoute` verifica auth. Si no autenticado → redirect a `/login`.
+6. Cambio de contraseña (`/change-password`) solo aplica a usuarios con `authMethod === 'email'`.
+7. El menú de cuenta (ícono de persona) muestra email, método de acceso y logout; la campana lista pendientes/rechazos de depósitos y retiros.
 
 ## 5) Capa de servicios (API)
 
