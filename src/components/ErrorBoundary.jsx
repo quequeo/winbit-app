@@ -1,5 +1,30 @@
 import { Component } from 'react';
 import { i18n } from '../i18n';
+import { Spinner } from './ui/Spinner';
+
+/** Firefox/Safari/Chrome error strings para módulos JS que un deploy nuevo dejó sin servir. */
+const CHUNK_LOAD_ERROR_PATTERN =
+  /fetch dynamically imported module|loading dynamically imported module|loading chunk|importing a module script failed/i;
+
+const CHUNK_RELOAD_FLAG = 'winbit_chunk_reload_attempted';
+
+const isChunkLoadError = (error) => CHUNK_LOAD_ERROR_PATTERN.test(error?.message ?? '');
+
+const alreadyTriedReload = () => {
+  try {
+    return globalThis?.sessionStorage?.getItem(CHUNK_RELOAD_FLAG) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const markReloadAttempted = () => {
+  try {
+    globalThis?.sessionStorage?.setItem(CHUNK_RELOAD_FLAG, '1');
+  } catch {
+    // ignore storage errors
+  }
+};
 
 export class ErrorBoundary extends Component {
   constructor(props) {
@@ -13,10 +38,27 @@ export class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Error boundary caught:', error, errorInfo);
+
+    // Deploy nuevo invalidó un chunk que el navegador tenía cacheado: recargar
+    // una vez arregla solo, sin mostrar la pantalla de error al usuario.
+    if (isChunkLoadError(error) && !alreadyTriedReload()) {
+      markReloadAttempted();
+      globalThis?.location?.reload();
+    }
   }
 
   render() {
     if (this.state.hasError) {
+      // Primer chunk error: componentDidCatch ya va a recargar la página.
+      // Mostrar un spinner en vez del cartel de error evita el flash feo.
+      if (isChunkLoadError(this.state.error) && !alreadyTriedReload()) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-[#0D0F0E]">
+            <Spinner size="lg" />
+          </div>
+        );
+      }
+
       return (
         <div className="min-h-screen flex items-center justify-center px-4 bg-[#0D0F0E]">
           <div className="max-w-md w-full rounded-[14px] border border-[#28312D] bg-[#141716] p-8 text-center shadow-none">
