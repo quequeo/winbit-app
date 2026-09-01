@@ -652,7 +652,7 @@
     inset: 0;
     z-index: 0;
     background: var(--login-cream);
-    clip-path: polygon(0 0, 62% 0, 0 32%);
+    clip-path: polygon(0 0, 78% 0, 0 32%);
   }
 
   @media (min-width: 640px) {
