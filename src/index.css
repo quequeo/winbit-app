@@ -629,8 +629,8 @@
     --login-green: #3c7c6d;
     --login-green-mid: #479785;
     --login-green-deep: #39836d;
-    --login-chamfer: 16px;
-    --login-cta-h: 54px;
+    --login-chamfer: 14px;
+    --login-cta-h: 56px;
     position: relative;
     min-height: 100dvh;
     min-height: 100vh;
@@ -646,80 +646,41 @@
     justify-content: center;
   }
 
-  /* Diagonal crema (arriba-izq) → carbón (abajo-der) */
-  .login-page__cream {
+  /*
+   * Diagonal crema (arriba-izq) → carbón (abajo-der), con un filo verde
+   * (mismo verde de la botonera) para atar la geometría de la pantalla
+   * a un solo sistema en vez de dos zonas de color sueltas.
+   */
+  .login-page::before {
+    content: '';
     position: absolute;
     inset: 0;
     z-index: 0;
+    background: var(--login-green-mid);
+    clip-path: polygon(0 0, 78.35% 0, 0 32.35%);
+  }
+
+  .login-page__cream {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     background: var(--login-cream);
     clip-path: polygon(0 0, 78% 0, 0 32%);
   }
 
   @media (min-width: 640px) {
+    .login-page::before {
+      clip-path: polygon(0 0, 78.35% 0, 0 52.35%);
+    }
+
     .login-page__cream {
       clip-path: polygon(0 0, 78% 0, 0 52%);
     }
   }
 
-  .login-page__watermark {
-    position: absolute;
-    display: block;
-    width: min(52vw, 260px);
-    height: auto;
-    opacity: 0.18;
-    pointer-events: none;
-    user-select: none;
-    /* Teal suave sobre crema (mock) */
-    filter: opacity(0.55) saturate(1.15);
-  }
-
-  .login-page__watermark--a {
-    top: -8%;
-    left: -2%;
-    width: min(68vw, 320px);
-    opacity: 0.22;
-  }
-
-  .login-page__watermark--b {
-    top: 4%;
-    right: -4%;
-    width: min(42vw, 200px);
-    opacity: 0.14;
-    transform: rotate(-6deg);
-  }
-
-  .login-page__watermark--c {
-    top: 22%;
-    left: 22%;
-    width: min(54vw, 250px);
-    opacity: 0.12;
-    transform: rotate(10deg);
-  }
-
-  .login-page__bars {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    z-index: 0;
-    width: 76px;
-    height: 132px;
-    background: linear-gradient(
-      90deg,
-      transparent 0 12px,
-      rgba(71, 151, 133, 0.42) 12px 24px,
-      transparent 24px 32px,
-      rgba(71, 151, 133, 0.32) 32px 46px,
-      transparent 46px 54px,
-      rgba(71, 151, 133, 0.22) 54px 72px
-    );
-    clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
-    opacity: 0.65;
-    pointer-events: none;
-  }
-
   .login-page__inner {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     min-height: 100dvh;
@@ -748,8 +709,8 @@
   .login-brand {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    margin-bottom: clamp(2.75rem, 14vh, 6.5rem);
+    gap: 0.65rem;
+    margin-bottom: clamp(2.25rem, 11vh, 5rem);
   }
 
   .login-brand__mark {
@@ -803,30 +764,30 @@
 
   .login-panel__header {
     text-align: center;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .login-panel__accent {
     display: block;
-    width: 2.25rem;
+    width: 1.85rem;
     height: 2px;
-    margin: 0 auto 0.95rem;
+    margin: 0 auto 0.85rem;
     background: var(--login-green-mid);
   }
 
   .login-panel__title {
     margin: 0;
     font-family: var(--wb-font-display);
-    font-size: clamp(2.05rem, 7.5vw, 2.55rem);
+    font-size: clamp(1.4rem, 5.2vw, 1.9rem);
     font-weight: 600;
-    letter-spacing: 0.16em;
-    line-height: 0.98;
+    letter-spacing: 0.09em;
+    line-height: 1.15;
     text-transform: uppercase;
     color: #f7f3ea;
   }
 
   .login-panel__subtitle {
-    margin: 0.75rem 0 0;
+    margin: 0.6rem 0 0;
     font-family: var(--wb-font);
     font-size: 0.8125rem;
     font-weight: 400;
@@ -888,7 +849,7 @@
 
   .login-cta__shape--fill {
     background: var(--login-cream);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.34);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
   }
 
   /*
@@ -1000,27 +961,27 @@
   .login-trust {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-    margin-top: 0.45rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid rgba(241, 236, 227, 0.16);
+    gap: 0.6rem;
+    margin-top: 1.25rem;
   }
 
   .login-trust__icon {
-    width: 1.35rem;
-    height: 1.35rem;
+    width: 1.05rem;
+    height: 1.05rem;
     flex-shrink: 0;
-    margin-top: 0.05rem;
+    margin-top: 0.1rem;
     color: var(--login-green-mid);
+    opacity: 0.85;
     overflow: visible;
   }
 
   .login-trust__detail {
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 400;
     line-height: 1.5;
-    color: var(--login-cream-soft);
+    letter-spacing: 0.01em;
+    color: var(--login-cream-dim);
   }
 
   .login-input {

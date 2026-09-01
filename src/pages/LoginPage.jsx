@@ -43,13 +43,13 @@ const SecurityShield = ({ className = '' }) => (
     <path
       d="M12 3.2 19.5 6v5.3c0 4.55-3.05 8.55-7.5 9.8C7.55 19.85 4.5 15.85 4.5 11.3V6L12 3.2Z"
       stroke="currentColor"
-      strokeWidth="1.7"
+      strokeWidth="1.3"
       strokeLinejoin="round"
     />
     <path
       d="m8.8 12.1 2.25 2.25 4.35-4.5"
       stroke="currentColor"
-      strokeWidth="1.7"
+      strokeWidth="1.3"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
@@ -206,12 +206,7 @@ export const LoginPage = () => {
 
   return (
     <div className="login-page">
-      <div className="login-page__cream" aria-hidden="true">
-        <WinbitMark className="login-page__watermark login-page__watermark--a" />
-        <WinbitMark className="login-page__watermark login-page__watermark--b" />
-        <WinbitMark className="login-page__watermark login-page__watermark--c" />
-      </div>
-      <div className="login-page__bars" aria-hidden="true" />
+      <div className="login-page__cream" aria-hidden="true" />
 
       <div className="login-page__inner">
         <LoginBrand t={t} />
