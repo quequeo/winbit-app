@@ -723,14 +723,9 @@
   }
 
   .login-brand__name {
-    margin: 0;
-    font-family: var(--wb-font);
-    font-size: 1.35rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    line-height: 1;
-    color: var(--login-ink);
-    text-transform: uppercase;
+    display: block;
+    height: 1.65rem;
+    width: auto;
   }
 
   .login-brand__tagline {
@@ -740,7 +735,7 @@
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--login-green);
+    color: var(--login-green-deep);
   }
 
   /* Bloque de login desplazado a la derecha (como el mock) */

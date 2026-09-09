@@ -9,6 +9,9 @@ import { useTranslation } from 'react-i18next';
 /** Mark Winbit W con fondo transparente (para zona crema). */
 const WINBIT_MARK_SRC = '/images/login/logo-winbit-w-clear.png';
 
+/** Wordmark "WINBIT" oficial, recortado del logo institucional y recoloreado a tinta (para zona crema). */
+const WINBIT_WORDMARK_SRC = '/images/login/logo-winbit-wordmark-ink.png';
+
 /** G monocromo (blanco sobre verde), como en el mock. */
 const GoogleMark = () => (
   <svg className="login-cta-google__mark" viewBox="0 0 24 24" aria-hidden="true">
@@ -71,7 +74,14 @@ const LoginBrand = ({ t }) => (
   <div className="login-brand">
     <WinbitMark className="login-brand__mark" />
     <div className="login-brand__copy">
-      <p className="login-brand__name">WINBIT</p>
+      <img
+        src={WINBIT_WORDMARK_SRC}
+        alt="WINBIT"
+        className="login-brand__name"
+        width={482}
+        height={92}
+        decoding="async"
+      />
       <p className="login-brand__tagline">{t('auth.login.tagline')}</p>
     </div>
   </div>
