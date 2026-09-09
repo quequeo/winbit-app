@@ -769,18 +769,18 @@
 
   .login-panel__accent {
     display: block;
-    width: 1.85rem;
-    height: 2px;
+    width: 3.75rem;
+    height: 1px;
     margin: 0 auto 0.85rem;
-    background: var(--login-green-mid);
+    background: linear-gradient(90deg, transparent, var(--login-green-mid), transparent);
   }
 
   .login-panel__title {
     margin: 0;
     font-family: var(--wb-font-display);
     font-size: clamp(1.4rem, 5.2vw, 1.9rem);
-    font-weight: 600;
-    letter-spacing: 0.09em;
+    font-weight: 700;
+    letter-spacing: 0.01em;
     line-height: 1.15;
     text-transform: uppercase;
     color: #f7f3ea;
@@ -864,6 +864,14 @@
   .login-cta__shape--stroke .login-cta__inner {
     background: #121412;
     min-height: calc(var(--login-cta-h) - 3px);
+    clip-path: polygon(
+      var(--login-chamfer) 0,
+      100% 0,
+      100% calc(100% - var(--login-chamfer)),
+      calc(100% - var(--login-chamfer)) 100%,
+      0 100%,
+      0 var(--login-chamfer)
+    );
   }
 
   .login-cta--outline:hover:not(:disabled) .login-cta__shape--stroke .login-cta__inner {
@@ -885,6 +893,7 @@
     /* Costura diagonal 45° (paralela al chaflán) */
     clip-path: polygon(0 0, 100% 0, calc(100% - var(--login-cta-h)) 100%, 0 100%);
     margin-right: calc(var(--login-cta-h) * -0.42);
+    padding-right: 1.5rem;
   }
 
   .login-cta-google__mark {
