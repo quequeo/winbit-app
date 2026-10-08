@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { SUPPORT_EMAIL } from '../config/support';
 
 export const UnauthorizedPage = () => {
   const { t } = useTranslation();
@@ -54,8 +55,8 @@ export const UnauthorizedPage = () => {
               {t('unauthorized.contactTitle')}
             </p>
             <p className="text-sm text-text-muted">
-              <a href="mailto:winbit.cfds@gmail.com" className="text-primary hover:underline">
-                winbit.cfds@gmail.com
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline">
+                {SUPPORT_EMAIL}
               </a>
             </p>
           </div>
