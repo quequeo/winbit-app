@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { SUPPORT_EMAIL } from './config/support';
 
 const LANGUAGE_STORAGE_KEY = 'winbit_language';
 
@@ -135,9 +136,9 @@ const resources = {
         },
         validation: {
           unauthorized: 'No estás autorizado para acceder a este portal.',
-          notRegistered: 'No estás registrado como inversor. Contacta a winbit.cfds@gmail.com',
-          inactive: 'Tu cuenta de inversor no está activa. Contacta a winbit.cfds@gmail.com',
-          generic: 'Error de validación: {{error}}. Contacta a winbit.cfds@gmail.com',
+          notRegistered: 'No estás registrado como inversor. Contacta a {{supportEmail}}',
+          inactive: 'Tu cuenta de inversor no está activa. Contacta a {{supportEmail}}',
+          generic: 'Error de validación: {{error}}. Contacta a {{supportEmail}}',
         },
       },
       footer: {
@@ -853,9 +854,9 @@ const resources = {
         },
         validation: {
           unauthorized: 'You are not authorized to access this portal.',
-          notRegistered: 'You are not registered as an investor. Contact winbit.cfds@gmail.com',
-          inactive: 'Your investor account is not active. Contact winbit.cfds@gmail.com',
-          generic: 'Validation error: {{error}}. Contact winbit.cfds@gmail.com',
+          notRegistered: 'You are not registered as an investor. Contact {{supportEmail}}',
+          inactive: 'Your investor account is not active. Contact {{supportEmail}}',
+          generic: 'Validation error: {{error}}. Contact {{supportEmail}}',
         },
       },
       footer: {
@@ -1453,7 +1454,7 @@ i18n.use(initReactI18next).init({
   resources,
   lng: getInitialLanguage(),
   fallbackLng: 'es',
-  interpolation: { escapeValue: false },
+  interpolation: { escapeValue: false, defaultVariables: { supportEmail: SUPPORT_EMAIL } },
 });
 
 i18n.on('languageChanged', (lng) => {
