@@ -6,6 +6,12 @@ import './i18n';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import './index.css';
+import { getLegacyRedirectUrl } from './utils/legacyHostRedirect';
+
+const legacyRedirectUrl = getLegacyRedirectUrl(globalThis?.location);
+if (legacyRedirectUrl) {
+  globalThis.location.replace(legacyRedirectUrl);
+}
 
 // Show [DEV] in the browser tab when running locally.
 const isLocalHost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(globalThis?.location?.hostname);
@@ -27,17 +33,19 @@ if (import.meta.env.DEV && typeof navigator !== 'undefined' && 'serviceWorker' i
   }
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <App />
-      </BrowserRouter>
-    </QueryClientProvider>
-  </React.StrictMode>,
-);
+if (!legacyRedirectUrl) {
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <App />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </React.StrictMode>,
+  );
+}
