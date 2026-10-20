@@ -1046,6 +1046,22 @@
     color: var(--login-cream);
   }
 
+  .login-install-hint {
+    margin: 1rem 0 0;
+    color: var(--login-cream-soft);
+    font-family: var(--wb-font);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .login-install-hint__link {
+    color: var(--login-cream);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
   .login-dev {
     margin-bottom: 1.5rem;
     padding-bottom: 1.25rem;

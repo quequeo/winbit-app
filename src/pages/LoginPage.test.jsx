@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { LoginPage } from './LoginPage';
 import { useAuth } from '../hooks/useAuth';
@@ -221,5 +221,50 @@ describe('LoginPage', () => {
 
     renderAt('/login');
     expect(screen.getByText(/Not an investor/)).toBeInTheDocument();
+  });
+});
+
+describe('LoginPage install hint', () => {
+  const ANDROID_UA =
+    'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/124.0.0.0 Mobile Safari/537.36';
+  const originalUA = navigator.userAgent;
+  const originalMatchMedia = window.matchMedia;
+
+  const setUserAgent = (ua) =>
+    Object.defineProperty(navigator, 'userAgent', { value: ua, configurable: true });
+
+  beforeEach(() => {
+    useAuth.mockReturnValue(defaultMock);
+  });
+
+  afterEach(() => {
+    setUserAgent(originalUA);
+    window.matchMedia = originalMatchMedia;
+  });
+
+  it('shows the install link on a phone browser', () => {
+    setUserAgent(ANDROID_UA);
+
+    renderAt('/login');
+    expect(screen.getByRole('link', { name: 'Ver cómo instalarla' })).toHaveAttribute(
+      'href',
+      '/instalar',
+    );
+  });
+
+  it('hides the install link on desktop', () => {
+    renderAt('/login');
+    expect(screen.queryByRole('link', { name: 'Ver cómo instalarla' })).not.toBeInTheDocument();
+  });
+
+  it('hides the install link when the app is already installed', () => {
+    setUserAgent(ANDROID_UA);
+    window.matchMedia = vi.fn().mockImplementation((query) => ({
+      matches: query === '(display-mode: standalone)',
+      media: query,
+    }));
+
+    renderAt('/login');
+    expect(screen.queryByRole('link', { name: 'Ver cómo instalarla' })).not.toBeInTheDocument();
   });
 });
