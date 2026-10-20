@@ -37,8 +37,8 @@ export default defineConfig(({ mode }) => {
           name: 'Winbit',
           short_name: 'Winbit',
           description: 'Portfolio Management for Investors',
-          theme_color: '#479785',
-          background_color: '#030807',
+          theme_color: '#0D0F0E',
+          background_color: '#0D0F0E',
           display: 'standalone',
           start_url: '/',
           scope: '/',
@@ -61,7 +61,8 @@ export default defineConfig(({ mode }) => {
           clientsClaim: true,
           cleanupOutdatedCaches: true,
           navigateFallback: '/index.html',
-          navigateFallbackDenylist: [/^\/__\//],
+          // /instalar is a static page (public/instalar), not part of the SPA.
+          navigateFallbackDenylist: [/^\/__\//, /^\/instalar/],
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
           runtimeCaching: [
             {

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Instalá la app · Winbit</title>
+<meta name="description" content="Cómo instalar la app de Winbit en tu celular, paso a paso.">
+<meta name="theme-color" content="#0D0F0E">
+<meta property="og:title" content="Instalá la app de Winbit">
+<meta property="og:description" content="Los pasos para tu celular, en menos de un minuto.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@700&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--carbon:#0D0F0E;--verde:#39836D;--verde2:#479785;--crema:#ECE4D5;--gris:#6b6e68;--borde:#28312D;--card:#F5F0E6}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--crema);color:var(--carbon);font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.45;min-height:100vh}
+a{color:inherit}
+.wrap{max-width:520px;margin:0 auto;padding:0 20px}
+header{background:var(--carbon);color:var(--crema);padding:calc(22px + env(safe-area-inset-top)) 0 30px}
+header img{height:46px;display:block}
+.kick{margin-top:34px;font-weight:600;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--verde2)}
+h1{font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:44px;line-height:.98;text-transform:uppercase;margin-top:8px}
+h1 span{color:var(--verde2)}
+.lead{margin-top:14px;color:#d9d2c3;font-size:17px}
+.det{margin-top:22px;background:var(--card);border-radius:18px;padding:18px 18px 16px;box-shadow:0 1px 0 rgba(13,15,14,.06)}
+.det p{font-size:16px}
+.det b{font-weight:600}
+.chip{display:inline-block;background:var(--verde);color:#fff;border-radius:30px;padding:3px 12px;font-weight:600;font-size:15px;margin-top:6px}
+.switch{display:inline-block;margin-top:12px;font-size:15px;font-weight:600;color:var(--verde);background:none;border:0;padding:0;font-family:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.chooser{display:none;margin-top:14px;gap:10px;flex-direction:column}
+.chooser.open{display:flex}
+.chooser button{display:flex;justify-content:space-between;align-items:center;width:100%;padding:15px 16px;border-radius:14px;border:2px solid #d8d0bf;background:#fff;font-family:inherit;font-size:16px;font-weight:600;color:var(--carbon);cursor:pointer;text-align:left}
+.chooser button small{display:block;font-weight:400;font-size:13px;color:var(--gris)}
+.chooser button[aria-pressed="true"]{border-color:var(--verde);background:#eef6f2}
+.chooser button i{font-style:normal;color:var(--verde);font-size:20px}
+.alert{display:none;margin-top:16px;border-radius:14px;padding:14px 16px;font-size:15px;background:#fff4dc;border:1px solid #ecd9a7}
+.alert.show{display:block}
+.alert b{font-weight:600}
+.quick{display:none;margin-top:16px}
+.quick.show{display:block}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:14px;background:var(--verde);color:#fff;font-weight:600;font-size:17px;text-decoration:none;border:0;font-family:inherit;cursor:pointer}
+.btn.ghost{background:transparent;border:2px solid var(--verde);color:var(--verde)}
+.steps{list-style:none;margin:26px 0 0}
+.step{background:var(--card);border-radius:20px;padding:20px 18px 22px;margin-bottom:16px}
+.n{font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.08em;color:var(--verde);text-transform:uppercase}
+.cap{font-size:19px;line-height:1.35;margin-top:4px}
+.cap b{font-weight:600}
+.step img{display:block;width:100%;max-width:270px;height:auto;margin:16px auto 0}
+.step .btn{margin-top:14px}
+.note{font-size:14px;color:var(--gris);margin-top:4px;padding:0 4px}
+footer{margin-top:26px;padding:26px 0 calc(34px + env(safe-area-inset-bottom));text-align:center}
+footer .btn{margin-bottom:18px}
+footer small{color:var(--gris);font-size:13px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="img/winbit-logo.webp" alt="Winbit · Gestión activa en USD">
+    <div class="kick">Instructivo</div>
+    <h1>Instalá <span>la app</span><br>de Winbit</h1>
+    <p class="lead">Seguí estos pasos una sola vez y vas a tener Winbit en tu pantalla de inicio, como cualquier otra app.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="det" aria-live="polite">
+    <p id="detText">Te mostramos los pasos para</p>
+    <span class="chip" id="chip">—</span><br>
+    <button class="switch" id="switchBtn" aria-expanded="false" aria-controls="chooser">¿Usás otro celular o navegador? Elegilo acá</button>
+    <div class="chooser" id="chooser" role="group" aria-label="Elegí tu celular">
+      <button data-d="safari"><span>iPhone · Safari<small>El navegador que viene con el iPhone (brújula azul)</small></span><i>→</i></button>
+      <button data-d="chrome"><span>iPhone · Chrome<small>Si en tu iPhone navegás con Chrome</small></span><i>→</i></button>
+      <button data-d="android"><span>Android<small>Samsung, Motorola, Xiaomi y otros, desde Chrome</small></span><i>→</i></button>
+    </div>
+  </section>
+
+  <div class="alert" id="alertInApp"><b>Abrí este link en tu navegador.</b> Parece que lo abriste dentro de otra app (por ejemplo Instagram o Facebook), y desde ahí no se puede instalar. Tocá el menú de esa pantalla y elegí <b>“Abrir en el navegador”</b>.</div>
+  <div class="alert" id="alertDesktop"><b>Abrí este link desde tu celular.</b> La app de Winbit se instala en el teléfono. Elegí arriba qué celular tenés para ver los pasos.</div>
+  <div class="alert" id="alertOtherIOS">En iPhone, la forma más simple es hacerlo desde <b>Safari</b>. Copiá este link y pegalo en Safari, o seguí estos pasos desde tu navegador.</div>
+
+  <div class="quick" id="installed">
+    <div class="det"><p><b>Ya tenés la app de Winbit instalada.</b> Podés entrar desde el ícono de tu pantalla de inicio.</p></div>
+  </div>
+
+  <div class="quick" id="quickInstall">
+    <button class="btn" id="installBtn">Instalar la app con un toque</button>
+    <p class="note">Si el botón no funciona, seguí los pasos de abajo.</p>
+  </div>
+
+  <ol class="steps" id="steps"></ol>
+</main>
+
+<footer class="wrap">
+  <a class="btn ghost" href="/" id="openApp">Abrir la app de Winbit</a>
+  <small>app.winbit.com.ar · Gestión activa en USD</small>
+</footer>
+
+<script>
+(function () {
+  var STEPS = {
+    safari: { label: 'iPhone · Safari', items: [
+      ['img/safari-1.webp', '<b>Abrí app.winbit.com.ar</b> en Safari e iniciá sesión con Google o con tu mail.', true],
+      ['img/safari-2.webp', 'Tocá los <b>tres puntos (···)</b> abajo a la derecha y elegí <b>Compartir</b>.'],
+      ['img/safari-3.webp', 'En el menú que aparece, tocá <b>Ver más</b>.'],
+      ['img/safari-4.webp', 'Elegí <b>“Agregar a inicio”</b>.'],
+      ['img/safari-5.webp', 'Dejá activado <b>“Abrir como app web”</b> y tocá <b>Agregar</b>.'],
+      ['img/safari-6.webp', '<b>¡Listo!</b> Winbit ya está en tu pantalla de inicio. Tocá el ícono para entrar, como en cualquier otra app.']
+    ], note: 'Los nombres pueden variar levemente según la versión de iOS.' },
+    chrome: { label: 'iPhone · Chrome', items: [
+      ['img/chrome-1.webp', '<b>Abrí app.winbit.com.ar</b> en Chrome e iniciá sesión con Google o con tu mail.', true],
+      ['img/chrome-2.webp', 'Tocá el ícono <b>Compartir</b> arriba a la derecha, en la barra de dirección. <b>No</b> uses los tres puntos de abajo.'],
+      ['img/chrome-3.webp', 'En el menú que aparece, tocá <b>Ver más</b>.'],
+      ['img/chrome-4.webp', 'Elegí <b>“Añadir a pantalla de inicio”</b>.'],
+      ['img/chrome-5.webp', 'Tocá <b>Agregar</b>, arriba a la derecha.'],
+      ['img/chrome-6.webp', '<b>¡Listo!</b> Winbit ya está en tu pantalla de inicio. Tocá el ícono para entrar, como en cualquier otra app.']
+    ], note: 'Los nombres pueden variar levemente según la versión de Chrome.' },
+    android: { label: 'Android · Chrome', items: [
+      ['img/android-1.webp', '<b>Abrí app.winbit.com.ar</b> en Chrome e iniciá sesión con Google o con tu mail. Si el link se abrió dentro de WhatsApp, tocá <b>⋮</b> y elegí <b>“Abrir en Chrome”</b>.', true],
+      ['img/android-2.webp', 'Tocá el menú <b>⋮</b> (tres puntos) arriba a la derecha.'],
+      ['img/android-3.webp', 'Elegí <b>“Agregar a la pantalla principal”</b> (o <b>“Instalar app”</b>) y confirmá.'],
+      ['img/android-4.webp', '<b>¡Listo!</b> Winbit ya está en tu pantalla de inicio. Tocá el ícono para entrar, como en cualquier otra app.']
+    ], note: 'Los nombres pueden variar levemente según la versión de Android.' }
+  };
+
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var isAndroid = /Android/i.test(ua);
+  var isInApp = /FBAN|FBAV|Instagram|Line\/|TikTok|musical_ly|Snapchat/i.test(ua);
+  var isIOSChrome = isIOS && /CriOS/i.test(ua);
+  var isIOSOther = isIOS && /FxiOS|EdgiOS|OPiOS|OPT\//i.test(ua);
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+
+  function detect() {
+    if (isIOSChrome) return 'chrome';
+    if (isIOS) return 'safari';
+    if (isAndroid) return 'android';
+    return null;
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var param = null;
+  try { param = new URLSearchParams(location.search).get('d'); } catch (e) {}
+  var detected = detect();
+  var current = STEPS[param] ? param : (detected || 'safari');
+
+  function render(key, manual) {
+    current = key;
+    var s = STEPS[key];
+    $('chip').textContent = s.label;
+    $('detText').textContent = manual ? 'Estos son los pasos para' : (detected ? 'Detectamos tu celular. Estos son los pasos para' : 'Elegí tu celular. Por ahora te mostramos');
+    var html = '';
+    s.items.forEach(function (it, i) {
+      html += '<li class="step"><div class="n">' + (i === s.items.length - 1 ? 'Final' : 'Paso ' + (i + 1) + ' de ' + (s.items.length - 1)) + '</div>' +
+        '<p class="cap">' + it[1] + '</p>' +
+        (it[2] ? '<a class="btn" href="/" target="_blank" rel="noopener">Abrir app.winbit.com.ar</a>' : '') +
+        '<img src="' + it[0] + '" alt="" loading="' + (i < 2 ? 'eager' : 'lazy') + '" width="540" height="1103"></li>';
+    });
+    $('steps').innerHTML = html + '<p class="note">' + s.note + '</p>';
+    Array.prototype.forEach.call(document.querySelectorAll('#chooser button'), function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-d') === key ? 'true' : 'false');
+    });
+    $('quickInstall').classList.toggle('show', key === 'android' && !!deferred);
+    try { history.replaceState(null, '', '?d=' + key); } catch (e) {}
+  }
+
+  $('switchBtn').addEventListener('click', function () {
+    var open = $('chooser').classList.toggle('open');
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#chooser button'), function (b) {
+    b.addEventListener('click', function () {
+      render(b.getAttribute('data-d'), true);
+      $('chooser').classList.remove('open');
+      $('switchBtn').setAttribute('aria-expanded', 'false');
+      $('steps').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Android/Chrome: install with one tap when the browser allows it
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); deferred = e;
+    if (current === 'android') $('quickInstall').classList.add('show');
+  });
+  $('installBtn').addEventListener('click', function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; $('quickInstall').classList.remove('show'); });
+  });
+  window.addEventListener('appinstalled', function () { $('quickInstall').classList.remove('show'); });
+
+  if (standalone) $('installed').classList.add('show');
+  if (isInApp) $('alertInApp').classList.add('show');
+  else if (isIOSOther) $('alertOtherIOS').classList.add('show');
+  if (!detected && !param) {
+    $('alertDesktop').classList.add('show');
+    $('chooser').classList.add('open');
+    $('switchBtn').setAttribute('aria-expanded', 'true');
+  }
+  render(current, !!STEPS[param]);
+})();
+</script>
+</body>
+</html>
