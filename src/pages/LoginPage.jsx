@@ -87,6 +87,27 @@ const LoginBrand = ({ t }) => (
   </div>
 );
 
+/** Celular fuera de la app instalada: ahí tiene sentido ofrecer el instructivo de instalación. */
+const shouldShowInstallHint = () => {
+  if (typeof navigator === 'undefined') return false;
+  const isPhone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+  const isStandalone =
+    (typeof window.matchMedia === 'function' &&
+      window.matchMedia('(display-mode: standalone)').matches) ||
+    navigator.standalone === true;
+  return isPhone && !isStandalone;
+};
+
+// /instalar es una página estática fuera de la SPA: link común, no <Link>.
+const LoginInstallHint = ({ t }) => (
+  <p className="login-install-hint">
+    {t('auth.login.installPrompt')}{' '}
+    <a href="/instalar" className="login-install-hint__link">
+      {t('auth.login.installLink')}
+    </a>
+  </p>
+);
+
 const LoginTrustBlock = ({ t }) => (
   <div className="login-trust">
     <SecurityShield className="login-trust__icon" />
@@ -113,6 +134,7 @@ export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { t } = useTranslation();
   const devBypassActive = isDevBypassEnabled();
+  const showInstallHint = shouldShowInstallHint();
 
   useEffect(() => {
     setError(null);
@@ -397,6 +419,8 @@ export const LoginPage = () => {
               <LoginTrustBlock t={t} />
             </form>
           )}
+
+          {showInstallHint ? <LoginInstallHint t={t} /> : null}
 
           {displayError ? (
             <div role="alert" className="login-panel__error">
