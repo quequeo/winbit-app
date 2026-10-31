@@ -195,15 +195,18 @@ export const buildRecentOperationsFromHistory = (
 
 export const buildDashboardViewModel = (apiData, history, strategyOps = []) => {
   const balance = Number(apiData?.balance);
-  const totalInvested = Number(apiData?.totalInvested);
+  // Capital aportado neto (ingresos - retiros), same as the monthly PDF report.
+  const totalInvested = Number(apiData?.netContributedUsd ?? apiData?.totalInvested);
   const hasBalance = Number.isFinite(balance);
   const hasInvested = Number.isFinite(totalInvested);
 
   const portfolioValue = hasBalance ? balance : demo.portfolioValue;
   const capitalInvested = hasInvested ? totalInvested : demo.capitalInvested;
 
-  const apiReturnUsd = Number(apiData?.strategyReturnAllUsd);
-  const apiReturnPct = Number(apiData?.strategyReturnAllPct);
+  // Every return below is net of the service cost and comes from the same
+  // calculation as the monthly PDF report and the admin.
+  const apiReturnUsd = Number(apiData?.strategyReturnAllNetUsd ?? apiData?.strategyReturnAllUsd);
+  const apiReturnPct = Number(apiData?.strategyReturnAllNetPct ?? apiData?.strategyReturnAllPct);
   const derivedReturnUsd = portfolioValue - capitalInvested;
   const derivedReturnPct = capitalInvested > 0 ? (derivedReturnUsd / capitalInvested) * 100 : 0;
 
@@ -221,8 +224,8 @@ export const buildDashboardViewModel = (apiData, history, strategyOps = []) => {
 
   const historyRows = Array.isArray(history) ? history : [];
 
-  const ytdUsd = Number(apiData?.strategyReturnYtdUsd);
-  const ytdPct = Number(apiData?.strategyReturnYtdPct);
+  const ytdUsd = Number(apiData?.strategyReturnYtdNetUsd ?? apiData?.strategyReturnYtdUsd);
+  const ytdPct = Number(apiData?.strategyReturnYtdNetPct ?? apiData?.strategyReturnYtdPct);
   const annualUsd = Number(apiData?.annualReturnUsd);
   const annualPct = Number(apiData?.annualReturnPct);
 
@@ -244,17 +247,28 @@ export const buildDashboardViewModel = (apiData, history, strategyOps = []) => {
       ? annualPct
       : demo.monthReturnPct;
 
+  const apiMonthUsd = apiData?.monthReturnNetUsd;
+  const apiMonthPct = apiData?.monthReturnNetPct;
+  const hasApiMonth =
+    apiMonthUsd != null &&
+    apiMonthPct != null &&
+    Number.isFinite(Number(apiMonthUsd)) &&
+    Number.isFinite(Number(apiMonthPct));
   const monthFromHistory = buildMonthReturnFromHistory(historyRows, capitalInvested);
-  const monthReturnUsd = monthFromHistory.hasRows
-    ? monthFromHistory.usd
-    : DASHBOARD_DEMO_ENABLED
-      ? demo.monthReturnUsd
-      : 0;
-  const monthReturnPct = monthFromHistory.hasRows
-    ? monthFromHistory.pct
-    : DASHBOARD_DEMO_ENABLED
-      ? demo.monthReturnPct
-      : 0;
+  const monthReturnUsd = hasApiMonth
+    ? Number(apiMonthUsd)
+    : monthFromHistory.hasRows
+      ? monthFromHistory.usd
+      : DASHBOARD_DEMO_ENABLED
+        ? demo.monthReturnUsd
+        : 0;
+  const monthReturnPct = hasApiMonth
+    ? Number(apiMonthPct)
+    : monthFromHistory.hasRows
+      ? monthFromHistory.pct
+      : DASHBOARD_DEMO_ENABLED
+        ? demo.monthReturnPct
+        : 0;
 
   const chartFromHistory = historyRows
     .filter((r) => r?.status === 'COMPLETED' && r?.newBalance != null)
