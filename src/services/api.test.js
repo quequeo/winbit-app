@@ -174,6 +174,44 @@ describe('api service', () => {
       const result = await getInvestorData('test@example.com');
       expect(result.data.strategyReturnAllUsd).toBe(2500);
       expect(result.data.strategyReturnAllPct).toBe(25);
+      expect(result.data.strategyReturnAllNetUsd).toBe(2500);
+      expect(result.data.netContributedUsd).toBe(10000);
+      expect(result.data.monthReturnNetUsd).toBeNull();
+    });
+
+    it('maps the net figures of the monthly report', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          data: {
+            investor: { email: 'test@example.com', name: 'Test' },
+            portfolio: {
+              currentBalance: 12000,
+              totalInvested: 10000,
+              netContributedUSD: 9500,
+              monthReturnNetUSD: 120,
+              monthReturnNetPercent: 1.01,
+              strategyReturnAllUSD: 2500,
+              strategyReturnAllPercent: 25,
+              strategyReturnAllNetUSD: 2400,
+              strategyReturnAllNetPercent: 24,
+              strategyReturnYtdUSD: 500,
+              strategyReturnYtdPercent: 5,
+              strategyReturnYtdNetUSD: 450,
+              strategyReturnYtdNetPercent: 4.5,
+              updatedAt: '2024-01-01T00:00:00.000Z',
+            },
+          },
+        }),
+      });
+
+      const result = await getInvestorData('test@example.com');
+      expect(result.data.netContributedUsd).toBe(9500);
+      expect(result.data.monthReturnNetUsd).toBe(120);
+      expect(result.data.monthReturnNetPct).toBe(1.01);
+      expect(result.data.strategyReturnAllNetUsd).toBe(2400);
+      expect(result.data.strategyReturnYtdNetPct).toBe(4.5);
     });
 
     it('encodes email correctly in URL', async () => {

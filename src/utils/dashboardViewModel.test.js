@@ -38,6 +38,35 @@ describe('buildDashboardViewModel', () => {
     vi.clearAllMocks();
   });
 
+  it('shows the net figures of the monthly report (net contributed capital, month, year and since entry)', () => {
+    const vm = buildDashboardViewModel(
+      {
+        balance: 11107.48,
+        totalInvested: 9000,
+        netContributedUsd: 7250,
+        monthReturnNetUsd: 232.42,
+        monthReturnNetPct: 2.14,
+        strategyReturnYtdUsd: 1110.65,
+        strategyReturnYtdPct: 10.99,
+        strategyReturnYtdNetUsd: 946.48,
+        strategyReturnYtdNetPct: 9.36,
+        strategyReturnAllUsd: 4021.65,
+        strategyReturnAllPct: 55.55,
+        strategyReturnAllNetUsd: 3857.48,
+        strategyReturnAllNetPct: 53.28,
+      },
+      [],
+    );
+
+    expect(vm.capitalInvested).toBe(7250);
+    expect(vm.monthReturnUsd).toBe(232.42);
+    expect(vm.monthReturnPct).toBe(2.14);
+    expect(vm.yearReturnUsd).toBe(946.48);
+    expect(vm.yearReturnPct).toBe(9.36);
+    expect(vm.accumulatedReturnUsd).toBe(3857.48);
+    expect(vm.accumulatedReturnPct).toBe(53.28);
+  });
+
   it('uses API balance and invested capital when available', () => {
     const vm = buildDashboardViewModel(
       {

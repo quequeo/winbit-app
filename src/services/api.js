@@ -91,12 +91,30 @@ export const getInvestorData = async (email) => {
 
     const strategyReturnAllFrom = portfolio?.strategyReturnAllFrom ?? null;
 
+    // Net of the service cost, from the same calculation as the monthly PDF
+    // report and the admin. Falls back to the older fields only if the
+    // backend doesn't send them.
+    const netContributedUsd = portfolio?.netContributedUSD ?? totalInvested;
+    const monthReturnNetUsd = portfolio?.monthReturnNetUSD ?? null;
+    const monthReturnNetPct = portfolio?.monthReturnNetPercent ?? null;
+    const strategyReturnYtdNetUsd = portfolio?.strategyReturnYtdNetUSD ?? strategyReturnYtdUsd;
+    const strategyReturnYtdNetPct = portfolio?.strategyReturnYtdNetPercent ?? strategyReturnYtdPct;
+    const strategyReturnAllNetUsd = portfolio?.strategyReturnAllNetUSD ?? strategyReturnAllUsd;
+    const strategyReturnAllNetPct = portfolio?.strategyReturnAllNetPercent ?? strategyReturnAllPct;
+
     // Mapear la respuesta de la API al formato esperado por la aplicación
     const mappedData = {
       email: investor.email,
       name: investor.name,
       balance,
       totalInvested,
+      netContributedUsd,
+      monthReturnNetUsd,
+      monthReturnNetPct,
+      strategyReturnYtdNetUsd,
+      strategyReturnYtdNetPct,
+      strategyReturnAllNetUsd,
+      strategyReturnAllNetPct,
       strategyReturnYtdUsd,
       strategyReturnYtdPct,
       strategyReturnYtdFrom,
