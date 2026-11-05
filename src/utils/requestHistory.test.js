@@ -10,15 +10,38 @@ import {
 
 describe('requestHistory', () => {
   describe('pendingHistoryId / parseRequestIdFromHistoryId', () => {
-    it('round-trips numeric request id', () => {
+    it('round-trips the request id as text', () => {
       expect(pendingHistoryId(42)).toBe('request_42');
-      expect(parseRequestIdFromHistoryId('request_42')).toBe(42);
+      expect(parseRequestIdFromHistoryId('request_42')).toBe('42');
+    });
+
+    it('recognizes UUID ids that start with a letter', () => {
+      const uuid = 'a3f1c2d4-5b6e-4f70-8a91-0b2c3d4e5f60';
+      expect(parseRequestIdFromHistoryId(`request_${uuid}`)).toBe(uuid);
+      expect(isRequestHistoryId(`request_${uuid}`)).toBe(true);
+      expect(isPendingRequestRow({ id: `request_${uuid}`, status: 'PENDING' })).toBe(true);
     });
 
     it('returns null for non-request ids', () => {
       expect(parseRequestIdFromHistoryId('ph-881')).toBeNull();
+      expect(parseRequestIdFromHistoryId('request_')).toBeNull();
       expect(isRequestHistoryId('ph-881')).toBe(false);
     });
+  });
+
+  it('detects the approval of a request with a UUID id', () => {
+    const uuid = 'c7e2b1a0-1111-4222-8333-444455556666';
+    const prev = [{ id: `request_${uuid}`, movement: 'WITHDRAWAL', amount: 108, status: 'PENDING' }];
+    const next = [{ id: 'ph-1', movement: 'WITHDRAWAL', amount: 108, status: 'COMPLETED' }];
+    expect(detectRequestTransitions(prev, next)).toEqual([
+      {
+        kind: 'approved',
+        type: 'WITHDRAWAL',
+        amount: 108,
+        requestId: `request_${uuid}`,
+        completedId: 'ph-1',
+      },
+    ]);
   });
 
   describe('isPendingRequestRow', () => {

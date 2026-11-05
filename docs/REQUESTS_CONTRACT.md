@@ -105,7 +105,7 @@ Campos mínimos que el cliente debe consumir:
 | Campo API (`history`) | Campo app (`movement`) | Notas                           |
 | --------------------- | ---------------------- | ------------------------------- |
 | `event`               | `movement`             | Siempre normalizar a mayúsculas |
-| `id`                  | `id`                   | Pendientes: `request_{n}`       |
+| `id`                  | `id`                   | Pendientes: `request_{uuid}`    |
 | `status`              | `status`               | Ver tabla de estados abajo      |
 
 ### Correlación POST ↔ history
