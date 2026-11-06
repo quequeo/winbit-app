@@ -58,12 +58,11 @@ export const normalizeStatus = (value) =>
 /** POST id → history id para filas pendientes */
 export const pendingHistoryId = (requestId) => `${REQUEST_ID_PREFIX}${requestId}`;
 
-/** history id → POST id numérico, o null si no es solicitud */
+/** history id → POST id (UUID en Rails), o null si no es solicitud */
 export const parseRequestIdFromHistoryId = (historyId) => {
   const raw = String(historyId ?? '');
   if (!raw.startsWith(REQUEST_ID_PREFIX)) return null;
-  const n = Number.parseInt(raw.slice(REQUEST_ID_PREFIX.length), 10);
-  return Number.isFinite(n) ? n : null;
+  return raw.slice(REQUEST_ID_PREFIX.length) || null;
 };
 
 export const isRequestHistoryId = (historyId) => parseRequestIdFromHistoryId(historyId) !== null;
