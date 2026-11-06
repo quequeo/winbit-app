@@ -31,7 +31,9 @@ describe('requestHistory', () => {
 
   it('detects the approval of a request with a UUID id', () => {
     const uuid = 'c7e2b1a0-1111-4222-8333-444455556666';
-    const prev = [{ id: `request_${uuid}`, movement: 'WITHDRAWAL', amount: 108, status: 'PENDING' }];
+    const prev = [
+      { id: `request_${uuid}`, movement: 'WITHDRAWAL', amount: 108, status: 'PENDING' },
+    ];
     const next = [{ id: 'ph-1', movement: 'WITHDRAWAL', amount: 108, status: 'COMPLETED' }];
     expect(detectRequestTransitions(prev, next)).toEqual([
       {
