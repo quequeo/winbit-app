@@ -506,6 +506,20 @@ const resources = {
           },
         },
       },
+      push: {
+        offer:
+          'Activá los avisos en este celular y te avisamos cuando se procese tu solicitud, aunque tengas la app cerrada.',
+        enable: 'Activar avisos',
+        enabling: 'Activando...',
+        later: 'Ahora no',
+        enabled: 'Listo: te vamos a avisar en este celular cuando se procese tu solicitud.',
+        denied:
+          'Los avisos quedaron bloqueados. Si los querés, activalos desde la configuración del celular para la app de Winbit.',
+        error: 'No pudimos activar los avisos. Probá de nuevo más tarde.',
+        installFirst:
+          'Para recibir avisos en el iPhone cuando se procese tu solicitud, primero instalá la app en la pantalla de inicio.',
+        howToInstall: 'Cómo instalarla',
+      },
       requests: {
         notifications: {
           depositApprovedTitle: 'Depósito acreditado',
@@ -1280,6 +1294,20 @@ const resources = {
             walletAddressRequired: 'Enter the wallet address',
           },
         },
+      },
+      push: {
+        offer:
+          "Turn on notifications on this phone and we'll let you know when your request is processed, even with the app closed.",
+        enable: 'Turn on notifications',
+        enabling: 'Turning on...',
+        later: 'Not now',
+        enabled: "Done: we'll notify you on this phone when your request is processed.",
+        denied:
+          'Notifications are blocked. If you want them, turn them on in your phone settings for the Winbit app.',
+        error: "We couldn't turn on notifications. Please try again later.",
+        installFirst:
+          'To get notifications on iPhone when your request is processed, first add the app to your home screen.',
+        howToInstall: 'How to install it',
       },
       requests: {
         notifications: {

@@ -58,6 +58,8 @@ export default defineConfig(({ mode }) => {
         workbox: {
           // Make sure PWA clients pick up new deployments quickly (avoid stale UI/i18n bundles).
           skipWaiting: true,
+          // Avisos al celular con la app cerrada (Web Push): ver public/push-sw.js.
+          importScripts: ['push-sw.js'],
           clientsClaim: true,
           cleanupOutdatedCaches: true,
           navigateFallback: '/index.html',

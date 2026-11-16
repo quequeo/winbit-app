@@ -430,6 +430,62 @@ export const cancelInvestorRequest = async (email, requestId) => {
 };
 
 /**
+ * Avisos al celular (Web Push): si están configurados en el servidor y la clave pública.
+ * @returns {Promise<{data: {enabled: boolean, publicKey: string|null} | null, error: string | null}>}
+ */
+export const getPushConfig = async () => {
+  try {
+    const response = await silentFetch(`${API_BASE_URL}${PUBLIC_API_PREFIX}/push/config`);
+    if (!response.ok) return { data: null, error: `API Error: ${response.status}` };
+    const result = await response.json();
+    return { data: result.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Registra este dispositivo para recibir avisos.
+ * @param {string} email
+ * @param {{endpoint: string, keys: {p256dh: string, auth: string}}} subscription - PushSubscription.toJSON()
+ */
+export const savePushSubscription = async (email, subscription) => {
+  try {
+    const response = await silentFetch(`${API_BASE_URL}${PUBLIC_API_PREFIX}/push/subscriptions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        endpoint: subscription?.endpoint,
+        keys: { p256dh: subscription?.keys?.p256dh, auth: subscription?.keys?.auth },
+      }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return { data: null, error: errorData.error || `API Error: ${response.status}` };
+    }
+    const result = await response.json();
+    return { data: result.data, error: null };
+  } catch (error) {
+    return { data: null, error: error.message };
+  }
+};
+
+/** Desactiva los avisos de este dispositivo. */
+export const deletePushSubscription = async (endpoint) => {
+  try {
+    const response = await silentFetch(`${API_BASE_URL}${PUBLIC_API_PREFIX}/push/subscriptions`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint }),
+    });
+    return { error: response.ok ? null : `API Error: ${response.status}` };
+  } catch (error) {
+    return { error: error.message };
+  }
+};
+
+/**
  * Login con email y contraseña
  * @param {string} email
  * @param {string} password
