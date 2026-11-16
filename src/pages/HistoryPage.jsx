@@ -35,6 +35,7 @@ import {
   filterPublishedOperatingResults,
 } from '../utils/operatingTrade';
 import { AccountActivityCard } from '../components/features/history/AccountActivityCard';
+import { PendingRequestActions } from '../components/features/requests/PendingRequestActions';
 
 const formatFeePercentage = (value) => {
   if (value === null || value === undefined) return '';
@@ -286,6 +287,9 @@ export const HistoryPage = () => {
     }
     if (s === 'pendiente' || s === 'pending') {
       return 'bg-[#c2aa72]/10 text-[#c2aa72] border border-[#c2aa72]/20';
+    }
+    if (s === 'cancelado' || s === 'cancelled' || s === 'canceled') {
+      return 'badge-cancelled';
     }
     return 'bg-[#8dc8bf]/10 text-[#8dc8bf] border border-[#8dc8bf]/20';
   };
@@ -564,6 +568,7 @@ export const HistoryPage = () => {
                       ? () => setReceiptPreviewUrl(row.attachmentUrl)
                       : undefined
                   }
+                  actions={<PendingRequestActions row={row} />}
                 />
               );
             })}
@@ -652,6 +657,7 @@ export const HistoryPage = () => {
                             ) : null}
                           </div>
                           <DepositReceiptAction row={row} />
+                          <PendingRequestActions row={row} compact />
                         </td>
                         <td
                           className={`whitespace-nowrap font-semibold ${amountToneClass(amount)}`}

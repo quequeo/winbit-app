@@ -11,6 +11,7 @@ export const AccountActivityCard = ({
   amountTone,
   secondaryAction,
   onSecondaryAction,
+  actions = null,
 }) => (
   <article className="account-activity-card">
     <div className="account-activity-card__layout">
@@ -45,5 +46,6 @@ export const AccountActivityCard = ({
         <span className={`account-activity-card__amount ${amountTone}`}>{amount}</span>
       </div>
     </div>
+    {actions}
   </article>
 );

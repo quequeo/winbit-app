@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ClipboardList, Clock, CreditCard, Check, X, Inbox, Grid3x3 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Ban, ClipboardList, Clock, CreditCard, Check, X, Inbox, Grid3x3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { DepositMethodSelector } from '../components/features/deposits/DepositMethodSelector';
 import { DepositDetailsPanel } from '../components/features/deposits/DepositDetailsPanel';
 import { DepositForm } from '../components/features/requests/DepositForm';
+import { PendingRequestActions } from '../components/features/requests/PendingRequestActions';
+import { useToast } from '../components/ui/ToastProvider';
 import { PageTabs } from '../components/ui/PageTabs';
 import { FilterChips } from '../components/ui/FilterChips';
 import { TransactionHistoryCard } from '../components/ui/TransactionHistoryCard';
@@ -23,10 +25,17 @@ import {
   buildPaymentMethodOption,
 } from '../utils/transactionHelpers';
 import { getActivityBalanceImpact } from '../utils/accountActivity';
+import { CORRECTION_PARAM, findCorrectableRequest } from '../utils/requestHistory';
+import {
+  buildDepositFormMethodOptions,
+  findDepositFormMethodIdForRequest,
+} from '../utils/depositFormMethods';
+import { formatUsdDisplay } from '../utils/formatUsdDisplay';
 
 export const WalletsPage = () => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { userEmail } = useAuth();
   const { depositOptions, loading: optionsLoading, error } = useDepositOptions();
   const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
@@ -51,6 +60,65 @@ export const WalletsPage = () => {
     if (selectedOption) return selectedOption;
     return sortedOptions[0] ?? null;
   }, [selectedOption, sortedOptions]);
+
+  // Corrección de una solicitud de depósito pendiente (?correct=request_<uuid>).
+  const correctionParam = searchParams.get(CORRECTION_PARAM);
+  const correction = useMemo(
+    () => findCorrectableRequest(history, correctionParam, 'DEPOSIT'),
+    [history, correctionParam],
+  );
+  const correctionRowId = correction?.id ?? null;
+  const correctionOptionId = useMemo(
+    () =>
+      correction
+        ? findDepositFormMethodIdForRequest(
+            buildDepositFormMethodOptions(sortedOptions),
+            correction,
+          )
+        : null,
+    [correction, sortedOptions],
+  );
+
+  useEffect(() => {
+    if (!correctionRowId) return;
+    setTab('deposit');
+    setShowReportForm(true);
+  }, [correctionRowId]);
+
+  // Marca la opción de la solicitud original una sola vez por corrección, así el inversor
+  // puede elegir otra y los refetch no se la cambian.
+  const appliedCorrectionOptionRef = useRef(null);
+  useEffect(() => {
+    if (!correctionRowId || !correctionOptionId) return;
+    if (appliedCorrectionOptionRef.current === correctionRowId) return;
+    const option = sortedOptions.find((opt) => String(opt.id) === correctionOptionId);
+    if (!option) return;
+    appliedCorrectionOptionRef.current = correctionRowId;
+    setSelectedOption(option);
+  }, [correctionRowId, correctionOptionId, sortedOptions]);
+
+  const clearCorrection = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(CORRECTION_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [setSearchParams]);
+
+  const handleCorrectionDone = ({ amount }) => {
+    showToast({
+      title: t('requests.manage.correction.doneTitle'),
+      message: t('requests.manage.correction.depositDone', { amount: formatUsdDisplay(amount) }),
+      type: 'success',
+      duration: 6000,
+    });
+    clearCorrection();
+    setShowReportForm(false);
+    setTab('history');
+  };
 
   const deposits = useMemo(() => {
     if (!Array.isArray(history)) return [];
@@ -86,6 +154,7 @@ export const WalletsPage = () => {
     const key = String(status ?? '').toUpperCase();
     if (key === 'COMPLETED') return Check;
     if (key === 'REJECTED') return X;
+    if (key === 'CANCELLED') return Ban;
     return Clock;
   };
 
@@ -112,6 +181,7 @@ export const WalletsPage = () => {
             onSecondaryAction={
               r.attachmentUrl ? () => setReceiptPreviewUrl(r.attachmentUrl) : undefined
             }
+            actions={<PendingRequestActions row={r} />}
           />
         );
       })}
@@ -197,6 +267,9 @@ export const WalletsPage = () => {
                   depositOptions={depositOptions}
                   selectedOptionId={activeOption?.id}
                   hideTitle
+                  correction={correction}
+                  onCorrectionDone={handleCorrectionDone}
+                  onCorrectionDismiss={clearCorrection}
                 />
               </div>
             ) : null}

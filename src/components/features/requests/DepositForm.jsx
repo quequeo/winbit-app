@@ -11,10 +11,13 @@ import { createInvestorRequest } from '../../../services/api';
 import { uploadImage } from '../../../utils/uploadImage';
 import {
   buildDepositFormMethodOptions,
+  findDepositFormMethodIdForRequest,
   resolveDefaultDepositFormMethodId,
 } from '../../../utils/depositFormMethods';
+import { parseRequestIdFromHistoryId } from '../../../utils/requestHistory';
 import { useTranslation } from 'react-i18next';
 import { ReceiptAttachment } from '../attachments/ReceiptAttachment';
+import { RequestCorrectionNote } from './RequestCorrectionNote';
 
 const FALLBACK_METHODS = [
   { value: 'CASH_USD', labelKey: 'requests.method.cash_usd', apiMethod: 'CASH_USD', isCash: true },
@@ -27,6 +30,9 @@ export const DepositForm = ({
   depositOptions = [],
   hideTitle = false,
   selectedOptionId = null,
+  correction = null,
+  onCorrectionDone,
+  onCorrectionDismiss,
 }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -44,9 +50,16 @@ export const DepositForm = ({
     }));
   }, [depositOptions, t]);
 
+  // Al corregir, el método de la solicitud original tiene prioridad sobre la opción elegida.
+  const correctionMethodId = useMemo(
+    () => (correction ? findDepositFormMethodIdForRequest(methodOptions, correction) : null),
+    [correction, methodOptions],
+  );
+  const preferredOptionId = correctionMethodId ?? selectedOptionId;
+
   const defaultMethodId = useMemo(
-    () => resolveDefaultDepositFormMethodId(methodOptions, selectedOptionId),
-    [methodOptions, selectedOptionId],
+    () => resolveDefaultDepositFormMethodId(methodOptions, preferredOptionId),
+    [methodOptions, preferredOptionId],
   );
 
   const [formData, setFormData] = useState({
@@ -59,13 +72,36 @@ export const DepositForm = ({
   const [loadingPhase, setLoadingPhase] = useState(null);
   const [message, setMessage] = useState(null);
   const [modal, setModal] = useState(null);
+  const appliedCorrectionRef = useRef(null);
 
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
-      method: resolveDefaultDepositFormMethodId(methodOptions, selectedOptionId),
+      method: resolveDefaultDepositFormMethodId(methodOptions, preferredOptionId),
     }));
-  }, [methodOptions, selectedOptionId]);
+  }, [methodOptions, preferredOptionId]);
+
+  // Precarga el monto una sola vez por solicitud a corregir (los refetch no pisan lo editado).
+  useEffect(() => {
+    const correctionId = correction?.id ?? null;
+    const previousId = appliedCorrectionRef.current;
+    if (previousId === correctionId) return;
+    appliedCorrectionRef.current = correctionId;
+    if (!correction) {
+      // Se descartó la corrección: no dejar precargados los datos de la solicitud original.
+      if (previousId) setFormData((prev) => ({ ...prev, amount: '' }));
+      return;
+    }
+
+    const amount = Math.abs(Number(correction.amount) || 0);
+    setFormData((prev) => ({ ...prev, amount: amount > 0 ? String(amount) : '' }));
+    setAttachment(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setMessage(null);
+  }, [correction]);
+
+  // Al corregir se reutiliza el comprobante original, salvo que se suba otro.
+  const keptAttachmentUrl = correction?.attachmentUrl ?? null;
 
   const selectedMethod = useMemo(
     () => methodOptions.find((opt) => opt.value === formData.method) ?? methodOptions[0] ?? null,
@@ -110,7 +146,7 @@ export const DepositForm = ({
       return;
     }
 
-    if (attachmentRequired && !attachment) {
+    if (attachmentRequired && !attachment && !keptAttachmentUrl) {
       setMessage({ type: 'error', text: t('deposits.requestForm.validation.attachmentRequired') });
       return;
     }
@@ -118,7 +154,7 @@ export const DepositForm = ({
     setLoading(true);
     setMessage(null);
 
-    let attachmentUrl = null;
+    let attachmentUrl = keptAttachmentUrl;
     if (attachment) {
       setLoadingPhase('uploading');
       const { url, error: uploadError } = await uploadImage(attachment, 'deposits');
@@ -141,12 +177,19 @@ export const DepositForm = ({
       network: null,
       transactionHash: null,
       attachmentUrl,
+      ...(correction ? { replacesRequestId: parseRequestIdFromHistoryId(correction.id) } : {}),
     });
 
     setLoading(false);
     setLoadingPhase(null);
 
-    if (apiResult.data) {
+    if (apiResult.data && correction) {
+      const amount = parseFloat(formData.amount);
+      setFormData((state) => ({ ...state, amount: '' }));
+      clearAttachment();
+      await queryClient.invalidateQueries({ queryKey: ['investor'] });
+      onCorrectionDone?.({ amount, request: apiResult.data });
+    } else if (apiResult.data) {
       queryClient.invalidateQueries({ queryKey: ['investor'] });
       setModal({
         type: 'success',
@@ -174,6 +217,14 @@ export const DepositForm = ({
       />
       <Card title={hideTitle ? undefined : t('deposits.requestForm.title')} className="border-t-0">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {correction ? (
+            <RequestCorrectionNote
+              request={correction}
+              type="DEPOSIT"
+              onDismiss={loading ? undefined : onCorrectionDismiss}
+            />
+          ) : null}
+
           <div>
             <label htmlFor="amount" className="mb-2 block text-sm font-medium text-text-primary">
               {t('deposits.requestForm.amount.label')} *
@@ -227,6 +278,14 @@ export const DepositForm = ({
               className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[rgba(57, 131, 109,0.10)] file:text-[#8dc8bf] hover:file:bg-[rgba(57, 131, 109,0.18)] cursor-pointer"
             />
             {attachment ? <ReceiptAttachment file={attachment} onRemove={clearAttachment} /> : null}
+            {!attachment && keptAttachmentUrl ? (
+              <>
+                <p className="mt-3 text-xs text-text-muted">
+                  {t('requests.manage.correction.keepReceipt')}
+                </p>
+                <ReceiptAttachment url={keptAttachmentUrl} />
+              </>
+            ) : null}
           </div>
 
           <div className="deposit-notice">
@@ -264,8 +323,12 @@ export const DepositForm = ({
             {loading
               ? loadingPhase === 'uploading'
                 ? t('deposits.requestForm.uploading')
-                : t('deposits.requestForm.submitting')
-              : t('deposits.requestForm.submit')}
+                : correction
+                  ? t('requests.manage.correction.submitting')
+                  : t('deposits.requestForm.submitting')
+              : correction
+                ? t('requests.manage.correction.submit')
+                : t('deposits.requestForm.submit')}
           </Button>
         </form>
       </Card>

@@ -7,6 +7,7 @@ import {
   getPaymentMethods,
   getWithdrawalFeePreview,
   createInvestorRequest,
+  cancelInvestorRequest,
   validateInvestor,
   changeInvestorPassword,
   loginWithEmailPassword,
@@ -293,6 +294,121 @@ describe('api service', () => {
       expect(result.data).toBeNull();
       expect(result.error).toBe('Email is required');
     });
+
+    it('keeps request fields used to correct a request, and CANCELLED status as is', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          data: [
+            {
+              id: 'request_8f3c2a10-1111-4c4c-9d9d-000000000001',
+              date: '2026-11-01T12:00:00.000Z',
+              event: 'WITHDRAWAL',
+              amount: 500,
+              status: 'CANCELLED',
+              method: 'USDT',
+              network: 'TRC20',
+              walletAddress: 'TXabc',
+              lemontag: null,
+              cancelledAt: '2026-11-02T10:00:00.000Z',
+            },
+          ],
+        }),
+      });
+
+      const result = await getInvestorHistory('test@example.com');
+      expect(result.data[0]).toEqual(
+        expect.objectContaining({
+          id: 'request_8f3c2a10-1111-4c4c-9d9d-000000000001',
+          movement: 'WITHDRAWAL',
+          status: 'CANCELLED',
+          method: 'USDT',
+          network: 'TRC20',
+          walletAddress: 'TXabc',
+          lemontag: null,
+          cancelledAt: '2026-11-02T10:00:00.000Z',
+        }),
+      );
+    });
+  });
+
+  describe('cancelInvestorRequest', () => {
+    const uuid = '8f3c2a10-1111-4c4c-9d9d-000000000001';
+
+    it('posts the email to the cancel endpoint and returns the request', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ data: { id: uuid, status: 'CANCELLED' } }),
+      });
+
+      const result = await cancelInvestorRequest('test@example.com', uuid);
+
+      expect(result).toEqual({ data: { id: uuid, status: 'CANCELLED' }, error: null, status: 200 });
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`/api/public/v1/requests/${uuid}/cancel$`)),
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: 'test@example.com' }),
+        }),
+      );
+    });
+
+    it('strips the request_ prefix of history ids and sends the bare UUID', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ data: { id: uuid, status: 'CANCELLED' } }),
+      });
+
+      await cancelInvestorRequest('test@example.com', `request_${uuid}`);
+
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toMatch(new RegExp(`/requests/${uuid}/cancel$`));
+      expect(url).not.toContain('request_');
+    });
+
+    it('returns the backend message and status 422 when the request was already processed', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 422,
+        json: async () => ({ error: 'La solicitud ya fue procesada y no se puede cancelar' }),
+      });
+
+      const result = await cancelInvestorRequest('test@example.com', uuid);
+      expect(result).toEqual({
+        data: null,
+        error: 'La solicitud ya fue procesada y no se puede cancelar',
+        status: 422,
+      });
+    });
+
+    it('returns status 404 when the request does not exist', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: 'Request not found' }),
+      });
+
+      const result = await cancelInvestorRequest('test@example.com', uuid);
+      expect(result).toEqual({ data: null, error: 'Request not found', status: 404 });
+    });
+
+    it('returns an error without calling the API when email or id are missing', async () => {
+      expect((await cancelInvestorRequest('', uuid)).error).toBe('Email is required');
+      expect((await cancelInvestorRequest('test@example.com', '')).error).toBe(
+        'Request id is required',
+      );
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('returns the network error message', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      const result = await cancelInvestorRequest('test@example.com', uuid);
+      expect(result).toEqual({ data: null, error: 'Network error', status: null });
+    });
   });
 
   describe('getWallets', () => {
@@ -435,6 +551,60 @@ describe('api service', () => {
 
       expect(result.data).toBeNull();
       expect(result.error).toContain('Invalid request');
+    });
+
+    it('sends replacesRequestId as the bare UUID when correcting a request', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({ data: { id: 'new-uuid', status: 'PENDING' } }),
+      });
+
+      await createInvestorRequest({
+        email: 'test@example.com',
+        type: 'WITHDRAWAL',
+        amount: 300,
+        method: 'USDT',
+        replacesRequestId: 'request_old-uuid',
+      });
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(body.replacesRequestId).toBe('old-uuid');
+      expect(body).toEqual(expect.objectContaining({ type: 'WITHDRAWAL', amount: 300 }));
+    });
+
+    it('leaves replacesRequestId out of new requests', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({ data: { id: 'new-uuid', status: 'PENDING' } }),
+      });
+
+      await createInvestorRequest({ email: 'test@example.com', type: 'DEPOSIT', amount: 100 });
+
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(body).not.toHaveProperty('replacesRequestId');
+    });
+
+    it('returns the 422 message when the original request was already processed', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 422,
+        json: async () => ({
+          error: 'La solicitud original ya fue procesada y no se puede corregir',
+        }),
+      });
+
+      const result = await createInvestorRequest({
+        email: 'test@example.com',
+        type: 'DEPOSIT',
+        amount: 100,
+        replacesRequestId: 'old-uuid',
+      });
+      expect(result).toEqual({
+        data: null,
+        error: 'La solicitud original ya fue procesada y no se puede corregir',
+      });
     });
   });
 

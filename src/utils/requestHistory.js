@@ -27,7 +27,7 @@
  */
 
 /**
- * @typedef {'approved' | 'rejected' | 'created'} RequestTransitionKind
+ * @typedef {'approved' | 'rejected' | 'cancelled' | 'created'} RequestTransitionKind
  */
 
 /**
@@ -73,6 +73,42 @@ export const isPendingRequestRow = (row) =>
 export const isRejectedRequestRow = (row) =>
   normalizeStatus(row?.status) === 'REJECTED' && isRequestHistoryId(row?.id);
 
+export const isCancelledRequestRow = (row) =>
+  normalizeStatus(row?.status) === 'CANCELLED' && isRequestHistoryId(row?.id);
+
+/**
+ * Solicitud de depósito o retiro que el inversor todavía puede cancelar o corregir:
+ * pendiente y con id de solicitud (`request_<uuid>`).
+ */
+export const isManageablePendingRequest = (row) => {
+  if (!isPendingRequestRow(row)) return false;
+  const type = normalizeRequestType(row?.movement);
+  return type === 'DEPOSIT' || type === 'WITHDRAWAL';
+};
+
+/** Param de URL con el id de history (`request_<uuid>`) de la solicitud a corregir. */
+export const CORRECTION_PARAM = 'correct';
+
+/** Formulario que corrige la solicitud: depósitos en /wallets, retiros en /requests. */
+export const buildCorrectionHref = (row) => {
+  const base = normalizeRequestType(row?.movement) === 'DEPOSIT' ? '/wallets' : '/requests';
+  return `${base}?${CORRECTION_PARAM}=${encodeURIComponent(String(row?.id ?? ''))}`;
+};
+
+/**
+ * Busca en history la solicitud pendiente a corregir (por id), del tipo indicado.
+ * Devuelve null si no existe o si ya no está pendiente.
+ * @param {HistoryRow[]} rows
+ * @param {string|null} historyId
+ * @param {RequestType} type
+ */
+export const findCorrectableRequest = (rows, historyId, type) => {
+  if (!historyId || !Array.isArray(rows)) return null;
+  const row = rows.find((r) => String(r?.id) === String(historyId));
+  if (!row || !isManageablePendingRequest(row)) return null;
+  return normalizeRequestType(row.movement) === type ? row : null;
+};
+
 const indexById = (rows) => {
   const map = new Map();
   for (const row of rows ?? []) {
@@ -84,6 +120,7 @@ const indexById = (rows) => {
 /**
  * Detecta transiciones relevantes para notificaciones in-app.
  * - rejected: mismo request_N, PENDING → REJECTED
+ * - cancelled: mismo request_N, PENDING → CANCELLED (lo cancela el inversor o una corrección)
  * - approved: request_N desaparece y aparece COMPLETED nuevo (otro id)
  * - created: aparece request_N PENDING (útil tras POST + refetch)
  *
@@ -102,6 +139,17 @@ export const detectRequestTransitions = (prevRows, nextRows) => {
     const nextRow = next.get(id);
     const prevStatus = normalizeStatus(prevRow.status);
     const nextStatus = normalizeStatus(nextRow?.status);
+
+    // Cancelada por el propio inversor (o reemplazada por una corrección):
+    // se informa aparte para que no se confunda con un rechazo.
+    if (prevStatus === 'PENDING' && nextStatus === 'CANCELLED') {
+      transitions.push({
+        kind: 'cancelled',
+        type: normalizeRequestType(prevRow.movement),
+        amount: Number(prevRow.amount),
+        requestId: id,
+      });
+    }
 
     if (prevStatus === 'PENDING' && nextStatus === 'REJECTED') {
       transitions.push({
@@ -149,6 +197,18 @@ export const detectRequestTransitions = (prevRows, nextRows) => {
 
   return transitions;
 };
+
+/**
+ * Foto de las solicitudes pendientes que se guarda en el dispositivo para que,
+ * al volver a abrir la app, se pueda avisar lo que se aprobó o rechazó mientras
+ * estaba cerrada (se compara con `detectRequestTransitions`).
+ * @param {HistoryRow[]} rows
+ * @returns {HistoryRow[]}
+ */
+export const buildPendingSnapshot = (rows) =>
+  (rows ?? [])
+    .filter((row) => isPendingRequestRow(row))
+    .map(({ id, movement, amount, status, date }) => ({ id, movement, amount, status, date }));
 
 /** Filas pendientes de depósito o retiro */
 export const getPendingRequests = (rows) =>

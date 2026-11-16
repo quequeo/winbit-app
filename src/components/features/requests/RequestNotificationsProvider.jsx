@@ -3,11 +3,39 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../hooks/useAuth';
 import { useInvestorHistory } from '../../../hooks/useInvestorHistory';
 import { useToast } from '../../ui/ToastProvider';
-import { detectRequestTransitions, getPendingRequests } from '../../../utils/requestHistory';
+import {
+  buildPendingSnapshot,
+  detectRequestTransitions,
+  getPendingRequests,
+} from '../../../utils/requestHistory';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
 const NOTIFIED_KEY = 'winbit-notified-transitions';
+const SNAPSHOT_KEY_PREFIX = 'winbit-pending-requests:';
 const POLL_MS = 2 * 60 * 1000;
+
+const snapshotKeyFor = (email) =>
+  email ? `${SNAPSHOT_KEY_PREFIX}${String(email).trim().toLowerCase()}` : null;
+
+const readSnapshot = (key) => {
+  if (!key) return null;
+  try {
+    const raw = globalThis?.localStorage?.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : null;
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveSnapshot = (key, rows) => {
+  if (!key) return;
+  try {
+    globalThis?.localStorage?.setItem(key, JSON.stringify(buildPendingSnapshot(rows)));
+  } catch {
+    /* ignore */
+  }
+};
 
 const readNotified = () => {
   try {
@@ -53,16 +81,28 @@ export const RequestNotificationsProvider = ({ children }) => {
   useEffect(() => {
     if (!isValidated || !Array.isArray(history)) return;
 
+    const snapshotKey = snapshotKeyFor(userEmail);
+
     if (!initializedRef.current) {
-      prevRowsRef.current = history;
       initializedRef.current = true;
-      return;
+      // Al abrir la app se compara con las solicitudes que estaban pendientes la
+      // última vez (guardadas en el dispositivo): así se avisa lo que se aprobó o
+      // rechazó mientras la app estaba cerrada.
+      const saved = readSnapshot(snapshotKey);
+      if (!saved) {
+        prevRowsRef.current = history;
+        saveSnapshot(snapshotKey, history);
+        return;
+      }
+      prevRowsRef.current = saved;
     }
 
     const transitions = detectRequestTransitions(prevRowsRef.current, history);
 
     for (const tr of transitions) {
-      if (tr.kind === 'created') continue;
+      // Solo se avisa lo que decide Winbit (aprobación o rechazo). Las solicitudes nuevas
+      // y las que cancela el propio inversor ya se confirman en pantalla al hacerlo.
+      if (tr.kind !== 'approved' && tr.kind !== 'rejected') continue;
 
       const notifyKey = `${tr.kind}:${tr.requestId}:${tr.completedId ?? ''}`;
       if (wasNotified(notifyKey)) continue;
@@ -94,7 +134,8 @@ export const RequestNotificationsProvider = ({ children }) => {
     }
 
     prevRowsRef.current = history;
-  }, [history, isValidated, showToast, t]);
+    saveSnapshot(snapshotKey, history);
+  }, [history, isValidated, userEmail, showToast, t]);
 
   return <div data-pending-requests={pendingCount > 0 ? pendingCount : undefined}>{children}</div>;
 };

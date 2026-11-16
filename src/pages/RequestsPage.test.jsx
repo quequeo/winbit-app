@@ -2,7 +2,9 @@ import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RequestsPage } from './RequestsPage';
+import { ToastProvider } from '../components/ui/ToastProvider';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
 import { useInvestorHistory } from '../hooks/useInvestorHistory';
@@ -11,23 +13,47 @@ vi.mock('../hooks/useAuth');
 vi.mock('../hooks/useInvestorData');
 vi.mock('../hooks/useInvestorHistory');
 vi.mock('../components/features/requests/WithdrawalForm', () => ({
-  WithdrawalForm: () => <div>WithdrawalForm</div>,
+  WithdrawalForm: ({ correction, availableBalance, onCorrectionDone, onCorrectionDismiss }) => (
+    <div>
+      <div>WithdrawalForm</div>
+      {correction ? (
+        <>
+          <div data-testid="correction-id">{correction.id}</div>
+          <div data-testid="available-balance">{availableBalance}</div>
+          <button type="button" onClick={() => onCorrectionDone({ amount: 300 })}>
+            mock-correction-done
+          </button>
+          <button type="button" onClick={onCorrectionDismiss}>
+            mock-correction-dismiss
+          </button>
+        </>
+      ) : null}
+    </div>
+  ),
 }));
 
-const renderPage = (ui) =>
-  render(
+const renderPage = (ui, { initialEntries = ['/requests'] } = {}) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
     <MemoryRouter
+      initialEntries={initialEntries}
       future={{
         v7_startTransition: true,
         v7_relativeSplatPath: true,
       }}
     >
-      {ui}
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>{ui}</ToastProvider>
+      </QueryClientProvider>
     </MemoryRouter>,
   );
+};
 
 describe('RequestsPage', () => {
-  const mockAuth = { user: { email: 'test@example.com', displayName: 'Juan' } };
+  const mockAuth = {
+    user: { email: 'test@example.com', displayName: 'Juan' },
+    userEmail: 'test@example.com',
+  };
   const mockData = {
     data: { name: 'Juan', balance: 1000 },
     loading: false,
@@ -147,5 +173,105 @@ describe('RequestsPage', () => {
       await userEvent.click(screen.getByText('Historial de retiros'));
     });
     expect(screen.getAllByText('UNKNOWN_STATUS').length).toBeGreaterThan(0);
+  });
+
+  describe('pending request actions', () => {
+    const pendingWithdrawal = {
+      id: 'request_abc-123',
+      movement: 'WITHDRAWAL',
+      amount: 200,
+      status: 'PENDING',
+      date: '2025-02-01T18:00:00Z',
+      method: 'USDT',
+      network: 'TRC20',
+    };
+
+    it('shows Corregir and Cancelar solicitud only on pending requests', async () => {
+      useAuth.mockReturnValue(mockAuth);
+      useInvestorData.mockReturnValue(mockData);
+      useInvestorHistory.mockReturnValue({
+        data: [
+          pendingWithdrawal,
+          {
+            id: 'request_def-456',
+            movement: 'WITHDRAWAL',
+            amount: 150,
+            status: 'CANCELLED',
+            date: '2025-01-20T18:00:00Z',
+            method: 'USDT',
+          },
+          {
+            id: 'ph-1',
+            movement: 'WITHDRAWAL',
+            amount: 100,
+            status: 'COMPLETED',
+            date: '2025-01-10T18:00:00Z',
+            method: 'USDT',
+          },
+        ],
+        loading: false,
+        error: null,
+      });
+      renderPage(<RequestsPage />);
+      await act(async () => {
+        await userEvent.click(screen.getByText('Historial de retiros'));
+      });
+
+      expect(screen.getAllByRole('button', { name: 'Corregir' })).toHaveLength(1);
+      expect(screen.getAllByRole('button', { name: 'Cancelar solicitud' })).toHaveLength(1);
+      expect(screen.getByText('Cancelado')).toBeInTheDocument();
+    });
+
+    it('opens the form in correction mode from ?correct= and frees the original amount', () => {
+      useAuth.mockReturnValue(mockAuth);
+      useInvestorData.mockReturnValue(mockData);
+      useInvestorHistory.mockReturnValue({
+        data: [pendingWithdrawal],
+        loading: false,
+        error: null,
+      });
+      renderPage(<RequestsPage />, {
+        initialEntries: ['/requests?tab=history&correct=request_abc-123'],
+      });
+
+      expect(screen.getByTestId('correction-id')).toHaveTextContent('request_abc-123');
+      // Saldo 1000 - 200 pendientes + 200 de la solicitud que se corrige.
+      expect(screen.getByTestId('available-balance')).toHaveTextContent('1000');
+    });
+
+    it('ignores ?correct= when the request is no longer pending', () => {
+      useAuth.mockReturnValue(mockAuth);
+      useInvestorData.mockReturnValue(mockData);
+      useInvestorHistory.mockReturnValue({
+        data: [{ ...pendingWithdrawal, status: 'COMPLETED' }],
+        loading: false,
+        error: null,
+      });
+      renderPage(<RequestsPage />, { initialEntries: ['/requests?correct=request_abc-123'] });
+
+      expect(screen.getByText('WithdrawalForm')).toBeInTheDocument();
+      expect(screen.queryByTestId('correction-id')).not.toBeInTheDocument();
+    });
+
+    it('shows a toast and the history after the correction is sent', async () => {
+      useAuth.mockReturnValue(mockAuth);
+      useInvestorData.mockReturnValue(mockData);
+      useInvestorHistory.mockReturnValue({
+        data: [pendingWithdrawal],
+        loading: false,
+        error: null,
+      });
+      renderPage(<RequestsPage />, { initialEntries: ['/requests?correct=request_abc-123'] });
+
+      await act(async () => {
+        await userEvent.click(screen.getByRole('button', { name: 'mock-correction-done' }));
+      });
+
+      expect(screen.getByText('Solicitud corregida')).toBeInTheDocument();
+      expect(
+        screen.getByText('La solicitud de retiro quedó en USD 300,00. La anterior fue cancelada.'),
+      ).toBeInTheDocument();
+      expect(screen.queryByText('WithdrawalForm')).not.toBeInTheDocument();
+    });
   });
 });

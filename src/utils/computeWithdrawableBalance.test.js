@@ -29,6 +29,18 @@ describe('computeWithdrawableBalance', () => {
     expect(result.availableForWithdrawal).toBe(800);
   });
 
+  it('does not hold back cancelled withdrawals', () => {
+    const result = computeWithdrawableBalance({
+      portfolioBalance: 1000,
+      history: [
+        { id: 'request_1', movement: 'WITHDRAWAL', status: 'CANCELLED', amount: 300 },
+        { id: 'request_2', movement: 'WITHDRAWAL', status: 'PENDING', amount: 100 },
+      ],
+    });
+    expect(result.pendingWithdrawals).toBe(100);
+    expect(result.availableForWithdrawal).toBe(900);
+  });
+
   it('never returns negative available balance', () => {
     const result = computeWithdrawableBalance({
       portfolioBalance: 100,

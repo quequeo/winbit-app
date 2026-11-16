@@ -488,4 +488,120 @@ describe('WithdrawalForm', () => {
 
     expect(await screen.findByText('Retiro solicitado')).toBeInTheDocument();
   });
+
+  describe('correcting a pending request', () => {
+    const correction = {
+      id: 'request_9a8b-uuid',
+      movement: 'WITHDRAWAL',
+      amount: 80,
+      status: 'PENDING',
+      date: '2026-11-03T12:00:00Z',
+      method: 'USDT',
+      network: 'TRC20',
+      walletAddress: 'TXoriginal',
+      lemontag: null,
+    };
+
+    it('prefills the original values and shows the correction note', () => {
+      renderWithQuery(
+        <WithdrawalForm userEmail="t@e.com" currentBalance={100} correction={correction} />,
+      );
+
+      expect(screen.getByTestId('request-correction-note')).toHaveTextContent(
+        'Estás corrigiendo la solicitud de retiro de USD 80,00 del 3 Nov 2026.',
+      );
+      expect(screen.getByLabelText(/Monto/)).toHaveValue(80);
+      expect(screen.getByLabelText(/Método/)).toHaveTextContent('USDT');
+      expect(screen.getByLabelText(/Red/)).toHaveTextContent(/TRC20/);
+      expect(screen.getByLabelText(/Dirección de wallet/)).toHaveValue('TXoriginal');
+      expect(screen.getByRole('button', { name: /Enviar corrección/ })).toBeInTheDocument();
+    });
+
+    it('submits with replacesRequestId and reports the correction instead of the new-request modal', async () => {
+      getWithdrawalFeePreview.mockResolvedValueOnce(defaultPreview);
+      createInvestorRequest.mockResolvedValueOnce({ data: { id: 'new-uuid' }, error: null });
+      const onCorrectionDone = vi.fn();
+
+      const { container } = renderWithQuery(
+        <WithdrawalForm
+          userEmail="t@e.com"
+          currentBalance={100}
+          correction={correction}
+          onCorrectionDone={onCorrectionDone}
+        />,
+      );
+
+      fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '60' } });
+      fireEvent.submit(container.querySelector('form'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Confirmar solicitud' }));
+
+      await waitFor(() => {
+        expect(createInvestorRequest).toHaveBeenCalledWith({
+          email: 't@e.com',
+          type: 'WITHDRAWAL',
+          amount: 60,
+          method: 'USDT',
+          network: 'TRC20',
+          walletAddress: 'TXoriginal',
+          lemontag: null,
+          replacesRequestId: '9a8b-uuid',
+        });
+      });
+      await waitFor(() =>
+        expect(onCorrectionDone).toHaveBeenCalledWith({
+          amount: 60,
+          request: { id: 'new-uuid' },
+        }),
+      );
+      expect(screen.queryByText('Retiro solicitado')).not.toBeInTheDocument();
+    });
+
+    it('shows the backend message when the original was already processed', async () => {
+      getWithdrawalFeePreview.mockResolvedValueOnce(defaultPreview);
+      createInvestorRequest.mockResolvedValueOnce({
+        data: null,
+        error: 'La solicitud original ya fue procesada y no se puede corregir',
+      });
+      const onCorrectionDone = vi.fn();
+
+      const { container } = renderWithQuery(
+        <WithdrawalForm
+          userEmail="t@e.com"
+          currentBalance={100}
+          correction={correction}
+          onCorrectionDone={onCorrectionDone}
+        />,
+      );
+
+      fireEvent.submit(container.querySelector('form'));
+      await waitFor(() => {
+        expect(screen.getByText('Confirmar retiro')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Confirmar solicitud' }));
+
+      expect(
+        await screen.findByText('La solicitud original ya fue procesada y no se puede corregir'),
+      ).toBeInTheDocument();
+      expect(onCorrectionDone).not.toHaveBeenCalled();
+    });
+
+    it('calls onCorrectionDismiss from the note', () => {
+      const onCorrectionDismiss = vi.fn();
+      renderWithQuery(
+        <WithdrawalForm
+          userEmail="t@e.com"
+          currentBalance={100}
+          correction={correction}
+          onCorrectionDismiss={onCorrectionDismiss}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Descartar corrección' }));
+      expect(onCorrectionDismiss).toHaveBeenCalled();
+    });
+  });
 });

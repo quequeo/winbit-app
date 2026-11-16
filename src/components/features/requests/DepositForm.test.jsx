@@ -303,6 +303,122 @@ describe('DepositForm', () => {
     expect(screen.getByLabelText(/Método/)).toHaveTextContent('USDT TRC20');
   });
 
+  describe('correcting a pending request', () => {
+    const correction = {
+      id: 'request_dep-uuid',
+      movement: 'DEPOSIT',
+      amount: 1500,
+      status: 'PENDING',
+      date: '2026-11-04T15:00:00Z',
+      method: 'USDT',
+      network: 'TRC20',
+      attachmentUrl: 'https://example.com/receipts/original.jpg',
+    };
+
+    it('prefills amount, method and the original receipt', () => {
+      renderWithQuery(
+        <DepositForm
+          userEmail="t@e.com"
+          depositOptions={mockDepositOptions}
+          selectedOptionId="1"
+          correction={correction}
+        />,
+      );
+
+      expect(screen.getByTestId('request-correction-note')).toHaveTextContent(
+        'Estás corrigiendo la solicitud de depósito de USD 1.500,00 del 4 Nov 2026.',
+      );
+      expect(screen.getByLabelText(/Monto/)).toHaveValue(1500);
+      expect(screen.getByLabelText(/Método/)).toHaveTextContent('USDT TRC20');
+      expect(
+        screen.getByText(
+          'Se usa el comprobante de la solicitud original. Si subís otro, lo reemplaza.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('reuses the original attachmentUrl and sends replacesRequestId as the bare UUID', async () => {
+      createInvestorRequest.mockResolvedValueOnce({ data: { id: 'new-uuid' }, error: null });
+      const onCorrectionDone = vi.fn();
+      const { container } = renderWithQuery(
+        <DepositForm
+          userEmail="t@e.com"
+          depositOptions={mockDepositOptions}
+          correction={correction}
+          onCorrectionDone={onCorrectionDone}
+        />,
+      );
+
+      fireEvent.change(screen.getByLabelText(/Monto/), { target: { value: '1200' } });
+      fireEvent.submit(container.querySelector('form'));
+
+      await waitFor(() => {
+        expect(createInvestorRequest).toHaveBeenCalledWith({
+          email: 't@e.com',
+          type: 'DEPOSIT',
+          amount: 1200,
+          method: 'USDT',
+          network: null,
+          transactionHash: null,
+          attachmentUrl: 'https://example.com/receipts/original.jpg',
+          replacesRequestId: 'dep-uuid',
+        });
+      });
+      expect(uploadImage).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(onCorrectionDone).toHaveBeenCalledWith({
+          amount: 1200,
+          request: { id: 'new-uuid' },
+        }),
+      );
+      expect(screen.queryByText('Depósito informado')).not.toBeInTheDocument();
+    });
+
+    it('uploads and sends a new receipt when the investor replaces it', async () => {
+      uploadImage.mockResolvedValueOnce({
+        url: 'https://example.com/receipts/new.jpg',
+        error: null,
+      });
+      createInvestorRequest.mockResolvedValueOnce({ data: { id: 'new-uuid' }, error: null });
+      const { container } = renderWithQuery(
+        <DepositForm
+          userEmail="t@e.com"
+          depositOptions={mockDepositOptions}
+          correction={correction}
+        />,
+      );
+
+      const file = new File(['img'], 'new.jpg', { type: 'image/jpeg' });
+      fireEvent.change(container.querySelector('input[type="file"]'), {
+        target: { files: [file] },
+      });
+      fireEvent.submit(container.querySelector('form'));
+
+      await waitFor(() => {
+        expect(createInvestorRequest).toHaveBeenCalledWith(
+          expect.objectContaining({
+            attachmentUrl: 'https://example.com/receipts/new.jpg',
+            replacesRequestId: 'dep-uuid',
+          }),
+        );
+      });
+    });
+
+    it('requires a receipt when the original request had none', async () => {
+      const { container } = renderWithQuery(
+        <DepositForm
+          userEmail="t@e.com"
+          depositOptions={mockDepositOptions}
+          correction={{ ...correction, attachmentUrl: null }}
+        />,
+      );
+
+      fireEvent.submit(container.querySelector('form'));
+      expect(await screen.findByRole('alert')).toBeInTheDocument();
+      expect(createInvestorRequest).not.toHaveBeenCalled();
+    });
+  });
+
   it('falls back to hardcoded methods when no deposit options', () => {
     renderWithQuery(<DepositForm userEmail="t@e.com" depositOptions={[]} />);
 
