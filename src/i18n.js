@@ -90,6 +90,18 @@ const resources = {
         documentation: 'Documentación',
         notifications: 'Notificaciones',
       },
+      install: {
+        banner: {
+          title: 'Instalá la app de Winbit',
+          subtitle: 'Entrá más rápido desde el ícono en tu celular, como cualquier otra app.',
+          ios: 'En el iPhone: tocá Compartir y después "Agregar a inicio".',
+          guide: 'Agregala a la pantalla de inicio de tu celular en dos pasos.',
+          install: 'Instalar',
+          howTo: 'Ver cómo',
+          later: 'Ahora no',
+          close: 'Cerrar',
+        },
+      },
       auth: {
         logout: 'Salir',
         signIn: 'Ingresar',
@@ -879,6 +891,18 @@ const resources = {
         reports: 'Reports',
         documentation: 'Documentation',
         notifications: 'Notifications',
+      },
+      install: {
+        banner: {
+          title: 'Install the Winbit app',
+          subtitle: 'Open it faster from the icon on your phone, like any other app.',
+          ios: 'On iPhone: tap Share and then "Add to Home Screen".',
+          guide: 'Add it to your phone home screen in two steps.',
+          install: 'Install',
+          howTo: 'See how',
+          later: 'Not now',
+          close: 'Close',
+        },
       },
       auth: {
         logout: 'Logout',

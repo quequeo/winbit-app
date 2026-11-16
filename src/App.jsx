@@ -8,6 +8,7 @@ import { Spinner } from './components/ui/Spinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider } from './components/ui/ToastProvider';
 import { RequestNotificationsProvider } from './components/features/requests/RequestNotificationsProvider';
+import { InstallAppBanner } from './components/features/install/InstallAppBanner';
 
 const LoginPage = lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() =>
@@ -72,6 +73,7 @@ export const App = () => {
               </Suspense>
             </div>
           </RequestNotificationsProvider>
+          <InstallAppBanner />
         </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>
