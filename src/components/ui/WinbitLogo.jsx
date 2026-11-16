@@ -1,5 +1,6 @@
-const LOGO_SRC = '/images/login/logo-winbit.png';
+const LOGO_SRC = '/images/login/logo-winbit-fino.png';
 
+// Logo oficial fino (06_Marca/Logo_oficial_fino, versión fondo oscuro).
 // The artwork already includes the "GESTIÓN ACTIVA EN USD" descriptor, so sizes are
 // tuned to keep that second line readable without outgrowing the 3.5rem header.
 export const WinbitLogo = ({ className = '', centered = false, size = 'header' }) => {
@@ -15,8 +16,8 @@ export const WinbitLogo = ({ className = '', centered = false, size = 'header' }
         src={LOGO_SRC}
         alt="Winbit"
         className={`${heights[size] ?? heights.header} w-auto object-contain`}
-        width={662}
-        height={207}
+        width={1448}
+        height={348}
       />
     </div>
   );

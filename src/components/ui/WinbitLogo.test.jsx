@@ -7,7 +7,7 @@ describe('WinbitLogo', () => {
     render(<WinbitLogo />);
     const img = screen.getByAltText('Winbit');
     expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute('src', '/images/login/logo-winbit.png');
+    expect(img).toHaveAttribute('src', '/images/login/logo-winbit-fino.png');
   });
 
   it('does not render a separate tagline, since the artwork already includes it', () => {
