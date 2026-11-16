@@ -177,6 +177,10 @@ export const getInvestorHistory = async (email) => {
         newBalance: item.newBalance ?? item.new_balance ?? null,
         status: item.status,
         method: item.method ?? null,
+        network: item.network ?? null,
+        walletAddress: item.walletAddress ?? item.wallet_address ?? null,
+        lemontag: item.lemontag ?? null,
+        cancelledAt: item.cancelledAt ?? item.cancelled_at ?? null,
         tradingFeePeriodLabel: item.tradingFeePeriodLabel ?? null,
         tradingFeePercentage: item.tradingFeePercentage ?? null,
         tradingFeeSource: item.tradingFeeSource ?? null,
@@ -319,16 +323,6 @@ export const getPaymentMethods = async (flow = 'withdrawal') => {
 };
 
 /**
- * Crea una solicitud de depósito o retiro
- * @param {object} requestData - Datos de la solicitud
- * @param {string} requestData.investorEmail - Email del inversor
- * @param {string} requestData.requestType - Tipo: 'DEPOSITO', 'RETIRO_PARCIAL', 'RETIRO_TOTAL'
- * @param {number} requestData.amount - Monto (0 para retiro total)
- * @param {string} requestData.walletType - Tipo de wallet (para depósitos)
- * @param {string} requestData.notes - Notas adicionales
- * @returns {Promise<{data: object | null, error: string | null}>}
- */
-/**
  * Calcula la comisión estimada de trading para un retiro (preview, sin crear nada)
  * @param {string} email - Email del inversor
  * @param {number} amount - Monto a retirar
@@ -353,16 +347,34 @@ export const getWithdrawalFeePreview = async (email, amount) => {
   }
 };
 
+/** Acepta el id de la solicitud (UUID) o el id de history (`request_<uuid>`). */
+const toRequestId = (value) => {
+  const raw = String(value ?? '').trim();
+  return raw.startsWith('request_') ? raw.slice('request_'.length) : raw;
+};
+
+/**
+ * Crea una solicitud de depósito o retiro.
+ * Con `replacesRequestId`, el backend crea la nueva y cancela la original (pendiente)
+ * en la misma operación. Si la original ya fue procesada responde 422 y no crea nada.
+ * @param {object} requestData - email, type, amount, method, network, walletAddress,
+ *   lemontag, transactionHash, attachmentUrl y, opcional, replacesRequestId
+ * @returns {Promise<{data: object | null, error: string | null}>}
+ */
 export const createInvestorRequest = async (requestData) => {
   try {
     const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/requests`;
+    const { replacesRequestId, ...rest } = requestData ?? {};
+    const payload = replacesRequestId
+      ? { ...rest, replacesRequestId: toRequestId(replacesRequestId) }
+      : rest;
 
     const response = await silentFetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestData),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -374,6 +386,46 @@ export const createInvestorRequest = async (requestData) => {
     return { data: result.data, error: null };
   } catch (error) {
     return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Cancela una solicitud pendiente del inversor.
+ * @param {string} email - Email del inversor
+ * @param {string} requestId - Id de la solicitud (acepta también `request_<id>`)
+ * @returns {Promise<{data: object | null, error: string | null, status: number | null}>}
+ *   status 422: la solicitud ya fue procesada. 404: no existe.
+ */
+export const cancelInvestorRequest = async (email, requestId) => {
+  try {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+    const id = toRequestId(requestId);
+    if (!id) {
+      throw new Error('Request id is required');
+    }
+
+    const url = `${API_BASE_URL}${PUBLIC_API_PREFIX}/requests/${encodeURIComponent(id)}/cancel`;
+    const response = await silentFetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        data: null,
+        error: errorData.error || `API Error: ${response.status}`,
+        status: response.status,
+      };
+    }
+
+    const result = await response.json();
+    return { data: result.data, error: null, status: response.status };
+  } catch (error) {
+    return { data: null, error: error.message, status: null };
   }
 };
 

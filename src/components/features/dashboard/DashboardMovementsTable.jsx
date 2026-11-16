@@ -6,6 +6,7 @@ import { formatUsdSignedDisplay } from '../../../utils/formatUsdDisplay';
 import { StatusBadge } from '../../ui/StatusBadge';
 import { EmptyState } from '../../ui/EmptyState';
 import { getDashboardMovementStatus } from '../../../utils/dashboardMovementStatus';
+import { PendingRequestActions } from '../requests/PendingRequestActions';
 
 const CapitalInIcon = () => (
   <div className="dashboard-movement-icon" aria-hidden>
@@ -51,6 +52,7 @@ const MovementListItem = ({ row, hidden, t }) => {
           </div>
         </div>
       </div>
+      <PendingRequestActions row={row} />
     </div>
   );
 };
@@ -120,6 +122,7 @@ export const DashboardMovementsTable = ({ movements, hidden }) => {
                           ) : null}
                           {t(row.descriptionKey)}
                         </span>
+                        <PendingRequestActions row={row} compact />
                       </td>
                       <td className="py-3 pr-3">
                         <StatusBadge label={status.label} variant={status.variant} />

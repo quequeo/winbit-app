@@ -106,6 +106,35 @@ describe('notifications', () => {
     expect(items[0].id).toBe(`recent-${NOTIFICATION_RECENT_LIMIT - 1}`);
   });
 
+  it('labels requests cancelled by the investor as cancelled, not rejected', () => {
+    const items = buildNotificationItems(
+      [
+        {
+          id: 'request_a',
+          movement: 'DEPOSIT',
+          status: 'CANCELLED',
+          amount: 100,
+          date: '2026-07-01T10:00:00.000Z',
+        },
+        {
+          id: 'request_b',
+          movement: 'WITHDRAWAL',
+          status: 'cancelled',
+          amount: 200,
+          date: '2026-07-02T10:00:00.000Z',
+        },
+      ],
+      t,
+    );
+
+    expect(items.map((item) => item.status)).toEqual(['CANCELLED', 'CANCELLED']);
+    expect(items.map((item) => item.title)).toEqual([
+      'notifications.items.withdrawalCancelled',
+      'notifications.items.depositCancelled',
+    ]);
+    expect(items.every((item) => item.statusLabel === 'common.status.cancelled')).toBe(true);
+  });
+
   it('hides dismissed notification ids', () => {
     dismissNotificationId('1');
     expect(getDismissedNotificationIds()).toContain('1');

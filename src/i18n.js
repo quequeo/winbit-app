@@ -189,6 +189,13 @@ const resources = {
           contract: 'Ver contrato',
           support: 'Contactar soporte',
         },
+        pendingRequests: {
+          title: 'Solicitudes en curso',
+          subtitle: 'Las recibimos y las estamos revisando. Te avisamos cuando estén procesadas.',
+          deposit: 'Solicitud de depósito',
+          withdrawal: 'Solicitud de retiro',
+          requestedAt: 'Enviada el {{date}}',
+        },
         recentMovements: {
           title: 'Movimientos de cuenta',
           date: 'Fecha',
@@ -500,6 +507,18 @@ const resources = {
         },
       },
       requests: {
+        notifications: {
+          depositApprovedTitle: 'Depósito acreditado',
+          depositApprovedMessage: 'Se acreditó tu depósito de {{amount}}.',
+          withdrawalApprovedTitle: 'Retiro procesado',
+          withdrawalApprovedMessage: 'Se procesó tu retiro de {{amount}}.',
+          depositRejectedTitle: 'Depósito rechazado',
+          depositRejectedMessage:
+            'Tu depósito de {{amount}} fue rechazado. Te escribimos por correo con el motivo.',
+          withdrawalRejectedTitle: 'Retiro rechazado',
+          withdrawalRejectedMessage:
+            'Tu retiro de {{amount}} fue rechazado. Te escribimos por correo con el motivo.',
+        },
         errors: {
           sendFailed: 'No se pudo enviar la solicitud. Intenta de nuevo.',
         },
@@ -525,6 +544,43 @@ const resources = {
           withdrawalTitle: 'Retiro solicitado',
           withdrawal:
             'La solicitud de retiro fue registrada correctamente.\n\nEl retiro será procesado en el próximo cierre operativo.\nUna vez completado, recibirás el comprobante correspondiente por correo electrónico.',
+        },
+        manage: {
+          actionsLabel: 'Acciones de la solicitud',
+          cancel: 'Cancelar solicitud',
+          correct: 'Corregir',
+          cancelConfirm: {
+            title: 'Cancelar solicitud',
+            deposit: '¿Cancelar la solicitud de depósito de {{amount}}? No se va a procesar.',
+            withdrawal: '¿Cancelar la solicitud de retiro de {{amount}}? No se va a procesar.',
+            confirm: 'Cancelar solicitud',
+            back: 'Volver',
+          },
+          cancelled: {
+            title: 'Solicitud cancelada',
+            deposit: 'La solicitud de depósito de {{amount}} fue cancelada.',
+            withdrawal: 'La solicitud de retiro de {{amount}} fue cancelada.',
+          },
+          errors: {
+            title: 'La solicitud no se canceló',
+            alreadyProcessed: 'La solicitud ya fue procesada y no se puede cancelar.',
+            cancelFailed: 'No se pudo cancelar la solicitud. Intentá de nuevo.',
+          },
+          correction: {
+            depositNote:
+              'Estás corrigiendo la solicitud de depósito de {{amount}} del {{date}}. Al enviarla, la anterior se cancela.',
+            withdrawalNote:
+              'Estás corrigiendo la solicitud de retiro de {{amount}} del {{date}}. Al enviarla, la anterior se cancela.',
+            dismiss: 'Descartar corrección',
+            keepReceipt:
+              'Se usa el comprobante de la solicitud original. Si subís otro, lo reemplaza.',
+            submit: 'Enviar corrección',
+            submitting: 'Enviando corrección...',
+            doneTitle: 'Solicitud corregida',
+            depositDone: 'La solicitud de depósito quedó en {{amount}}. La anterior fue cancelada.',
+            withdrawalDone:
+              'La solicitud de retiro quedó en {{amount}}. La anterior fue cancelada.',
+          },
         },
       },
       history: {
@@ -909,6 +965,14 @@ const resources = {
           contract: 'View contract',
           support: 'Contact support',
         },
+        pendingRequests: {
+          title: 'Requests in progress',
+          subtitle:
+            "We received them and we're reviewing them. We'll let you know once they're processed.",
+          deposit: 'Deposit request',
+          withdrawal: 'Withdrawal request',
+          requestedAt: 'Sent on {{date}}',
+        },
         recentMovements: {
           title: 'Account movements',
           date: 'Date',
@@ -1218,6 +1282,18 @@ const resources = {
         },
       },
       requests: {
+        notifications: {
+          depositApprovedTitle: 'Deposit credited',
+          depositApprovedMessage: 'Your deposit of {{amount}} was credited.',
+          withdrawalApprovedTitle: 'Withdrawal processed',
+          withdrawalApprovedMessage: 'Your withdrawal of {{amount}} was processed.',
+          depositRejectedTitle: 'Deposit rejected',
+          depositRejectedMessage:
+            'Your deposit of {{amount}} was rejected. We will email you the reason.',
+          withdrawalRejectedTitle: 'Withdrawal rejected',
+          withdrawalRejectedMessage:
+            'Your withdrawal of {{amount}} was rejected. We will email you the reason.',
+        },
         errors: {
           sendFailed: 'Could not send the request. Please try again.',
         },
@@ -1243,6 +1319,43 @@ const resources = {
           withdrawalTitle: 'Withdrawal requested',
           withdrawal:
             'The withdrawal request was registered successfully.\n\nThe withdrawal will be processed at the next operational close.\nOnce completed, you will receive the receipt by email.',
+        },
+        manage: {
+          actionsLabel: 'Request actions',
+          cancel: 'Cancel request',
+          correct: 'Correct',
+          cancelConfirm: {
+            title: 'Cancel request',
+            deposit: 'Cancel the deposit request for {{amount}}? It will not be processed.',
+            withdrawal: 'Cancel the withdrawal request for {{amount}}? It will not be processed.',
+            confirm: 'Cancel request',
+            back: 'Go back',
+          },
+          cancelled: {
+            title: 'Request cancelled',
+            deposit: 'The deposit request for {{amount}} was cancelled.',
+            withdrawal: 'The withdrawal request for {{amount}} was cancelled.',
+          },
+          errors: {
+            title: 'The request was not cancelled',
+            alreadyProcessed: 'The request was already processed and cannot be cancelled.',
+            cancelFailed: 'Could not cancel the request. Please try again.',
+          },
+          correction: {
+            depositNote:
+              'You are correcting the deposit request for {{amount}} from {{date}}. When you send it, the previous one is cancelled.',
+            withdrawalNote:
+              'You are correcting the withdrawal request for {{amount}} from {{date}}. When you send it, the previous one is cancelled.',
+            dismiss: 'Discard correction',
+            keepReceipt:
+              'The receipt from the original request is used. Uploading another one replaces it.',
+            submit: 'Send correction',
+            submitting: 'Sending correction...',
+            doneTitle: 'Request corrected',
+            depositDone: 'The deposit request is now {{amount}}. The previous one was cancelled.',
+            withdrawalDone:
+              'The withdrawal request is now {{amount}}. The previous one was cancelled.',
+          },
         },
       },
       history: {

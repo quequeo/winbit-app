@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Check, Clock, Grid3x3, X, ArrowDownToLine } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Ban, Check, Clock, Grid3x3, X, ArrowDownToLine } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useInvestorData } from '../hooks/useInvestorData';
 import { useInvestorHistory } from '../hooks/useInvestorHistory';
 import { WithdrawalForm } from '../components/features/requests/WithdrawalForm';
+import { PendingRequestActions } from '../components/features/requests/PendingRequestActions';
+import { useToast } from '../components/ui/ToastProvider';
 import { PageTabs } from '../components/ui/PageTabs';
 import { FilterChips } from '../components/ui/FilterChips';
 import { AvailableBalanceCard } from '../components/ui/AvailableBalanceCard';
@@ -20,6 +22,8 @@ import {
 } from '../utils/transactionHelpers';
 import { getActivityBalanceImpact } from '../utils/accountActivity';
 import { computeWithdrawableBalance } from '../utils/computeWithdrawableBalance';
+import { CORRECTION_PARAM, findCorrectableRequest } from '../utils/requestHistory';
+import { formatUsdDisplay } from '../utils/formatUsdDisplay';
 import {
   isWithdrawalHistoryDemoEnabled,
   withdrawalHistoryDemoData,
@@ -29,6 +33,7 @@ const statusIcon = (status) => {
   const key = String(status ?? '').toUpperCase();
   if (key === 'COMPLETED') return Check;
   if (key === 'REJECTED') return X;
+  if (key === 'CANCELLED') return Ban;
   return Clock;
 };
 
@@ -37,7 +42,8 @@ export const RequestsPage = () => {
   const { data, loading } = useInvestorData(userEmail);
   const { data: history, loading: historyLoading } = useInvestorHistory(userEmail);
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState(() =>
     searchParams.get('tab') === 'history' ? 'history' : 'form',
   );
@@ -46,6 +52,42 @@ export const RequestsPage = () => {
   useEffect(() => {
     if (searchParams.get('tab') === 'history') setTab('history');
   }, [searchParams]);
+
+  // Corrección de una solicitud de retiro pendiente (?correct=request_<uuid>).
+  const correctionParam = searchParams.get(CORRECTION_PARAM);
+  const correction = useMemo(
+    () => findCorrectableRequest(history, correctionParam, 'WITHDRAWAL'),
+    [history, correctionParam],
+  );
+  const correctionRowId = correction?.id ?? null;
+
+  useEffect(() => {
+    if (correctionRowId) setTab('form');
+  }, [correctionRowId]);
+
+  const clearCorrection = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(CORRECTION_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [setSearchParams]);
+
+  const handleCorrectionDone = ({ amount }) => {
+    showToast({
+      title: t('requests.manage.correction.doneTitle'),
+      message: t('requests.manage.correction.withdrawalDone', {
+        amount: formatUsdDisplay(amount),
+      }),
+      type: 'success',
+      duration: 6000,
+    });
+    clearCorrection();
+    setTab('history');
+  };
 
   const withdrawals = useMemo(() => {
     const apiRows = (Array.isArray(history) ? history : [])
@@ -93,6 +135,11 @@ export const RequestsPage = () => {
     [data?.balance, history],
   );
 
+  // Al corregir, el monto de la solicitud original deja de estar reservado.
+  const withdrawableForForm =
+    balanceBreakdown.availableForWithdrawal +
+    (correction ? Math.abs(Number(correction.amount) || 0) : 0);
+
   if (loading && tab === 'form') {
     return (
       <div className="winbit-page max-w-3xl mx-auto lg:max-w-none">
@@ -127,7 +174,10 @@ export const RequestsPage = () => {
             userName={data?.name || user?.displayName || 'Investor'}
             userEmail={userEmail}
             currentBalance={data?.balance || 0}
-            availableBalance={balanceBreakdown.availableForWithdrawal}
+            availableBalance={withdrawableForForm}
+            correction={correction}
+            onCorrectionDone={handleCorrectionDone}
+            onCorrectionDismiss={clearCorrection}
           />
         </div>
       )}
@@ -175,6 +225,7 @@ export const RequestsPage = () => {
                     previousBalance={r.previousBalance}
                     newBalance={r.newBalance}
                     balanceImpactLabel={getActivityBalanceImpact(r, t)}
+                    actions={<PendingRequestActions row={r} />}
                   />
                 );
               })}

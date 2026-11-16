@@ -16,6 +16,7 @@ import { DashboardQuickActions } from '../components/features/dashboard/Dashboar
 import { DashboardMovementsTable } from '../components/features/dashboard/DashboardMovementsTable';
 import { DashboardOperationsTable } from '../components/features/dashboard/DashboardOperationsTable';
 import { DashboardSkeleton } from '../components/features/dashboard/DashboardSkeleton';
+import { DashboardPendingRequests } from '../components/features/dashboard/DashboardPendingRequests';
 import { DisclaimerCard } from '../components/ui/DisclaimerCard';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
@@ -161,6 +162,8 @@ export const DashboardPage = () => {
           </div>
           <DashboardStatusBar lastUpdateLabel={vm.lastUpdateLabel} />
         </header>
+
+        <DashboardPendingRequests history={historyData} hidden={isBalanceHidden} />
 
         <div className="dashboard-section dashboard-section--hero">
           <DashboardPortfolioCard

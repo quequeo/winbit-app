@@ -38,4 +38,15 @@ describe('getDashboardMovementStatus', () => {
     expect(status.label).toBe('Rechazado');
     expect(status.variant).toBe('error');
   });
+
+  it.each(['CANCELLED', 'cancelled'])(
+    'maps %s deposits and withdrawals to Cancelado with neutral variant',
+    (raw) => {
+      for (const movement of ['DEPOSIT', 'WITHDRAWAL']) {
+        const status = getDashboardMovementStatus({ movement, status: raw }, t);
+        expect(status.label).toBe('Cancelado');
+        expect(status.variant).toBe('neutral');
+      }
+    },
+  );
 });

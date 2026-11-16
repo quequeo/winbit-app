@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Clock, ArrowRight, Mail, DollarSign } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Input } from '../../ui/Input';
@@ -13,7 +14,9 @@ import { DisclaimerCard } from '../../ui/DisclaimerCard';
 import { createInvestorRequest, getWithdrawalFeePreview } from '../../../services/api';
 import { usePaymentMethods } from '../../../hooks/usePaymentMethods';
 import { formatCurrency } from '../../../utils/formatCurrency';
+import { parseRequestIdFromHistoryId } from '../../../utils/requestHistory';
 import { useTranslation } from 'react-i18next';
+import { RequestCorrectionNote } from './RequestCorrectionNote';
 
 const CRYPTO_NETWORKS = [
   { value: 'BEP20', label: 'BEP20 (BSC)' },
@@ -22,7 +25,15 @@ const CRYPTO_NETWORKS = [
   { value: 'TRC20', label: 'TRC20 (Tron)' },
 ];
 
-export const WithdrawalForm = ({ userEmail, currentBalance, availableBalance }) => {
+export const WithdrawalForm = ({
+  userEmail,
+  currentBalance,
+  availableBalance,
+  correction = null,
+  onCorrectionDone,
+  onCorrectionDismiss,
+}) => {
+  const queryClient = useQueryClient();
   const withdrawable = availableBalance ?? currentBalance;
   const [type, setType] = useState('partial');
   const [method, setMethod] = useState('USDT');
@@ -54,6 +65,36 @@ export const WithdrawalForm = ({ userEmail, currentBalance, availableBalance }) 
       setMethod(paymentMethods[0].code);
     }
   }, [paymentMethods, method]);
+
+  // Precarga los datos de la solicitud a corregir una sola vez por solicitud
+  // (los refetch del historial no pisan lo que se editó).
+  const appliedCorrectionRef = useRef(null);
+  useEffect(() => {
+    const correctionId = correction?.id ?? null;
+    const previousId = appliedCorrectionRef.current;
+    if (previousId === correctionId) return;
+    appliedCorrectionRef.current = correctionId;
+    setMessage(null);
+
+    if (!correction) {
+      // Se descartó la corrección: no dejar precargados los datos de la solicitud original.
+      if (previousId) {
+        setAmount('');
+        setNetwork('');
+        setWalletAddress('');
+        setLemontag('');
+      }
+      return;
+    }
+
+    const originalAmount = Math.abs(Number(correction.amount) || 0);
+    setType('partial');
+    setAmount(originalAmount > 0 ? String(originalAmount) : '');
+    if (correction.method) setMethod(String(correction.method).toUpperCase());
+    setNetwork(correction.network ? String(correction.network).toUpperCase() : '');
+    setWalletAddress(correction.walletAddress ?? '');
+    setLemontag(correction.lemontag ?? '');
+  }, [correction]);
 
   const methodOptions = useMemo(
     () =>
@@ -115,12 +156,21 @@ export const WithdrawalForm = ({ userEmail, currentBalance, availableBalance }) 
       network: selectedMethod?.requiresNetwork ? network : null,
       walletAddress: selectedMethod?.requiresWalletAddress ? walletAddress.trim() : null,
       lemontag: selectedMethod?.requiresLemontag ? lemontag.trim() : null,
+      ...(correction ? { replacesRequestId: parseRequestIdFromHistoryId(correction.id) } : {}),
     });
 
     setLoading(false);
     setConfirmModal(null);
 
-    if (apiResult.data) {
+    if (apiResult.data && correction) {
+      setAmount('');
+      setType('partial');
+      setNetwork('');
+      setWalletAddress('');
+      setLemontag('');
+      await queryClient.invalidateQueries({ queryKey: ['investor'] });
+      onCorrectionDone?.({ amount: withdrawalAmount, request: apiResult.data });
+    } else if (apiResult.data) {
       setModal({
         type: 'success',
         title: t('requests.registered.withdrawalTitle'),
@@ -213,6 +263,14 @@ export const WithdrawalForm = ({ userEmail, currentBalance, availableBalance }) 
 
       <Card title={t('withdrawals.formTitle')} className="withdrawal-form-card">
         <form onSubmit={handleSubmit} className="withdrawal-form space-y-6">
+          {correction ? (
+            <RequestCorrectionNote
+              request={correction}
+              type="WITHDRAWAL"
+              onDismiss={loading ? undefined : onCorrectionDismiss}
+            />
+          ) : null}
+
           {methodsError && (
             <p className="text-xs text-text-muted" role="status">
               {t('withdrawals.form.methodsLoadWarning')}
@@ -375,7 +433,11 @@ export const WithdrawalForm = ({ userEmail, currentBalance, availableBalance }) 
             className="w-full withdrawal-submit-btn"
           >
             <span className="withdrawal-submit-btn__text">
-              {loading ? t('common.sending') : t('common.sendRequest')}
+              {loading
+                ? t('common.sending')
+                : correction
+                  ? t('requests.manage.correction.submit')
+                  : t('common.sendRequest')}
             </span>
             {!loading ? (
               <ArrowRight className="withdrawal-submit-btn__arrow" strokeWidth={1.75} aria-hidden />

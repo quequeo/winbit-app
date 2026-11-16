@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { HistoryPage } from './HistoryPage';
 import { within } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastProvider } from '../components/ui/ToastProvider';
 
 vi.mock('../hooks/useAuth', () => ({
   useAuth: () => ({ user: { email: 'test@example.com' } }),
@@ -437,5 +439,55 @@ describe('HistoryPage', () => {
     expect(
       screen.getAllByText(/Comisión de gestión.*30%.*Retiro.*15\.000,00/i).length,
     ).toBeGreaterThan(0);
+  });
+
+  it('shows Corregir and Cancelar solicitud for pending requests and a grey pill for cancelled ones', () => {
+    vi.mocked(useInvestorHistoryModule.useInvestorHistory).mockReturnValue({
+      data: [
+        {
+          id: 'request_pend-1',
+          code: '001',
+          date: '2026-11-03T12:00:00.000Z',
+          movement: 'WITHDRAWAL',
+          amount: 500,
+          previousBalance: null,
+          newBalance: null,
+          status: 'PENDING',
+        },
+        {
+          id: 'request_canc-1',
+          code: '001',
+          date: '2026-11-02T12:00:00.000Z',
+          movement: 'DEPOSIT',
+          amount: 300,
+          previousBalance: null,
+          newBalance: null,
+          status: 'CANCELLED',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <MemoryRouter>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <HistoryPage />
+          </ToastProvider>
+        </QueryClientProvider>
+      </MemoryRouter>,
+    );
+
+    const mobile = screen.getByTestId('history-mobile');
+    expect(within(mobile).getAllByRole('button', { name: 'Corregir' })).toHaveLength(1);
+    expect(within(mobile).getAllByRole('button', { name: 'Cancelar solicitud' })).toHaveLength(1);
+    expect(within(mobile).getByText('Depósito cancelado')).toBeInTheDocument();
+
+    const desktop = screen.getByTestId('history-desktop');
+    expect(within(desktop).getAllByRole('button', { name: 'Corregir' })).toHaveLength(1);
+    expect(within(desktop).getByText('Cancelado')).toHaveClass('badge-cancelled');
   });
 });

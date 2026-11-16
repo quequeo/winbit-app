@@ -56,3 +56,33 @@ export const resolveDefaultDepositFormMethodId = (methodOptions, selectedOptionI
   }
   return methodOptions[0].value;
 };
+
+const optionNetwork = (option) =>
+  String(option?.details?.network ?? option?.network ?? '')
+    .trim()
+    .toUpperCase();
+
+/**
+ * Opción del formulario que corresponde a una solicitud ya enviada (para corregirla):
+ * mismo método de API y, si hay varias, la de la misma red. Devuelve el `value` o null.
+ */
+export const findDepositFormMethodIdForRequest = (methodOptions, request) => {
+  const method = String(request?.method ?? '')
+    .trim()
+    .toUpperCase();
+  if (!method || !Array.isArray(methodOptions)) return null;
+
+  const candidates = methodOptions.filter(
+    (opt) => String(opt?.apiMethod ?? '').toUpperCase() === method,
+  );
+  if (!candidates.length) return null;
+
+  const network = String(request?.network ?? '')
+    .trim()
+    .toUpperCase();
+  if (network) {
+    const sameNetwork = candidates.find((opt) => optionNetwork(opt.option) === network);
+    if (sameNetwork) return sameNetwork.value;
+  }
+  return candidates[0].value;
+};

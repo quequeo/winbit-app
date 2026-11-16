@@ -216,6 +216,25 @@ describe('accountActivity', () => {
     ).toBe('—');
   });
 
+  it('maps CANCELLED deposit and withdrawal requests to their cancelled titles', () => {
+    const tKeys = (key) => key;
+    expect(getActivityCardTitle({ movement: 'DEPOSIT', status: 'CANCELLED' }, tKeys)).toBe(
+      'history.cardTitle.depositCancelled',
+    );
+    expect(getActivityCardTitle({ movement: 'WITHDRAWAL', status: 'CANCELLED' }, tKeys)).toBe(
+      'history.cardTitle.withdrawalCancelled',
+    );
+  });
+
+  it('shows unchanged balance for CANCELLED requests', () => {
+    expect(
+      getActivityBalanceImpact(
+        { movement: 'WITHDRAWAL', status: 'CANCELLED', amount: 500, previousBalance: null },
+        t,
+      ),
+    ).toBe('Saldo sin cambios');
+  });
+
   it('returns pending balance impact when balances are missing', () => {
     expect(
       getActivityBalanceImpact({ previousBalance: null, newBalance: null, status: 'PENDING' }, t),

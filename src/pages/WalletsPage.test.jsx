@@ -1,20 +1,25 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { WalletsPage } from './WalletsPage';
+import { ToastProvider } from '../components/ui/ToastProvider';
+import { createInvestorRequest } from '../services/api';
 
-const renderWithQuery = (ui) => {
+const renderWithQuery = (ui, { initialEntries = ['/wallets'] } = {}) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <MemoryRouter
+      initialEntries={initialEntries}
       future={{
         v7_startTransition: true,
         v7_relativeSplatPath: true,
       }}
     >
-      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>{ui}</ToastProvider>
+      </QueryClientProvider>
     </MemoryRouter>,
   );
 };
@@ -32,6 +37,7 @@ vi.mock('../utils/uploadImage', () => ({
 vi.mock('../services/api', () => ({
   createInvestorRequest: vi.fn(),
   getWithdrawalFeePreview: vi.fn(),
+  cancelInvestorRequest: vi.fn(),
 }));
 
 vi.mock('../hooks/useAuth', () => ({
@@ -163,6 +169,69 @@ describe('WalletsPage', () => {
       await userEvent.click(screen.getByText('Historial'));
     });
     expect(screen.getAllByText('USD 1.000,00').length).toBeGreaterThan(0);
+
+    mockUseInvestorHistory.mockReturnValue({
+      data: [],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+  });
+
+  it('opens the deposit form prefilled to correct a pending request', async () => {
+    mockUseInvestorHistory.mockReturnValue({
+      data: [
+        {
+          id: 'request_dep-1',
+          movement: 'DEPOSIT',
+          amount: 750,
+          date: '2026-01-05T12:00:00Z',
+          status: 'PENDING',
+          method: 'USDT',
+          network: 'TRC20',
+          attachmentUrl: 'https://example.com/original.jpg',
+        },
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+    createInvestorRequest.mockResolvedValue({
+      data: { id: 'dep-2', status: 'PENDING' },
+      error: null,
+    });
+
+    renderWithQuery(<WalletsPage />, {
+      initialEntries: ['/wallets?tab=history&correct=request_dep-1'],
+    });
+
+    expect(await screen.findByTestId('request-correction-note')).toHaveTextContent(
+      'Estás corrigiendo la solicitud de depósito de USD 750,00 del 5 Jan 2026.',
+    );
+    expect(screen.getByLabelText(/Monto/i)).toHaveValue(750);
+    expect(screen.getByLabelText(/Método/i)).toHaveTextContent('USDT TRC20');
+    expect(
+      screen.getByText(
+        'Se usa el comprobante de la solicitud original. Si subís otro, lo reemplaza.',
+      ),
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Enviar corrección' }));
+    });
+
+    await waitFor(() =>
+      expect(createInvestorRequest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'DEPOSIT',
+          amount: 750,
+          method: 'USDT',
+          attachmentUrl: 'https://example.com/original.jpg',
+          replacesRequestId: 'dep-1',
+        }),
+      ),
+    );
+    expect(await screen.findByText('Solicitud corregida')).toBeInTheDocument();
 
     mockUseInvestorHistory.mockReturnValue({
       data: [],

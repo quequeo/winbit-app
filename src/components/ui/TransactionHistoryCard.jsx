@@ -8,6 +8,7 @@ const STATUS_BADGE = {
   COMPLETED: 'transaction-history-card__badge--completed',
   PENDING: 'transaction-history-card__badge--pending',
   REJECTED: 'transaction-history-card__badge--rejected',
+  CANCELLED: 'transaction-history-card__badge--cancelled',
 };
 
 const CIRCLED_BADGE_STATUSES = new Set(['COMPLETED', 'REJECTED']);
@@ -50,6 +51,7 @@ export const TransactionHistoryCard = ({
   balanceImpactLabel,
   secondaryActionLabel,
   onSecondaryAction,
+  actions = null,
 }) => {
   const statusKey = String(status ?? '').toUpperCase();
   const badgeCls = STATUS_BADGE[statusKey] ?? 'transaction-history-card__badge--pending';
@@ -106,6 +108,7 @@ export const TransactionHistoryCard = ({
           </span>
         </div>
       </div>
+      {actions}
     </article>
   );
 };
