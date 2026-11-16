@@ -9,6 +9,7 @@ import {
   getPendingRequests,
 } from '../../../utils/requestHistory';
 import { formatCurrency } from '../../../utils/formatCurrency';
+import { syncPush } from '../../../services/push';
 
 const NOTIFIED_KEY = 'winbit-notified-transitions';
 const SNAPSHOT_KEY_PREFIX = 'winbit-pending-requests:';
@@ -72,6 +73,12 @@ export const RequestNotificationsProvider = ({ children }) => {
       return pending.length > 0 ? POLL_MS : false;
     },
   });
+
+  // Si el inversor ya activó los avisos al celular en este dispositivo, se vuelve a
+  // registrar la suscripción al entrar (por si cambió). No pide permiso.
+  useEffect(() => {
+    if (isValidated && userEmail) syncPush(userEmail);
+  }, [isValidated, userEmail]);
 
   const pendingCount = useMemo(
     () => getPendingRequests(Array.isArray(history) ? history : []).length,

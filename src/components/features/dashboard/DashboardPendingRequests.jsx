@@ -6,6 +6,7 @@ import { getPendingRequests, isManageablePendingRequest } from '../../../utils/r
 import { getDashboardMovementStatus } from '../../../utils/dashboardMovementStatus';
 import { StatusBadge } from '../../ui/StatusBadge';
 import { PendingRequestActions } from '../requests/PendingRequestActions';
+import { EnablePushPrompt } from '../requests/EnablePushPrompt';
 
 /**
  * Solicitudes de depósito o retiro que el inversor ya envió y Winbit todavía no
@@ -60,6 +61,7 @@ export const DashboardPendingRequests = ({ history, hidden }) => {
           </div>
         );
       })}
+      <EnablePushPrompt />
     </div>
   );
 };

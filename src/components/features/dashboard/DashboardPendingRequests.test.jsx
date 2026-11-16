@@ -6,6 +6,10 @@ vi.mock('../requests/PendingRequestActions', () => ({
   PendingRequestActions: ({ row }) => <div data-testid={`actions-${row.id}`} />,
 }));
 
+vi.mock('../requests/EnablePushPrompt', () => ({
+  EnablePushPrompt: () => <div data-testid="enable-push-prompt" />,
+}));
+
 const rows = [
   {
     id: 'request_1',
@@ -26,6 +30,7 @@ describe('DashboardPendingRequests', () => {
     expect(screen.getByText('Solicitud de retiro')).toBeInTheDocument();
     expect(screen.getByText(/Enviada el 16 Nov 2026 - 10:32/)).toBeInTheDocument();
     expect(screen.getByTestId('actions-request_1')).toBeInTheDocument();
+    expect(screen.getByTestId('enable-push-prompt')).toBeInTheDocument();
     expect(screen.queryByText('Solicitud de depósito')).not.toBeInTheDocument();
   });
 
