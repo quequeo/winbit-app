@@ -7,11 +7,15 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import './index.css';
 import { getLegacyRedirectUrl } from './utils/legacyHostRedirect';
+import { initInstallPrompt } from './utils/installPrompt';
 
 const legacyRedirectUrl = getLegacyRedirectUrl(globalThis?.location);
 if (legacyRedirectUrl) {
   globalThis.location.replace(legacyRedirectUrl);
 }
+
+// Antes de montar React, para no perder el aviso de "se puede instalar" del navegador.
+initInstallPrompt();
 
 // Show [DEV] in the browser tab when running locally.
 const isLocalHost = ['localhost', '127.0.0.1', '0.0.0.0'].includes(globalThis?.location?.hostname);
