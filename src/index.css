@@ -2209,12 +2209,31 @@
     background: transparent;
   }
 
+  /* Una sola fila por operación: logo, contrato y dirección siempre a la misma
+     altura. Si no entra, se recorta el nombre del contrato, nunca la etiqueta. */
   .operating-asset-title-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     min-width: 0;
+  }
+
+  .operating-asset-title-row > * {
+    flex-shrink: 0;
+  }
+
+  .operating-asset-title-row > .operating-asset-title-row__name {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* En la lista del inicio en celular: sin puntos, para que entre el nombre completo. */
+  .operating-asset-title-row--compact .operating-asset-title-row__sep {
+    display: none;
   }
 
   .operating-asset-title-row__sep {
