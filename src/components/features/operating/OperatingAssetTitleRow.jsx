@@ -14,7 +14,9 @@ export const OperatingAssetTitleRow = ({
   const hasDirection = direction === 'LONG' || direction === 'SHORT';
 
   return (
-    <div className={`operating-asset-title-row${compact ? ' operating-asset-title-row--compact' : ''}`}>
+    <div
+      className={`operating-asset-title-row${compact ? ' operating-asset-title-row--compact' : ''}`}
+    >
       {badgeKey ? <AssetBadge asset={badgeKey} size={badgeSize} className="shrink-0" /> : null}
       {assetLabel ? (
         <>
