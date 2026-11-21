@@ -30,6 +30,7 @@ const OperationListItem = ({ row, hidden, t, onOpen }) => {
             shortLabel={t('dashboard.recentOperations.short')}
             badgeSize={ASSET_BADGE_SIZE_DASHBOARD}
             nameClassName="operating-asset-title-row__name operating-asset-title-row__name--dashboard"
+            compact
           />
           <p className="text-[0.6875rem] text-text-muted mt-0.5">
             {formatDate(row.date, { time: false })}
